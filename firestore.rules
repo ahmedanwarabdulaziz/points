@@ -1,0 +1,92 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Categories and SubCategories - public read (needed for registration)
+    match /categories/{categoryId} {
+      allow read: if true; // Public read access for business registration
+      allow write: if isAuthenticated(); // Only authenticated users can write
+    }
+    
+    match /subCategories/{subCategoryId} {
+      allow read: if true; // Public read access for business registration
+      allow write: if isAuthenticated(); // Only authenticated users can write
+    }
+    
+    // Users collection - users can read/write their own data
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isOwner(userId);
+      allow update: if isAuthenticated() && isOwner(userId);
+      allow delete: if false; // No deletion
+    }
+    
+    // Customers collection - public write for registration
+    match /customers/{customerId} {
+      allow read: if isAuthenticated();
+      allow create: if true; // Allow creation during registration
+      allow update: if isAuthenticated() && isOwner(customerId);
+      allow delete: if false;
+      
+      // Customer sub-collections
+      match /wallets/{walletId} {
+        allow read: if isAuthenticated();
+        allow write: if true; // Allow write during registration (user just created)
+      }
+      
+      // Customer profile assignments
+      match /profiles/{profileAssignmentId} {
+        allow read: if isAuthenticated();
+        allow write: if true; // Allow write during registration (user just created)
+      }
+    }
+    
+    // Businesses collection
+    match /businesses/{businessId} {
+      allow read: if true; // Public read for customer registration pages
+      allow create: if true; // Allow creation during business registration
+      allow update: if isAuthenticated();
+      allow delete: if false;
+      
+      // Business sub-collections
+      match /settings/{settingId} {
+        allow read, write: if isAuthenticated();
+      }
+      
+      // Business profiles (customer groups/tags)
+      match /profiles/{profileId} {
+        allow read: if true; // Public read for registration
+        allow write: if isAuthenticated();
+      }
+      
+      // Business customers list
+      match /customers/{customerId} {
+        allow read: if isAuthenticated();
+        allow write: if true; // Allow write during customer registration
+      }
+    }
+    
+    // Transactions collection
+    match /transactions/{transactionId} {
+      allow read: if isAuthenticated();
+      allow write: if true; // Allow write during registration for welcome bonus
+    }
+    
+    // For development: Allow all authenticated users to read/write other collections
+    // TODO: Add proper security rules in Phase 2
+    match /{document=**} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}
+
+

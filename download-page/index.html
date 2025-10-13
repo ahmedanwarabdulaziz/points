@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Points Redeem App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #274290 0%, #f27921 100%);
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 3rem;
+            border-radius: 30px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .app-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, #274290, #1e3470);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            box-shadow: 0 10px 30px rgba(39, 66, 144, 0.4);
+        }
+
+        h1 {
+            color: #274290;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .version {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #f27921, #d96a1a);
+            color: white;
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(242, 121, 33, 0.3);
+            margin-bottom: 2rem;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(242, 121, 33, 0.4);
+        }
+
+        .download-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .features {
+            text-align: left;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin: 0.75rem 0;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .feature-item::before {
+            content: "✓";
+            color: #f27921;
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin-right: 0.75rem;
+        }
+
+        .info {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e6e7e8;
+        }
+
+        .info-text {
+            color: #666;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1.5rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #274290;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .android-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #3DDC84;
+            color: white;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+
+        .instructions {
+            background: #fff3e0;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1.5rem;
+            border-left: 4px solid #f27921;
+        }
+
+        .instructions-title {
+            font-weight: bold;
+            color: #274290;
+            margin-bottom: 0.5rem;
+        }
+
+        .instructions-text {
+            font-size: 0.85rem;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 2rem 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .download-btn {
+                padding: 0.875rem 2rem;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="app-icon">
+            🎁
+        </div>
+        
+        <h1>Points Redeem App</h1>
+        <p class="version">Version 1.0.0 • Latest Release</p>
+        
+        <a href="#" class="download-btn" id="downloadBtn">
+            ⬇️ Download for Android
+        </a>
+
+        <div class="android-badge">
+            🤖 Android 8.0+
+        </div>
+
+        <div class="features">
+            <div class="feature-item">Earn and redeem points at local businesses</div>
+            <div class="feature-item">QR code scanning for easy check-ins</div>
+            <div class="feature-item">Track your rewards and history</div>
+            <div class="feature-item">Business profile management</div>
+            <div class="feature-item">Real-time updates and notifications</div>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number">~50MB</div>
+                <div class="stat-label">App Size</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">Free</div>
+                <div class="stat-label">Cost</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">4.8★</div>
+                <div class="stat-label">Rating</div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <div class="instructions-title">📱 Installation Instructions</div>
+            <div class="instructions-text">
+                1. Click the download button above<br>
+                2. Once downloaded, open the APK file<br>
+                3. You may need to enable "Install from unknown sources" in Settings<br>
+                4. Follow the on-screen prompts to complete installation
+            </div>
+        </div>
+
+        <div class="info">
+            <p class="info-text">
+                <strong>Automatic Updates:</strong> The app will automatically download updates when available.
+            </p>
+            <p class="info-text">
+                <strong>Secure:</strong> Built with industry-standard security practices.
+            </p>
+            <p class="info-text">
+                Need help? Contact support at: <strong>support@pointsredeem.com</strong>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Replace this URL with your actual APK download link from EAS Build
+        // After building, update this with the actual build artifact URL
+        const APK_URL = 'https://expo.dev/accounts/ahmedanwarabdulaziz/projects/points-redeem-app/builds';
+        
+        document.getElementById('downloadBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Check if APK_URL is configured
+            if (APK_URL.includes('YOUR_BUILD_ID')) {
+                alert('Please configure the APK_URL in the script section of index.html with your actual build URL from Expo.');
+                return;
+            }
+            
+            // Track download
+            console.log('Download started');
+            
+            // Start download
+            window.location.href = APK_URL;
+            
+            // Show thank you message
+            setTimeout(() => {
+                alert('Download started! Check your downloads folder.');
+            }, 500);
+        });
+    </script>
+</body>
+</html>
+
