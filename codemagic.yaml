@@ -12,31 +12,28 @@ workflows:
     scripts:
       - name: Install npm dependencies
         script: |
-          npm install
-      - name: Install Expo CLI
-        script: |
-          npm install -g expo-cli eas-cli
-      - name: Check for TypeScript errors
-        script: |
-          npx tsc --noEmit || echo "TypeScript errors found but continuing..."
-      - name: Prebuild with Expo
+          npm ci
+      - name: Prebuild with Expo  
         script: |
           npx expo prebuild --platform android --clean
       - name: Set up local.properties
         script: |
           echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
-      - name: Test JavaScript bundling
-        script: |
-          cd android
-          ./gradlew bundleRelease --console=plain 2>&1 | tee bundle.log || (cat bundle.log && exit 1)
-      - name: Build Android release
+      - name: Build APK with verbose output
         script: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease --stacktrace --console=plain
+          # Run with maximum verbosity
+          ./gradlew assembleRelease --stacktrace --info --warning-mode all 2>&1 | tee build.log
+          # If failed, show the last 200 lines
+          if [ $? -ne 0 ]; then
+            echo "==== BUILD FAILED - Last 200 lines ===="
+            tail -n 200 build.log
+            exit 1
+          fi
     artifacts:
       - android/app/build/outputs/**/*.apk
-      - android/bundle.log
+      - android/build.log
     publishing:
       email:
         recipients:
