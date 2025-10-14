@@ -19,21 +19,17 @@ workflows:
       - name: Set up local.properties
         script: |
           echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
-      - name: Build APK with verbose output
+      - name: Build optimized APK (ARM64 only) and AAB
         script: |
           cd android
           chmod +x gradlew
-          # Run with maximum verbosity
-          ./gradlew assembleRelease --stacktrace --info --warning-mode all 2>&1 | tee build.log
-          # If failed, show the last 200 lines
-          if [ $? -ne 0 ]; then
-            echo "==== BUILD FAILED - Last 200 lines ===="
-            tail -n 200 build.log
-            exit 1
-          fi
+          # Build ARM64 APK (most common, ~30-40 MB)
+          ./gradlew assembleRelease -Dreact.native.architecture=arm64-v8a
+          # Build App Bundle for Play Store (~50 MB, Google optimizes to 20-30 MB per device)
+          ./gradlew bundleRelease
     artifacts:
       - android/app/build/outputs/**/*.apk
-      - android/build.log
+      - android/app/build/outputs/**/*.aab
     publishing:
       email:
         recipients:
