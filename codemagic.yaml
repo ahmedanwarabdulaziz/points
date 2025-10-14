@@ -1,33 +1,42 @@
 workflows:
-  android-workflow:
-    name: Android Build
-    max_build_duration: 60
+  react-native-android:
+    name: React Native Android
+    max_build_duration: 120
+    instance_type: mac_mini_m1
     environment:
+      android_signing:
+        - keystore_reference
       groups:
         - google_play
       vars:
         PACKAGE_NAME: "com.pointsredeemapp"
-      node: 18
+      node: 18.17.0
+      java: 17
+      xcode: latest
+      cocoapods: default
     scripts:
-      - name: Install dependencies
+      - name: Install npm dependencies
         script: |
-          cd points-redeem-app
           npm install
+      - name: Install Expo CLI
+        script: |
+          npm install -g expo-cli eas-cli
       - name: Set up local.properties
         script: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/points-redeem-app/android/local.properties"
-      - name: Generate Android project
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
+      - name: Prebuild with Expo
         script: |
-          cd points-redeem-app
           npx expo prebuild --platform android --clean
-      - name: Build Android APK
+      - name: Build Android release
         script: |
-          cd points-redeem-app/android
+          cd android
           ./gradlew assembleRelease
     artifacts:
-      - points-redeem-app/android/app/build/outputs/**/*.apk
+      - android/app/build/outputs/**/*.apk
     publishing:
       email:
         recipients:
-          - ahmedanwarabdulaziz@email.com
-
+          - ahmedanwarabdulaziz@gmail.com
+        notify:
+          success: true
+          failure: true
