@@ -1,0 +1,175 @@
+========================================
+INSTALL BUILD TOOLS - STEP BY STEP
+========================================
+
+Follow these steps IN ORDER:
+
+========================================
+STEP 1: Install Java JDK 17 (5 minutes)
+========================================
+
+1. Open this link:
+   https://adoptium.net/temurin/releases/
+
+2. Download "Temurin 17 (LTS)" for Windows x64 JDK
+
+3. Run installer and CHECK these boxes:
+   ✓ Set JAVA_HOME variable
+   ✓ Add to PATH
+   ✓ JavaSoft registry keys
+
+4. After installation, CLOSE PowerShell and open NEW one
+
+5. Double-click: check-java.bat
+   (Should show "Java is installed correctly!")
+
+========================================
+STEP 2: Install Android Studio (15 min)
+========================================
+
+1. Open this link:
+   https://developer.android.com/studio
+
+2. Download Android Studio (~1.1 GB)
+
+3. Run installer:
+   - Choose "Standard" installation
+   - Wait for SDK download (~3 GB)
+
+4. When opened, click "More Actions" → "SDK Manager"
+
+5. In "SDK Platforms" tab, check:
+   ✓ Android 13.0 (Tiramisu) - API 33
+   ✓ Android 12.0 (S) - API 31
+
+6. In "SDK Tools" tab, check:
+   ✓ Android SDK Build-Tools
+   ✓ Android SDK Command-line Tools
+   ✓ Android SDK Platform-Tools
+
+7. Click "Apply" and wait for download
+
+8. Note the SDK Location (usually):
+   C:\Users\YourName\AppData\Local\Android\Sdk
+
+========================================
+STEP 3: Accept Licenses (2 minutes)
+========================================
+
+1. Open PowerShell AS ADMINISTRATOR
+
+2. Run (replace YourName with your username):
+   cd C:\Users\YourName\AppData\Local\Android\Sdk\cmdline-tools\latest\bin
+   .\sdkmanager --licenses
+
+3. Type "y" for all prompts
+
+========================================
+STEP 4: Set Environment Variable (2 min)
+========================================
+
+1. Press Win + X → System
+
+2. Click "Advanced system settings"
+
+3. Click "Environment Variables"
+
+4. Under "System variables", click "New":
+   Variable name: ANDROID_HOME
+   Variable value: C:\Users\YourName\AppData\Local\Android\Sdk
+   (Replace YourName!)
+
+5. Click "OK"
+
+6. Select "Path" variable, click "Edit"
+
+7. Click "New" and add these lines:
+   %ANDROID_HOME%\platform-tools
+   %ANDROID_HOME%\cmdline-tools\latest\bin
+
+8. Click "OK" on all windows
+
+9. CLOSE ALL PowerShell windows
+
+========================================
+STEP 5: Verify Installation (1 minute)
+========================================
+
+1. Open NEW PowerShell window
+
+2. Double-click: check-all-tools.bat
+
+3. Should show:
+   [OK] Java installed
+   [OK] ANDROID_HOME set
+   [OK] ADB installed
+
+========================================
+STEP 6: Build APK! (5-10 minutes)
+========================================
+
+If all checks passed:
+
+1. Double-click: BUILD-APK-NOW.bat
+
+2. Wait 5-10 minutes
+
+3. APK will be at:
+   android\app\build\outputs\apk\release\app-release.apk
+
+========================================
+QUICK LINKS
+========================================
+
+Java JDK 17:
+https://adoptium.net/temurin/releases/
+
+Android Studio:
+https://developer.android.com/studio
+
+========================================
+NEED HELP?
+========================================
+
+Read full guide: INSTALL-BUILD-TOOLS.md
+
+Or use GitHub Actions (no installation needed):
+https://github.com/ahmedanwarabdulaziz/points/actions
+
+========================================
+TIME NEEDED
+========================================
+
+Step 1 (Java): 5 minutes
+Step 2 (Android Studio): 15 minutes
+Step 3 (Licenses): 2 minutes
+Step 4 (Environment): 2 minutes
+Step 5 (Verify): 1 minute
+Step 6 (Build): 10 minutes
+-----------------------------------
+TOTAL: ~35 minutes
+
+========================================
+DISK SPACE NEEDED
+========================================
+
+Java: ~300 MB
+Android Studio: ~1 GB
+Android SDK: ~4 GB
+Build files: ~500 MB
+-----------------------------------
+TOTAL: ~6 GB
+
+========================================
+
+START HERE:
+
+1. Download Java: https://adoptium.net/temurin/releases/
+2. Download Android Studio: https://developer.android.com/studio
+3. Follow steps above
+4. Run: BUILD-APK-NOW.bat
+
+Good luck! 🚀
+
+========================================
+

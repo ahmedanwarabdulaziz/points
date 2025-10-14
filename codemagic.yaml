@@ -1,0 +1,33 @@
+workflows:
+  android-workflow:
+    name: Android Build
+    max_build_duration: 60
+    environment:
+      groups:
+        - google_play
+      vars:
+        PACKAGE_NAME: "com.pointsredeemapp"
+      node: 18
+    scripts:
+      - name: Install dependencies
+        script: |
+          cd points-redeem-app
+          npm install
+      - name: Set up local.properties
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/points-redeem-app/android/local.properties"
+      - name: Generate Android project
+        script: |
+          cd points-redeem-app
+          npx expo prebuild --platform android --clean
+      - name: Build Android APK
+        script: |
+          cd points-redeem-app/android
+          ./gradlew assembleRelease
+    artifacts:
+      - points-redeem-app/android/app/build/outputs/**/*.apk
+    publishing:
+      email:
+        recipients:
+          - ahmedanwarabdulaziz@email.com
+

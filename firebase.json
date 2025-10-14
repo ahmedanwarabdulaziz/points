@@ -2,7 +2,10 @@
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
+  },
+  "appDistribution": {
+    "app": "android",
+    "groups": ["testers"],
+    "releaseNotes": "New build - Points Redeem App"
   }
 }
-
-
