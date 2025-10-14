@@ -15,15 +15,16 @@ workflows:
       - name: Install Expo CLI
         script: |
           npm install -g expo-cli eas-cli
-      - name: Set up local.properties
-        script: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
       - name: Prebuild with Expo
         script: |
           npx expo prebuild --platform android --clean
-      - name: Build Android release (unsigned)
+      - name: Set up local.properties
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
+      - name: Build Android release
         script: |
           cd android
+          chmod +x gradlew
           ./gradlew assembleRelease
     artifacts:
       - android/app/build/outputs/**/*.apk
