@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { BarCodeScanner } from 'expo-barcode-scanner';
+import { Camera, CameraView } from 'expo-camera';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { AuthStackParamList } from '../../types';
@@ -21,7 +21,7 @@ const ScanQRScreen = () => {
 
   useEffect(() => {
     (async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
+      const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === 'granted');
     })();
   }, []);
@@ -106,7 +106,7 @@ const ScanQRScreen = () => {
       </View>
 
       <View style={styles.scanner}>
-        <BarCodeScanner
+        <CameraView
           onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
           style={StyleSheet.absoluteFillObject}
         />

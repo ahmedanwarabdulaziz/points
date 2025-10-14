@@ -14,7 +14,7 @@ import {
   Platform,
   ActivityIndicator
 } from 'react-native';
-import { BarCodeScanner } from 'expo-barcode-scanner';
+import { Camera, CameraView } from 'expo-camera';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
@@ -39,7 +39,7 @@ const ScanCustomerScreen = () => {
   useEffect(() => {
     (async () => {
       if (Platform.OS !== 'web') {
-        const { status } = await BarCodeScanner.requestPermissionsAsync();
+        const { status } = await Camera.requestCameraPermissionsAsync();
         setHasPermission(status === 'granted');
       }
     })();
@@ -213,7 +213,7 @@ const ScanCustomerScreen = () => {
         </View>
       ) : (
         <View style={styles.scannerContainer}>
-          <BarCodeScanner
+          <CameraView
             onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
             style={StyleSheet.absoluteFillObject}
           />
