@@ -6,6 +6,7 @@ workflows:
     environment:
       vars:
         PACKAGE_NAME: "com.pointsredeemapp"
+        NODE_OPTIONS: "--max_old_space_size=4096"
       node: 18.17.0
       java: 17
     scripts:
@@ -15,19 +16,27 @@ workflows:
       - name: Install Expo CLI
         script: |
           npm install -g expo-cli eas-cli
+      - name: Check for TypeScript errors
+        script: |
+          npx tsc --noEmit || echo "TypeScript errors found but continuing..."
       - name: Prebuild with Expo
         script: |
           npx expo prebuild --platform android --clean
       - name: Set up local.properties
         script: |
           echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
+      - name: Test JavaScript bundling
+        script: |
+          cd android
+          ./gradlew bundleRelease --console=plain 2>&1 | tee bundle.log || (cat bundle.log && exit 1)
       - name: Build Android release
         script: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease --stacktrace --info
+          ./gradlew assembleRelease --stacktrace --console=plain
     artifacts:
       - android/app/build/outputs/**/*.apk
+      - android/bundle.log
     publishing:
       email:
         recipients:
