@@ -1,61 +1,61 @@
-import { Gift, Star, CreditCard, ShoppingBag, Coffee, Music } from 'lucide-react';
-import Link from 'next/link';
+import { Gift, Star, CreditCard, ShoppingBag, Coffee, Music } from &apos;lucide-react';
+import Link from &apos;next/link';
 
 export default function Rewards() {
   const rewards = [
     {
       id: 1,
-      name: 'Amazon Gift Card',
+      name: &apos;Amazon Gift Card&apos;,
       points: 500,
-      value: '$5.00',
+      value: &apos;$5.00&apos;,
       icon: CreditCard,
-      color: 'bg-blue-500',
-      description: 'Get a $5 Amazon gift card'
+      color: &apos;bg-blue-500&apos;,
+      description: &apos;Get a $5 Amazon gift card&apos;
     },
     {
       id: 2,
-      name: 'Starbucks Gift Card',
+      name: &apos;Starbucks Gift Card&apos;,
       points: 300,
-      value: '$3.00',
+      value: &apos;$3.00&apos;,
       icon: Coffee,
-      color: 'bg-green-500',
-      description: 'Enjoy your favorite coffee'
+      color: &apos;bg-green-500&apos;,
+      description: &apos;Enjoy your favorite coffee&apos;
     },
     {
       id: 3,
-      name: 'Spotify Premium',
+      name: &apos;Spotify Premium&apos;,
       points: 1000,
-      value: '$10.00',
+      value: &apos;$10.00&apos;,
       icon: Music,
-      color: 'bg-purple-500',
-      description: '1 month of Spotify Premium'
+      color: &apos;bg-purple-500&apos;,
+      description: &apos;1 month of Spotify Premium&apos;
     },
     {
       id: 4,
-      name: 'Target Gift Card',
+      name: &apos;Target Gift Card&apos;,
       points: 800,
-      value: '$8.00',
+      value: &apos;$8.00&apos;,
       icon: ShoppingBag,
-      color: 'bg-red-500',
-      description: 'Shop at Target with your gift card'
+      color: &apos;bg-red-500&apos;,
+      description: &apos;Shop at Target with your gift card&apos;
     },
     {
       id: 5,
-      name: 'Apple Gift Card',
+      name: &apos;Apple Gift Card&apos;,
       points: 1200,
-      value: '$12.00',
+      value: &apos;$12.00&apos;,
       icon: CreditCard,
-      color: 'bg-gray-500',
-      description: 'Use at Apple Store or App Store'
+      color: &apos;bg-gray-500&apos;,
+      description: &apos;Use at Apple Store or App Store&apos;
     },
     {
       id: 6,
-      name: 'Netflix Gift Card',
+      name: &apos;Netflix Gift Card&apos;,
       points: 600,
-      value: '$6.00',
+      value: &apos;$6.00&apos;,
       icon: Gift,
-      color: 'bg-red-600',
-      description: 'Enjoy your favorite shows'
+      color: &apos;bg-red-600&apos;,
+      description: &apos;Enjoy your favorite shows&apos;
     }
   ];
 

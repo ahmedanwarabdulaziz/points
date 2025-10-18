@@ -1,16 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { doc, getDoc, setDoc, collection, addDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { useState } from &apos;react';
+import { useAuth } from &apos;@/contexts/AuthContext';
+import { doc, getDoc, setDoc, collection, addDoc } from &apos;firebase/firestore';
+import { db } from &apos;@/lib/firebase';
 
 export default function TestAuth() {
   const { user, appUser, loading, signUp, signIn } = useAuth();
   const [testResults, setTestResults] = useState<any[]>([]);
   const [testing, setTesting] = useState(false);
 
-  const addResult = (test: string, result: 'success' | 'error', message: string) => {
+  const addResult = (test: string, result: &apos;success&apos; | &apos;error&apos;, message: string) => {
     setTestResults(prev => [...prev, { test, result, message, timestamp: new Date() }]);
   };
 
@@ -21,72 +21,72 @@ export default function TestAuth() {
     try {
       // Test 1: Check authentication
       if (!user) {
-        addResult('Authentication', 'error', 'User not authenticated');
+        addResult(&apos;Authentication&apos;, &apos;error&apos;, &apos;User not authenticated&apos;);
         return;
       }
-      addResult('Authentication', 'success', `User authenticated: ${user.email}`);
+      addResult(&apos;Authentication&apos;, &apos;success&apos;, `User authenticated: ${user.email}`);
 
       // Test 2: Check user document
       try {
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const userDoc = await getDoc(doc(db, &apos;users&apos;, user.uid));
         if (userDoc.exists()) {
-          addResult('User Document', 'success', 'User document exists');
+          addResult(&apos;User Document&apos;, &apos;success&apos;, &apos;User document exists&apos;);
         } else {
-          addResult('User Document', 'error', 'User document does not exist');
+          addResult(&apos;User Document&apos;, &apos;error&apos;, &apos;User document does not exist&apos;);
         }
-      } catch (err: any) {
-        addResult('User Document', 'error', `Error reading user document: ${err.message}`);
+      } catch (err: unknown) {
+        addResult(&apos;User Document&apos;, &apos;error&apos;, `Error reading user document: ${err.message}`);
       }
 
       // Test 3: Test write permissions
       try {
-        await setDoc(doc(db, 'test', user.uid), {
+        await setDoc(doc(db, &apos;test&apos;, user.uid), {
           test: true,
           timestamp: new Date(),
           userId: user.uid
         });
-        addResult('Write Permissions', 'success', 'Write permissions working');
-      } catch (err: any) {
-        addResult('Write Permissions', 'error', `Write error: ${err.message}`);
+        addResult(&apos;Write Permissions&apos;, &apos;success&apos;, &apos;Write permissions working&apos;);
+      } catch (err: unknown) {
+        addResult(&apos;Write Permissions&apos;, &apos;error&apos;, `Write error: ${err.message}`);
       }
 
       // Test 4: Test collection creation
       try {
-        await addDoc(collection(db, 'testCollection'), {
+        await addDoc(collection(db, &apos;testCollection&apos;), {
           test: true,
           userId: user.uid,
           timestamp: new Date()
         });
-        addResult('Collection Creation', 'success', 'Collection creation working');
-      } catch (err: any) {
-        addResult('Collection Creation', 'error', `Collection creation error: ${err.message}`);
+        addResult(&apos;Collection Creation&apos;, &apos;success&apos;, &apos;Collection creation working&apos;);
+      } catch (err: unknown) {
+        addResult(&apos;Collection Creation&apos;, &apos;error&apos;, `Collection creation error: ${err.message}`);
       }
 
       // Test 5: Test customer document creation
-      if (appUser?.role === 'customer') {
+      if (appUser?.role === &apos;customer&apos;) {
         try {
-          await setDoc(doc(db, 'users', user.uid), {
+          await setDoc(doc(db, &apos;users&apos;, user.uid), {
             id: user.uid,
-            businessId: '',
-            classId: '',
+            businessId: &apos;',
+            classId: &apos;',
             userId: user.uid,
-            name: 'Test Customer',
-            referralCode: 'TEST123',
+            name: &apos;Test Customer&apos;,
+            referralCode: &apos;TEST123&apos;,
             points: 0,
             totalEarned: 0,
             totalRedeemed: 0,
-            status: 'active',
+            status: &apos;active&apos;,
             createdAt: new Date(),
             lastActivity: new Date()
           });
-          addResult('Customer Document', 'success', 'Customer document created');
-        } catch (err: any) {
-          addResult('Customer Document', 'error', `Customer document error: ${err.message}`);
+          addResult(&apos;Customer Document&apos;, &apos;success&apos;, &apos;Customer document created&apos;);
+        } catch (err: unknown) {
+          addResult(&apos;Customer Document&apos;, &apos;error&apos;, `Customer document error: ${err.message}`);
         }
       }
 
-    } catch (err: any) {
-      addResult('General', 'error', `General error: ${err.message}`);
+    } catch (err: unknown) {
+      addResult(&apos;General&apos;, &apos;error&apos;, `General error: ${err.message}`);
     } finally {
       setTesting(false);
     }
@@ -105,9 +105,9 @@ export default function TestAuth() {
           <div className="mb-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-2">Current Status:</h2>
             <div className="space-y-2 text-sm">
-              <div><strong>Loading:</strong> {loading ? 'Yes' : 'No'}</div>
-              <div><strong>User:</strong> {user ? user.email : 'Not authenticated'}</div>
-              <div><strong>App User:</strong> {appUser ? JSON.stringify(appUser) : 'Not loaded'}</div>
+              <div><strong>Loading:</strong> {loading ? &apos;Yes&apos; : &apos;No&apos;}</div>
+              <div><strong>User:</strong> {user ? user.email : &apos;Not authenticated&apos;}</div>
+              <div><strong>App User:</strong> {appUser ? JSON.stringify(appUser) : &apos;Not loaded&apos;}</div>
             </div>
           </div>
 
@@ -117,7 +117,7 @@ export default function TestAuth() {
               disabled={testing || !user}
               className="bg-orange text-white px-4 py-2 rounded-lg hover:bg-orange-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed mr-4"
             >
-              {testing ? 'Running Tests...' : 'Run Tests'}
+              {testing ? &apos;Running Tests...&apos; : &apos;Run Tests&apos;}
             </button>
             
             <button
@@ -135,9 +135,9 @@ export default function TestAuth() {
                 <div
                   key={index}
                   className={`p-3 rounded-lg border ${
-                    result.result === 'success'
-                      ? 'bg-green-50 border-green-200 text-green-800'
-                      : 'bg-red-50 border-red-200 text-red-800'
+                    result.result === &apos;success&apos;
+                      ? &apos;bg-green-50 border-green-200 text-green-800&apos;
+                      : &apos;bg-red-50 border-red-200 text-red-800&apos;
                   }`}
                 >
                   <div className="flex items-center justify-between">

@@ -1,100 +1,100 @@
-import { CreditCard, ShoppingBag, Coffee, Music, Gamepad2, Camera, Car, Plane } from 'lucide-react';
+import { CreditCard, ShoppingBag, Coffee, Music, Gamepad2, Camera, Car, Plane } from &apos;lucide-react';
 
 export default function GiftCards() {
   const giftCards = [
     {
       id: 1,
-      name: 'Amazon',
+      name: &apos;Amazon&apos;,
       points: 500,
-      value: '$5.00',
+      value: &apos;$5.00&apos;,
       icon: ShoppingBag,
-      color: 'bg-blue-500',
-      description: 'Shop millions of items on Amazon',
-      category: 'Shopping'
+      color: &apos;bg-blue-500&apos;,
+      description: &apos;Shop millions of items on Amazon&apos;,
+      category: &apos;Shopping&apos;
     },
     {
       id: 2,
-      name: 'Starbucks',
+      name: &apos;Starbucks&apos;,
       points: 300,
-      value: '$3.00',
+      value: &apos;$3.00&apos;,
       icon: Coffee,
-      color: 'bg-green-500',
-      description: 'Enjoy your favorite coffee and treats',
-      category: 'Food & Drink'
+      color: &apos;bg-green-500&apos;,
+      description: &apos;Enjoy your favorite coffee and treats&apos;,
+      category: &apos;Food & Drink&apos;
     },
     {
       id: 3,
-      name: 'Spotify',
+      name: &apos;Spotify&apos;,
       points: 1000,
-      value: '$10.00',
+      value: &apos;$10.00&apos;,
       icon: Music,
-      color: 'bg-purple-500',
-      description: '1 month of Spotify Premium',
-      category: 'Entertainment'
+      color: &apos;bg-purple-500&apos;,
+      description: &apos;1 month of Spotify Premium&apos;,
+      category: &apos;Entertainment&apos;
     },
     {
       id: 4,
-      name: 'Target',
+      name: &apos;Target&apos;,
       points: 800,
-      value: '$8.00',
+      value: &apos;$8.00&apos;,
       icon: ShoppingBag,
-      color: 'bg-red-500',
-      description: 'Shop at Target stores or online',
-      category: 'Shopping'
+      color: &apos;bg-red-500&apos;,
+      description: &apos;Shop at Target stores or online&apos;,
+      category: &apos;Shopping&apos;
     },
     {
       id: 5,
-      name: 'Apple',
+      name: &apos;Apple&apos;,
       points: 1200,
-      value: '$12.00',
+      value: &apos;$12.00&apos;,
       icon: CreditCard,
-      color: 'bg-gray-500',
-      description: 'Use at Apple Store or App Store',
-      category: 'Technology'
+      color: &apos;bg-gray-500&apos;,
+      description: &apos;Use at Apple Store or App Store&apos;,
+      category: &apos;Technology&apos;
     },
     {
       id: 6,
-      name: 'Netflix',
+      name: &apos;Netflix&apos;,
       points: 600,
-      value: '$6.00',
+      value: &apos;$6.00&apos;,
       icon: Music,
-      color: 'bg-red-600',
-      description: 'Enjoy your favorite shows and movies',
-      category: 'Entertainment'
+      color: &apos;bg-red-600&apos;,
+      description: &apos;Enjoy your favorite shows and movies&apos;,
+      category: &apos;Entertainment&apos;
     },
     {
       id: 7,
-      name: 'PlayStation',
+      name: &apos;PlayStation&apos;,
       points: 1500,
-      value: '$15.00',
+      value: &apos;$15.00&apos;,
       icon: Gamepad2,
-      color: 'bg-blue-600',
-      description: 'Buy games and content on PlayStation Store',
-      category: 'Gaming'
+      color: &apos;bg-blue-600&apos;,
+      description: &apos;Buy games and content on PlayStation Store&apos;,
+      category: &apos;Gaming&apos;
     },
     {
       id: 8,
-      name: 'Uber',
+      name: &apos;Uber&apos;,
       points: 400,
-      value: '$4.00',
+      value: &apos;$4.00&apos;,
       icon: Car,
-      color: 'bg-black',
-      description: 'Ride with Uber anywhere',
-      category: 'Transportation'
+      color: &apos;bg-black&apos;,
+      description: &apos;Ride with Uber anywhere&apos;,
+      category: &apos;Transportation&apos;
     },
     {
       id: 9,
-      name: 'Airbnb',
+      name: &apos;Airbnb&apos;,
       points: 2000,
-      value: '$20.00',
+      value: &apos;$20.00&apos;,
       icon: Plane,
-      color: 'bg-pink-500',
-      description: 'Book unique stays around the world',
-      category: 'Travel'
+      color: &apos;bg-pink-500&apos;,
+      description: &apos;Book unique stays around the world&apos;,
+      category: &apos;Travel&apos;
     }
   ];
 
-  const categories = ['All', 'Shopping', 'Food & Drink', 'Entertainment', 'Technology', 'Gaming', 'Transportation', 'Travel'];
+  const categories = [&apos;All&apos;, &apos;Shopping&apos;, &apos;Food & Drink&apos;, &apos;Entertainment&apos;, &apos;Technology&apos;, &apos;Gaming&apos;, &apos;Transportation&apos;, &apos;Travel&apos;];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -134,9 +134,9 @@ export default function GiftCards() {
               <button
                 key={category}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  category === 'All'
-                    ? 'bg-orange text-white'
-                    : 'bg-white text-navy border border-gray-300 hover:bg-gray-50'
+                  category === &apos;All&apos;
+                    ? &apos;bg-orange text-white&apos;
+                    : &apos;bg-white text-navy border border-gray-300 hover:bg-gray-50&apos;
                 }`}
               >
                 {category}

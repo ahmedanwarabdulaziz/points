@@ -1,18 +1,18 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
-import { Gift, Eye, EyeOff } from 'lucide-react';
+import { useState } from &apos;react';
+import { useRouter } from &apos;next/navigation';
+import Link from &apos;next/link';
+import { useAuth } from &apos;@/contexts/AuthContext';
+import { Gift, Eye, EyeOff } from &apos;lucide-react';
 
 export default function SignUp() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [customerName, setCustomerName] = useState('');
+  const [email, setEmail] = useState(&apos;');
+  const [password, setPassword] = useState(&apos;');
+  const [confirmPassword, setConfirmPassword] = useState(&apos;');
+  const [customerName, setCustomerName] = useState(&apos;');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(&apos;');
   const [loading, setLoading] = useState(false);
   
   const { signUp } = useAuth();
@@ -20,28 +20,28 @@ export default function SignUp() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError(&apos;');
 
     if (!customerName.trim()) {
-      setError('Please enter your name');
+      setError(&apos;Please enter your name&apos;);
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(&apos;Passwords do not match&apos;);
       return;
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError(&apos;Password must be at least 6 characters&apos;);
       return;
     }
 
     try {
       setLoading(true);
-      await signUp(email, password, 'customer', customerName);
-      router.push('/dashboard');
-    } catch (error: any) {
+      await signUp(email, password, &apos;customer&apos;, customerName);
+      router.push(&apos;/dashboard&apos;);
+    } catch (error: unknown) {
       setError(error.message);
     } finally {
       setLoading(false);
@@ -60,7 +60,7 @@ export default function SignUp() {
           Create your account
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Or{' '}
+          Or{&apos; '}
           <Link href="/signin" className="font-medium text-orange hover:text-orange-light">
             sign in to your existing account
           </Link>
@@ -121,7 +121,7 @@ export default function SignUp() {
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? &apos;text&apos; : &apos;password&apos;}
                   autoComplete="new-password"
                   required
                   value={password}
@@ -172,7 +172,7 @@ export default function SignUp() {
                 disabled={loading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange hover:bg-orange-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Creating account...' : 'Create account'}
+                {loading ? &apos;Creating account...&apos; : &apos;Create account&apos;}
               </button>
             </div>
           </form>
@@ -191,7 +191,7 @@ export default function SignUp() {
               <Link href="/terms" className="text-orange hover:text-orange-light text-sm">
                 Terms of Service
               </Link>
-              {' and '}
+              {&apos; and &apos;}
               <Link href="/privacy" className="text-orange hover:text-orange-light text-sm">
                 Privacy Policy
               </Link>

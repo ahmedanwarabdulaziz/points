@@ -1,10 +1,10 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where, orderBy, doc, getDoc } from 'firebase/firestore';
+import { useAuth } from &apos;@/contexts/AuthContext';
+import { useRouter } from &apos;next/navigation';
+import { useEffect, useState } from &apos;react';
+import { db } from &apos;@/lib/firebase';
+import { collection, getDocs, query, where, orderBy, doc, getDoc } from &apos;firebase/firestore';
 import { 
   Users, 
   Search, 
@@ -21,9 +21,9 @@ import {
   TrendingUp,
   Award,
   Clock
-} from 'lucide-react';
-import RoleRedirect from '@/components/RoleRedirect';
-import DashboardLayout from '@/components/DashboardLayout';
+} from &apos;lucide-react';
+import RoleRedirect from &apos;@/components/RoleRedirect';
+import DashboardLayout from &apos;@/components/DashboardLayout';
 
 export default function BusinessCustomers() {
   const { user, appUser, business, loading } = useAuth();
@@ -33,10 +33,10 @@ export default function BusinessCustomers() {
   const [filteredCustomers, setFilteredCustomers] = useState<any[]>([]);
   const [customerClasses, setCustomerClasses] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterClass, setFilterClass] = useState('');
-  const [sortBy, setSortBy] = useState('createdAt');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [searchTerm, setSearchTerm] = useState(&apos;');
+  const [filterClass, setFilterClass] = useState(&apos;');
+  const [sortBy, setSortBy] = useState(&apos;createdAt&apos;);
+  const [sortOrder, setSortOrder] = useState<&apos;asc&apos; | &apos;desc&apos;>(&apos;desc&apos;);
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
 
@@ -44,24 +44,24 @@ export default function BusinessCustomers() {
   useEffect(() => {
     const fetchCustomers = async () => {
       if (!business?.id) {
-        console.log('❌ No business ID available:', business);
+        console.log(&apos;❌ No business ID available:&apos;, business);
         return;
       }
       
       try {
         setDataLoading(true);
-        console.log('🔍 Fetching customers for business:', business.id);
+        console.log(&apos;🔍 Fetching customers for business:&apos;, business.id);
         
         // Fetch customers for this business (without orderBy to avoid index issues)
         const customersQuery = query(
-          collection(db, 'users'), 
-          where('role', '==', 'customer'),
-          where('businessId', '==', business.id)
+          collection(db, &apos;users&apos;), 
+          where(&apos;role&apos;, &apos;==&apos;, &apos;customer&apos;),
+          where(&apos;businessId&apos;, &apos;==&apos;, business.id)
         );
         
-        console.log('🔍 Executing customers query...');
+        console.log(&apos;🔍 Executing customers query...&apos;);
         const customersSnapshot = await getDocs(customersQuery);
-        console.log('🔍 Query results:', {
+        console.log(&apos;🔍 Query results:&apos;, {
           size: customersSnapshot.size,
           empty: customersSnapshot.empty,
           docs: customersSnapshot.docs.length
@@ -69,13 +69,13 @@ export default function BusinessCustomers() {
 
         // If no results, try a simpler query to debug
         if (customersSnapshot.empty) {
-          console.log('🔍 No customers found, trying simpler query...');
+          console.log(&apos;🔍 No customers found, trying simpler query...&apos;);
           const simpleQuery = query(
-            collection(db, 'users'), 
-            where('role', '==', 'customer')
+            collection(db, &apos;users&apos;), 
+            where(&apos;role&apos;, &apos;==&apos;, &apos;customer&apos;)
           );
           const simpleSnapshot = await getDocs(simpleQuery);
-          console.log('🔍 Simple query results:', {
+          console.log(&apos;🔍 Simple query results:&apos;, {
             size: simpleSnapshot.size,
             docs: simpleSnapshot.docs.map(doc => ({
               id: doc.id,
@@ -88,7 +88,7 @@ export default function BusinessCustomers() {
         
         const customersData = customersSnapshot.docs.map(doc => {
           const data = doc.data();
-          console.log('🔍 Customer data:', {
+          console.log(&apos;🔍 Customer data:&apos;, {
             id: doc.id,
             name: data.name,
             email: data.email,
@@ -111,15 +111,15 @@ export default function BusinessCustomers() {
           return bTime - aTime;
         });
 
-        console.log('✅ Customers fetched:', customersData.length);
+        console.log(&apos;✅ Customers fetched:&apos;, customersData.length);
         setCustomers(customersData);
         setFilteredCustomers(customersData);
 
         // Fetch customer classes for this business
-        console.log('🔍 Fetching customer classes...');
+        console.log(&apos;🔍 Fetching customer classes...&apos;);
         const classesQuery = query(
-          collection(db, 'customerClasses'),
-          where('businessId', '==', business.id)
+          collection(db, &apos;customerClasses&apos;),
+          where(&apos;businessId&apos;, &apos;==&apos;, business.id)
         );
         const classesSnapshot = await getDocs(classesQuery);
         const classesData = classesSnapshot.docs.map(doc => ({
@@ -128,20 +128,20 @@ export default function BusinessCustomers() {
           createdAt: doc.data().createdAt?.toDate?.() || new Date()
         }));
 
-        console.log('✅ Customer classes fetched:', classesData.length);
+        console.log(&apos;✅ Customer classes fetched:&apos;, classesData.length);
         setCustomerClasses(classesData);
       } catch (error) {
-        console.error('❌ Error fetching customers:', error);
+        console.error(&apos;❌ Error fetching customers:&apos;, error);
       } finally {
         setDataLoading(false);
       }
     };
 
     if (!loading && business?.id) {
-      console.log('🔍 Starting customer fetch...', { businessId: business.id, loading });
+      console.log(&apos;🔍 Starting customer fetch...&apos;, { businessId: business.id, loading });
       fetchCustomers();
     } else {
-      console.log('⚠️ Not fetching customers:', { loading, businessId: business?.id });
+      console.log(&apos;⚠️ Not fetching customers:&apos;, { loading, businessId: business?.id });
     }
   }, [business?.id, loading]);
 
@@ -167,12 +167,12 @@ export default function BusinessCustomers() {
       let aValue = a[sortBy];
       let bValue = b[sortBy];
       
-      if (sortBy === 'createdAt' || sortBy === 'lastActivity') {
+      if (sortBy === &apos;createdAt&apos; || sortBy === &apos;lastActivity&apos;) {
         aValue = aValue?.getTime() || 0;
         bValue = bValue?.getTime() || 0;
       }
       
-      if (sortOrder === 'asc') {
+      if (sortOrder === &apos;asc&apos;) {
         return aValue > bValue ? 1 : -1;
       } else {
         return aValue < bValue ? 1 : -1;
@@ -182,53 +182,53 @@ export default function BusinessCustomers() {
     setFilteredCustomers(filtered);
   }, [customers, searchTerm, filterClass, sortBy, sortOrder]);
 
-  const handleViewCustomer = (customer: any) => {
+  const handleViewCustomer = (customer: unknown) => {
     setSelectedCustomer(customer);
     setShowCustomerModal(true);
   };
 
   const handleExportCustomers = () => {
     const csvContent = [
-      ['Name', 'Email', 'Class', 'Points', 'Total Earned', 'Total Redeemed', 'Status', 'Join Date'],
+      [&apos;Name&apos;, &apos;Email&apos;, &apos;Class&apos;, &apos;Points&apos;, &apos;Total Earned&apos;, &apos;Total Redeemed&apos;, &apos;Status&apos;, &apos;Join Date&apos;],
       ...filteredCustomers.map(customer => [
-        customer.name || 'N/A',
-        customer.email || 'N/A',
-        customer.classId || 'N/A',
+        customer.name || &apos;N/A&apos;,
+        customer.email || &apos;N/A&apos;,
+        customer.classId || &apos;N/A&apos;,
         customer.points || 0,
         customer.totalEarned || 0,
         customer.totalRedeemed || 0,
-        customer.status || 'active',
-        customer.createdAt?.toLocaleDateString() || 'N/A'
+        customer.status || &apos;active&apos;,
+        customer.createdAt?.toLocaleDateString() || &apos;N/A&apos;
       ])
-    ].map(row => row.join(',')).join('\n');
+    ].map(row => row.join(&apos;,')).join(&apos;\n&apos;);
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: &apos;text/csv&apos; });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement(&apos;a');
     a.href = url;
-    a.download = `customers-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `customers-${new Date().toISOString().split(&apos;T')[0]}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'inactive': return 'bg-gray-100 text-gray-800';
-      case 'suspended': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case &apos;active&apos;: return &apos;bg-green-100 text-green-800';
+      case &apos;inactive&apos;: return &apos;bg-gray-100 text-gray-800';
+      case &apos;suspended&apos;: return &apos;bg-red-100 text-red-800';
+      default: return &apos;bg-gray-100 text-gray-800';
     }
   };
 
   const getPointsColor = (points: number) => {
-    if (points >= 1000) return 'text-green-600';
-    if (points >= 500) return 'text-yellow-600';
-    return 'text-gray-600';
+    if (points >= 1000) return &apos;text-green-600';
+    if (points >= 500) return &apos;text-yellow-600';
+    return &apos;text-gray-600';
   };
 
   const getCustomerClassName = (classId: string) => {
     const customerClass = customerClasses.find(cls => cls.id === classId);
-    return customerClass ? customerClass.name : 'General';
+    return customerClass ? customerClass.name : &apos;General';
   };
 
   const getCustomerClassDetails = (classId: string) => {
@@ -238,7 +238,7 @@ export default function BusinessCustomers() {
 
   // Debug business data
   useEffect(() => {
-    console.log('🔍 Business customers page - Debug info:', {
+    console.log(&apos;🔍 Business customers page - Debug info:&apos;, {
       loading,
       dataLoading,
       business: business,
@@ -250,7 +250,7 @@ export default function BusinessCustomers() {
 
   if (loading || dataLoading) {
     return (
-      <RoleRedirect allowedRoles={['business']}>
+      <RoleRedirect allowedRoles={[&apos;business&apos;]}>
         <DashboardLayout userRole="business">
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange"></div>
@@ -261,20 +261,20 @@ export default function BusinessCustomers() {
   }
 
   return (
-    <RoleRedirect allowedRoles={['business']}>
+    <RoleRedirect allowedRoles={[&apos;business&apos;]}>
       <DashboardLayout userRole="business">
         <div className="space-y-6">
           {/* Debug Info - Remove in production */}
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
             <h3 className="text-sm font-medium text-yellow-800 mb-2">Debug Information</h3>
             <div className="text-xs text-yellow-700 space-y-1">
-              <p>Business ID: {business?.id || 'Not available'}</p>
-              <p>Business Name: {business?.name || 'Not available'}</p>
+              <p>Business ID: {business?.id || &apos;Not available&apos;}</p>
+              <p>Business Name: {business?.name || &apos;Not available&apos;}</p>
               <p>Total Customers: {customers.length}</p>
               <p>Filtered Customers: {filteredCustomers.length}</p>
               <p>Customer Classes: {customerClasses.length}</p>
-              <p>Loading: {loading ? 'Yes' : 'No'}</p>
-              <p>Data Loading: {dataLoading ? 'Yes' : 'No'}</p>
+              <p>Loading: {loading ? &apos;Yes&apos; : &apos;No&apos;}</p>
+              <p>Data Loading: {dataLoading ? &apos;Yes&apos; : &apos;No&apos;}</p>
             </div>
           </div>
 
@@ -319,7 +319,7 @@ export default function BusinessCustomers() {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Active Customers</p>
                   <p className="text-2xl font-bold text-navy">
-                    {customers.filter(c => c.status === 'active').length}
+                    {customers.filter(c => c.status === &apos;active&apos;).length}
                   </p>
                 </div>
               </div>
@@ -397,7 +397,7 @@ export default function BusinessCustomers() {
                 
                 <select
                   value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
+                  onChange={(e) => setSortOrder(e.target.value as &apos;asc&apos; | &apos;desc&apos;)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange focus:border-orange"
                 >
                   <option value="desc">Descending</option>
@@ -446,7 +446,7 @@ export default function BusinessCustomers() {
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">
-                              {customer.name || 'N/A'}
+                              {customer.name || &apos;N/A&apos;}
                             </div>
                             <div className="text-sm text-gray-500 flex items-center">
                               <Mail className="h-3 w-3 mr-1" />
@@ -477,20 +477,20 @@ export default function BusinessCustomers() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(customer.status || 'active')}`}>
-                          {customer.status || 'active'}
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(customer.status || &apos;active&apos;)}`}>
+                          {customer.status || &apos;active&apos;}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <div className="flex items-center">
                           <Calendar className="h-3 w-3 mr-1" />
-                          {customer.createdAt?.toLocaleDateString() || 'N/A'}
+                          {customer.createdAt?.toLocaleDateString() || &apos;N/A&apos;}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <div className="flex items-center">
                           <Clock className="h-3 w-3 mr-1" />
-                          {customer.lastActivity?.toLocaleDateString() || 'N/A'}
+                          {customer.lastActivity?.toLocaleDateString() || &apos;N/A&apos;}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -528,8 +528,8 @@ export default function BusinessCustomers() {
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No customers found</h3>
                 <p className="text-gray-500">
                   {searchTerm || filterClass 
-                    ? 'Try adjusting your search or filters'
-                    : 'Customers will appear here once they sign up for your business'
+                    ? &apos;Try adjusting your search or filters&apos;
+                    : &apos;Customers will appear here once they sign up for your business&apos;
                   }
                 </p>
               </div>
@@ -560,11 +560,11 @@ export default function BusinessCustomers() {
                     </div>
                     <div>
                       <h3 className="text-xl font-semibold text-gray-900">
-                        {selectedCustomer.name || 'N/A'}
+                        {selectedCustomer.name || &apos;N/A&apos;}
                       </h3>
                       <p className="text-gray-600">{selectedCustomer.email}</p>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedCustomer.status || 'active')}`}>
-                        {selectedCustomer.status || 'active'}
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedCustomer.status || &apos;active&apos;)}`}>
+                        {selectedCustomer.status || &apos;active&apos;}
                       </span>
                     </div>
                   </div>
@@ -610,7 +610,7 @@ export default function BusinessCustomers() {
                         <div>
                           <p className="text-sm text-gray-600">Referral Code</p>
                           <p className="text-lg font-semibold text-gray-900">
-                            {selectedCustomer.referralCode || 'N/A'}
+                            {selectedCustomer.referralCode || &apos;N/A&apos;}
                           </p>
                         </div>
                       </div>
@@ -633,7 +633,7 @@ export default function BusinessCustomers() {
                         {getCustomerClassDetails(selectedCustomer.classId) && (
                           <div className="mt-2 p-3 bg-gray-50 rounded-lg">
                             <p className="text-sm text-gray-600">
-                              <strong>Description:</strong> {getCustomerClassDetails(selectedCustomer.classId).description || 'No description'}
+                              <strong>Description:</strong> {getCustomerClassDetails(selectedCustomer.classId).description || &apos;No description&apos;}
                             </p>
                             <p className="text-sm text-gray-600 mt-1">
                               <strong>Points per $:</strong> {getCustomerClassDetails(selectedCustomer.classId).features?.pointsPerDollar || 0}
@@ -648,13 +648,13 @@ export default function BusinessCustomers() {
                     <div>
                       <label className="text-sm font-medium text-gray-600">Join Date</label>
                       <p className="text-gray-900">
-                        {selectedCustomer.createdAt?.toLocaleDateString() || 'N/A'}
+                        {selectedCustomer.createdAt?.toLocaleDateString() || &apos;N/A&apos;}
                       </p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-600">Last Activity</label>
                       <p className="text-gray-900">
-                        {selectedCustomer.lastActivity?.toLocaleDateString() || 'N/A'}
+                        {selectedCustomer.lastActivity?.toLocaleDateString() || &apos;N/A&apos;}
                       </p>
                     </div>
                     {selectedCustomer.referredBy && (

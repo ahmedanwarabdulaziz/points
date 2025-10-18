@@ -2,7 +2,7 @@
 export interface User {
   id: string;
   email: string;
-  role: 'admin' | 'business' | 'customer';
+  role: &apos;admin&apos; | &apos;business&apos; | &apos;customer';
   createdAt: Date;
   updatedAt: Date;
   
@@ -15,14 +15,14 @@ export interface User {
   points?: number;
   totalEarned?: number;
   totalRedeemed?: number;
-  status?: 'active' | 'inactive' | 'suspended';
+  status?: &apos;active&apos; | &apos;inactive&apos; | &apos;suspended';
   lastActivity?: Date;
   
   // Business-specific fields (only for business owners)
   businessName?: string;
   businessDescription?: string;
   businessLogo?: string;
-  businessStatus?: 'pending' | 'approved' | 'rejected';
+  businessStatus?: &apos;pending&apos; | &apos;approved&apos; | &apos;rejected';
   businessApprovedAt?: Date;
   businessApprovedBy?: string;
 }
@@ -34,7 +34,7 @@ export interface Business {
   description: string;
   logo?: string;
   ownerId: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: &apos;pending&apos; | &apos;approved&apos; | &apos;rejected';
   createdAt: Date;
   approvedAt?: Date;
   approvedBy?: string;
@@ -57,7 +57,7 @@ export interface CustomerClass {
   id: string;
   businessId: string;
   name: string;
-  type: 'permanent' | 'custom';
+  type: &apos;permanent&apos; | &apos;custom';
   description: string;
   features: ClassFeatures;
   qrCode?: string;
@@ -93,7 +93,7 @@ export interface Customer {
   points: number;
   totalEarned: number;
   totalRedeemed: number;
-  status: 'active' | 'inactive' | 'suspended';
+  status: &apos;active&apos; | &apos;inactive&apos; | &apos;suspended';
   createdAt: Date;
   lastActivity: Date;
 }
@@ -104,7 +104,7 @@ export interface Referral {
   referrerId: string;
   refereeId: string;
   businessId: string;
-  status: 'pending' | 'completed' | 'expired';
+  status: &apos;pending&apos; | &apos;completed&apos; | &apos;expired';
   rewardAmount: number;
   createdAt: Date;
   completedAt?: Date;
@@ -114,7 +114,7 @@ export interface Referral {
 export interface QRCodeData {
   businessId: string;
   classId: string;
-  type: 'class' | 'referral';
+  type: &apos;class&apos; | &apos;referral';
   expiry?: Date;
   metadata?: Record<string, any>;
 }

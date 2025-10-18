@@ -1,12 +1,12 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { Gift, Star, CreditCard, History, Settings, LogOut } from 'lucide-react';
-import FirebaseDebugger from '@/components/FirebaseDebugger';
-import RoleRedirect from '@/components/RoleRedirect';
-import DashboardLayout from '@/components/DashboardLayout';
+import { useAuth } from &apos;@/contexts/AuthContext';
+import { useRouter } from &apos;next/navigation';
+import { useEffect } from &apos;react';
+import { Gift, Star, CreditCard, History, Settings, LogOut } from &apos;lucide-react';
+import FirebaseDebugger from &apos;@/components/FirebaseDebugger';
+import RoleRedirect from &apos;@/components/RoleRedirect';
+import DashboardLayout from &apos;@/components/DashboardLayout';
 
 export default function Dashboard() {
   const { user, appUser, customer, loading, logout, validateAndFixCustomerAssignment } = useAuth();
@@ -14,26 +14,26 @@ export default function Dashboard() {
 
   const handleLogout = async () => {
     await logout();
-    router.push('/');
+    router.push(&apos;/');
   };
 
   // Validate customer assignment on component mount
   useEffect(() => {
     const validateCustomer = async () => {
-      if (user && appUser && appUser.role === 'customer') {
-        console.log('🔍 Validating customer assignment on dashboard load...');
-        console.log('🔍 validateAndFixCustomerAssignment function:', typeof validateAndFixCustomerAssignment);
+      if (user && appUser && appUser.role === &apos;customer&apos;) {
+        console.log(&apos;🔍 Validating customer assignment on dashboard load...&apos;);
+        console.log(&apos;🔍 validateAndFixCustomerAssignment function:&apos;, typeof validateAndFixCustomerAssignment);
         
-        if (typeof validateAndFixCustomerAssignment === 'function') {
+        if (typeof validateAndFixCustomerAssignment === &apos;function&apos;) {
           const isValid = await validateAndFixCustomerAssignment(user.uid);
           
           if (!isValid) {
-            console.warn('⚠️ Customer assignment validation failed');
+            console.warn(&apos;⚠️ Customer assignment validation failed&apos;);
           } else {
-            console.log('✅ Customer assignment is valid');
+            console.log(&apos;✅ Customer assignment is valid&apos;);
           }
         } else {
-          console.error('❌ validateAndFixCustomerAssignment is not a function:', validateAndFixCustomerAssignment);
+          console.error(&apos;❌ validateAndFixCustomerAssignment is not a function:&apos;, validateAndFixCustomerAssignment);
         }
       }
     };
@@ -44,7 +44,7 @@ export default function Dashboard() {
   }, [user, appUser, loading, validateAndFixCustomerAssignment]);
 
   return (
-    <RoleRedirect allowedRoles={['customer']}>
+    <RoleRedirect allowedRoles={[&apos;customer&apos;]}>
       <DashboardLayout userRole="customer">
         {/* Firebase Debugger - Remove in production */}
         <div className="mb-8">
@@ -124,7 +124,7 @@ export default function Dashboard() {
             {/* CTA Button */}
             <div className="flex-shrink-0">
               <button
-                onClick={() => router.push('/business-registration')}
+                onClick={() => router.push(&apos;/business-registration&apos;)}
                 className="bg-white text-orange-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-orange-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
               >
                 Register Your Business

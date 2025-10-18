@@ -6,60 +6,30 @@ import { useEffect, useState } from 'react';
 import RoleRedirect from '@/components/RoleRedirect';
 import DashboardLayout from '@/components/DashboardLayout';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where, orderBy, addDoc, updateDoc, doc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, setDoc } from 'firebase/firestore';
 import { 
-  Building2, 
   Users, 
   QrCode, 
   BarChart3, 
-  Settings, 
-  Plus, 
   Eye,
-  Download,
-  Share2,
-  LogOut
+  Share2
 } from 'lucide-react';
 import CustomerClassManager from '@/components/CustomerClassManager';
 
 export default function BusinessDashboard() {
-  const { user, appUser, business, loading, logout } = useAuth();
+  const { business } = useAuth();
   const router = useRouter();
-  const [customers, setCustomers] = useState<any[]>([]);
-  const [customerClasses, setCustomerClasses] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<Array<{
+    id: string;
+    name?: string;
+    email: string;
+    points?: number;
+    classId?: string;
+    createdAt: Date;
+  }>>([]);
   const [dataLoading, setDataLoading] = useState(true);
-  const [selectedTab, setSelectedTab] = useState('overview');
 
-  const handleLogout = async () => {
-    await logout();
-    router.push('/');
-  };
 
-  const generateQRCode = (classId: string) => {
-    // Generate QR code URL for the customer class
-    const baseUrl = window.location.origin;
-    const qrUrl = `${baseUrl}/qr-signup?business=${business?.id}&class=${classId}`;
-    return qrUrl;
-  };
-
-  const handleViewQR = (classId: string) => {
-    // Validate business and class IDs
-    if (!business?.id || !classId) {
-      console.error('❌ Missing business or class ID for QR generation');
-      alert('Error: Missing business or class information');
-      return;
-    }
-    
-    // Open QR code display page
-    const qrDisplayUrl = `/qr-display?business=${business.id}&class=${classId}`;
-    console.log('🔗 Opening QR display URL:', qrDisplayUrl);
-    window.open(qrDisplayUrl, '_blank');
-  };
-
-  const handleDownloadQR = (classId: string) => {
-    // Open QR display page for download
-    const qrDisplayUrl = `/qr-display?business=${business?.id}&class=${classId}`;
-    window.open(qrDisplayUrl, '_blank');
-  };
 
   const createPermanentClasses = async (businessId: string) => {
     try {
@@ -207,7 +177,7 @@ export default function BusinessDashboard() {
               </div>
               <div>
                 <h3 className="text-yellow-800 font-semibold">Pending Approval</h3>
-                <p className="text-yellow-700 text-sm">Your business registration is under review. You'll receive an email once approved.</p>
+                <p className="text-yellow-700 text-sm">Your business registration is under review. You&apos;ll receive an email once approved.</p>
               </div>
             </div>
           </div>

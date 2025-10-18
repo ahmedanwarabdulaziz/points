@@ -1,10 +1,10 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
-import { db } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
-import QRCode from 'qrcode';
+import { useRouter, useSearchParams } from &apos;next/navigation';
+import { useEffect, useState, useRef } from &apos;react';
+import { db } from &apos;@/lib/firebase';
+import { doc, getDoc } from &apos;firebase/firestore';
+import QRCode from &apos;qrcode';
 import { 
   Building2, 
   QrCode, 
@@ -13,7 +13,7 @@ import {
   Copy,
   ArrowLeft,
   Users
-} from 'lucide-react';
+} from &apos;lucide-react';
 
 export default function QRDisplayPage() {
   const router = useRouter();
@@ -21,29 +21,29 @@ export default function QRDisplayPage() {
   const [business, setBusiness] = useState<any>(null);
   const [customerClass, setCustomerClass] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [qrCodeUrl, setQrCodeUrl] = useState('');
-  const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
+  const [qrCodeUrl, setQrCodeUrl] = useState(&apos;');
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState(&apos;');
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const businessId = searchParams.get('business');
-  const classId = searchParams.get('class');
+  const businessId = searchParams.get(&apos;business&apos;);
+  const classId = searchParams.get(&apos;class&apos;);
 
   useEffect(() => {
     const fetchData = async () => {
       if (!businessId || !classId) {
-        router.push('/');
+        router.push(&apos;/');
         return;
       }
 
       try {
         // Fetch business data
-        const businessDoc = await getDoc(doc(db, 'businesses', businessId));
+        const businessDoc = await getDoc(doc(db, &apos;businesses&apos;, businessId));
         if (businessDoc.exists()) {
           setBusiness({ id: businessDoc.id, ...businessDoc.data() });
         }
 
         // Fetch customer class data
-        const classDoc = await getDoc(doc(db, 'customerClasses', classId));
+        const classDoc = await getDoc(doc(db, &apos;customerClasses&apos;, classId));
         if (classDoc.exists()) {
           setCustomerClass({ id: classDoc.id, ...classDoc.data() });
         }
@@ -51,7 +51,7 @@ export default function QRDisplayPage() {
         // Generate QR code URL
         const baseUrl = window.location.origin;
         const signupUrl = `${baseUrl}/qr-signup?business=${businessId}&class=${classId}`;
-        console.log('🔗 Generated QR signup URL:', signupUrl);
+        console.log(&apos;🔗 Generated QR signup URL:&apos;, signupUrl);
         setQrCodeUrl(signupUrl);
 
         // Generate QR code
@@ -60,17 +60,17 @@ export default function QRDisplayPage() {
             width: 300,
             margin: 2,
             color: {
-              dark: '#000000',
-              light: '#FFFFFF'
+              dark: &apos;#000000&apos;,
+              light: &apos;#FFFFFF&apos;
             }
           });
           setQrCodeDataUrl(qrDataUrl);
         } catch (error) {
-          console.error('Error generating QR code:', error);
+          console.error(&apos;Error generating QR code:&apos;, error);
         }
 
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error(&apos;Error fetching data:&apos;, error);
       } finally {
         setLoading(false);
       }
@@ -83,8 +83,8 @@ export default function QRDisplayPage() {
     if (!qrCodeDataUrl) return;
 
     // Create a canvas to add business branding to QR code
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.createElement(&apos;canvas&apos;);
+    const ctx = canvas.getContext(&apos;2d&apos;);
     if (!ctx) return;
 
     // Set canvas size
@@ -92,7 +92,7 @@ export default function QRDisplayPage() {
     canvas.height = 450;
 
     // Draw white background
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = &apos;#ffffff';
     ctx.fillRect(0, 0, 400, 450);
 
     // Draw QR code
@@ -101,24 +101,24 @@ export default function QRDisplayPage() {
       ctx.drawImage(qrImage, 50, 20, 300, 300);
 
       // Add business name
-      ctx.fillStyle = '#1e3a8a';
-      ctx.font = 'bold 18px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText(business?.name || 'Business', 200, 350);
+      ctx.fillStyle = &apos;#1e3a8a';
+      ctx.font = &apos;bold 18px Arial';
+      ctx.textAlign = &apos;center';
+      ctx.fillText(business?.name || &apos;Business&apos;, 200, 350);
 
       // Add class name
-      ctx.fillStyle = '#f97316';
-      ctx.font = '14px Arial';
-      ctx.fillText(customerClass?.name || 'Customer Class', 200, 375);
+      ctx.fillStyle = &apos;#f97316';
+      ctx.font = &apos;14px Arial';
+      ctx.fillText(customerClass?.name || &apos;Customer Class&apos;, 200, 375);
 
       // Add "Scan to Join" text
-      ctx.fillStyle = '#666666';
-      ctx.font = '12px Arial';
-      ctx.fillText('Scan to join and start earning points!', 200, 400);
+      ctx.fillStyle = &apos;#666666';
+      ctx.font = &apos;12px Arial';
+      ctx.fillText(&apos;Scan to join and start earning points!&apos;, 200, 400);
 
       // Download the image
-      const link = document.createElement('a');
-      link.download = `qr-code-${business?.name?.replace(/\s+/g, '-').toLowerCase()}-${customerClass?.name?.replace(/\s+/g, '-').toLowerCase()}.png`;
+      const link = document.createElement(&apos;a');
+      link.download = `qr-code-${business?.name?.replace(/\s+/g, &apos;-').toLowerCase()}-${customerClass?.name?.replace(/\s+/g, &apos;-').toLowerCase()}.png`;
       link.href = canvas.toDataURL();
       link.click();
     };
@@ -127,7 +127,7 @@ export default function QRDisplayPage() {
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(qrCodeUrl);
-    alert('QR code link copied to clipboard!');
+    alert(&apos;QR code link copied to clipboard!&apos;);
   };
 
   const handleShare = () => {

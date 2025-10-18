@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import RoleRedirect from '@/components/RoleRedirect';
 import DashboardLayout from '@/components/DashboardLayout';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, orderBy, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { 
   Shield, 
   Building2, 
@@ -16,16 +16,31 @@ import {
   Eye,
   BarChart3,
   Settings,
-  LogOut
 } from 'lucide-react';
 
 export default function AdminDashboard() {
-  const { user, appUser, loading, logout } = useAuth();
+  const { user, logout } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selectedTab, setSelectedTab] = useState('businesses');
-  const [users, setUsers] = useState<any[]>([]);
-  const [businesses, setBusinesses] = useState<any[]>([]);
+  const [users, setUsers] = useState<Array<{
+    id: string;
+    name?: string;
+    email: string;
+    role: string;
+    businessId?: string;
+    points?: number;
+    status?: string;
+    createdAt: Date;
+  }>>([]);
+  const [businesses, setBusinesses] = useState<Array<{
+    id: string;
+    name: string;
+    description?: string;
+    status: string;
+    createdAt: Date;
+    ownerId: string;
+  }>>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [processingBusiness, setProcessingBusiness] = useState<string | null>(null);
 
@@ -98,9 +113,6 @@ export default function AdminDashboard() {
         setBusinesses(businessesData);
       } catch (error) {
         console.error('Error fetching data:', error);
-        // Fallback to mock data if Firebase fails
-        setUsers(mockUsers);
-        setBusinesses(mockBusinesses);
       } finally {
         setDataLoading(false);
       }
@@ -109,10 +121,6 @@ export default function AdminDashboard() {
     fetchData();
   }, []);
 
-  const handleLogout = async () => {
-    await logout();
-    router.push('/');
-  };
 
   const mockStats = {
     totalBusinesses: 45,

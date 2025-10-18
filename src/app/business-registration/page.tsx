@@ -77,8 +77,8 @@ export default function BusinessRegistration() {
         router.push('/business-dashboard');
       }, 2000);
       
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -94,7 +94,7 @@ export default function BusinessRegistration() {
           <h2 className="text-2xl font-bold text-navy mb-2">Registration Submitted!</h2>
           <p className="text-gray-600 mb-4">
             Your business registration has been submitted for admin approval. 
-            You'll receive an email once it's approved.
+            You&apos;ll receive an email once it&apos;s approved.
           </p>
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange mx-auto"></div>
         </div>

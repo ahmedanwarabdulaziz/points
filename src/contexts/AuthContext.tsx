@@ -1,15 +1,15 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
-import { User as AppUser, Business, Customer } from '@/types';
+import { createContext, useContext, useEffect, useState } from &apos;react';
+import { User, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from &apos;firebase/auth';
+import { doc, getDoc, setDoc, updateDoc } from &apos;firebase/firestore';
+import { auth, db } from &apos;@/lib/firebase';
+import { User as AppUser, Business, Customer } from &apos;@/types';
 
 // Generate a unique referral code
   const generateReferralCode = (): string => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = '';
+    const chars = &apos;ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = &apos;';
     for (let i = 0; i < 8; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
@@ -18,10 +18,10 @@ import { User as AppUser, Business, Customer } from '@/types';
 
   const assignCustomerToBusiness = async (customerId: string, businessId: string, classId: string, referredBy?: string) => {
     try {
-      console.log('🔍 assignCustomerToBusiness called with:', { customerId, businessId, classId, referredBy });
+      console.log(&apos;🔍 assignCustomerToBusiness called with:&apos;, { customerId, businessId, classId, referredBy });
       
-      const customerRef = doc(db, 'users', customerId);
-      console.log('🔍 Updating customer document:', customerRef.path);
+      const customerRef = doc(db, &apos;users&apos;, customerId);
+      console.log(&apos;🔍 Updating customer document:&apos;, customerRef.path);
       
       await updateDoc(customerRef, {
         businessId: businessId,
@@ -31,11 +31,11 @@ import { User as AppUser, Business, Customer } from '@/types';
         lastActivity: new Date()
       });
 
-      console.log('✅ Customer document updated successfully');
+      console.log(&apos;✅ Customer document updated successfully&apos;);
 
-      // Update the customer data in state if it's the current user
+      // Update the customer data in state if it&apos;s the current user
       if (appUser && appUser.id === customerId) {
-        console.log('🔍 Updating appUser state with business/class assignment');
+        console.log(&apos;🔍 Updating appUser state with business/class assignment&apos;);
         setAppUser(prev => ({
           ...prev,
           businessId: businessId,
@@ -46,22 +46,22 @@ import { User as AppUser, Business, Customer } from '@/types';
         }));
       }
 
-      console.log('✅ Customer assigned to business and class:', { customerId, businessId, classId });
+      console.log(&apos;✅ Customer assigned to business and class:&apos;, { customerId, businessId, classId });
     } catch (error) {
-      console.error('❌ Error assigning customer to business:', error);
+      console.error(&apos;❌ Error assigning customer to business:&apos;, error);
       throw error;
     }
   };
 
   const validateAndFixCustomerAssignment = async (customerId: string) => {
     try {
-      console.log('🔍 Validating customer assignment:', customerId);
+      console.log(&apos;🔍 Validating customer assignment:&apos;, customerId);
       
-      const customerRef = doc(db, 'users', customerId);
+      const customerRef = doc(db, &apos;users&apos;, customerId);
       const customerDoc = await getDoc(customerRef);
       
       if (!customerDoc.exists()) {
-        console.error('❌ Customer document not found:', customerId);
+        console.error(&apos;❌ Customer document not found:&apos;, customerId);
         return false;
       }
       
@@ -69,18 +69,18 @@ import { User as AppUser, Business, Customer } from '@/types';
       
       // Check if customer has businessId and classId
       if (!customerData.businessId || !customerData.classId) {
-        console.log('⚠️ Customer missing business/class assignment:', {
+        console.log(&apos;⚠️ Customer missing business/class assignment:&apos;, {
           customerId,
-          businessId: customerData.businessId || 'MISSING',
-          classId: customerData.classId || 'MISSING'
+          businessId: customerData.businessId || &apos;MISSING&apos;,
+          classId: customerData.classId || &apos;MISSING&apos;
         });
         
         // Try to find a default business and class to assign
-        const businessesQuery = query(collection(db, 'businesses'), where('status', '==', 'approved'));
+        const businessesQuery = query(collection(db, &apos;businesses&apos;), where(&apos;status&apos;, &apos;==&apos;, &apos;approved&apos;));
         const businessesSnapshot = await getDocs(businessesQuery);
         
         if (businessesSnapshot.empty) {
-          console.error('❌ No approved businesses found for assignment');
+          console.error(&apos;❌ No approved businesses found for assignment&apos;);
           return false;
         }
         
@@ -90,14 +90,14 @@ import { User as AppUser, Business, Customer } from '@/types';
         
         // Find the General class for this business
         const classesQuery = query(
-          collection(db, 'customerClasses'),
-          where('businessId', '==', businessId),
-          where('name', '==', 'General')
+          collection(db, &apos;customerClasses&apos;),
+          where(&apos;businessId&apos;, &apos;==&apos;, businessId),
+          where(&apos;name&apos;, &apos;==&apos;, &apos;General&apos;)
         );
         const classesSnapshot = await getDocs(classesQuery);
         
         if (classesSnapshot.empty) {
-          console.error('❌ No General class found for business:', businessId);
+          console.error(&apos;❌ No General class found for business:&apos;, businessId);
           return false;
         }
         
@@ -106,25 +106,25 @@ import { User as AppUser, Business, Customer } from '@/types';
         // Assign customer to business and class
         await assignCustomerToBusiness(customerId, businessId, classId);
         
-        console.log('✅ Customer auto-assigned to business and class:', { customerId, businessId, classId });
+        console.log(&apos;✅ Customer auto-assigned to business and class:&apos;, { customerId, businessId, classId });
         return true;
       }
       
       // Validate that the assigned business and class exist
-      const businessDoc = await getDoc(doc(db, 'businesses', customerData.businessId));
-      const classDoc = await getDoc(doc(db, 'customerClasses', customerData.classId));
+      const businessDoc = await getDoc(doc(db, &apos;businesses&apos;, customerData.businessId));
+      const classDoc = await getDoc(doc(db, &apos;customerClasses&apos;, customerData.classId));
       
       if (!businessDoc.exists()) {
-        console.error('❌ Assigned business not found:', customerData.businessId);
+        console.error(&apos;❌ Assigned business not found:&apos;, customerData.businessId);
         return false;
       }
       
       if (!classDoc.exists()) {
-        console.error('❌ Assigned class not found:', customerData.classId);
+        console.error(&apos;❌ Assigned class not found:&apos;, customerData.classId);
         return false;
       }
       
-      console.log('✅ Customer assignment is valid:', {
+      console.log(&apos;✅ Customer assignment is valid:&apos;, {
         customerId,
         business: businessDoc.data().name,
         class: classDoc.data().name
@@ -132,7 +132,7 @@ import { User as AppUser, Business, Customer } from '@/types';
       
       return true;
     } catch (error) {
-      console.error('❌ Error validating customer assignment:', error);
+      console.error(&apos;❌ Error validating customer assignment:&apos;, error);
       return false;
     }
   };
@@ -144,9 +144,9 @@ interface AuthContextType {
   customer: Customer | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, role?: 'admin' | 'business' | 'customer', customerName?: string) => Promise<void>;
+  signUp: (email: string, password: string, role?: &apos;admin&apos; | &apos;business&apos; | &apos;customer&apos;, customerName?: string) => Promise<void>;
   logout: () => Promise<void>;
-  updateUserRole: (role: 'admin' | 'business' | 'customer') => Promise<void>;
+  updateUserRole: (role: &apos;admin&apos; | &apos;business&apos; | &apos;customer&apos;) => Promise<void>;
   assignCustomerToBusiness: (customerId: string, businessId: string, classId: string, referredBy?: string) => Promise<void>;
   validateAndFixCustomerAssignment: (customerId: string) => Promise<boolean>;
 }
@@ -166,7 +166,7 @@ const AuthContext = createContext<AuthContextType>({
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error(&apos;useAuth must be used within an AuthProvider&apos;);
   }
   return context;
 };
@@ -185,14 +185,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (user) {
         try {
           // Fetch user data from Firestore
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          const userDoc = await getDoc(doc(db, &apos;users&apos;, user.uid));
           if (userDoc.exists()) {
             const userData = userDoc.data() as AppUser;
             setAppUser(userData);
             
             // Fetch business data if user is a business
-            if (userData.role === 'business') {
-              const businessDoc = await getDoc(doc(db, 'businesses', user.uid));
+            if (userData.role === &apos;business&apos;) {
+              const businessDoc = await getDoc(doc(db, &apos;businesses&apos;, user.uid));
               if (businessDoc.exists()) {
                 setBusiness(businessDoc.data() as Business);
               }
@@ -201,27 +201,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             }
             
             // Customer data is now part of the user document
-            if (userData.role === 'customer') {
+            if (userData.role === &apos;customer&apos;) {
               // Customer data is already in userData, no need to fetch separately
               setCustomer(userData as Customer);
             } else {
               setCustomer(null);
             }
           } else {
-            // User document doesn't exist, create it
+            // User document doesn&apos;t exist, create it
             const userData: AppUser = {
               id: user.uid,
               email: user.email!,
-              role: 'customer', // Default role
+              role: &apos;customer&apos;, // Default role
               createdAt: new Date(),
               updatedAt: new Date(),
             };
             
-            await setDoc(doc(db, 'users', user.uid), userData);
+            await setDoc(doc(db, &apos;users&apos;, user.uid), userData);
             setAppUser(userData);
           }
         } catch (error) {
-          console.error('Error fetching user data:', error);
+          console.error(&apos;Error fetching user data:&apos;, error);
           setAppUser(null);
           setBusiness(null);
           setCustomer(null);
@@ -241,27 +241,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-    } catch (error: any) {
-      console.error('❌ Signin error:', error);
+    } catch (error: unknown) {
+      console.error(&apos;❌ Signin error:&apos;, error);
       
       // Handle specific Firebase Auth errors
-      if (error.code === 'auth/user-not-found') {
-        throw new Error('No account found with this email address. Please sign up first.');
-      } else if (error.code === 'auth/wrong-password') {
-        throw new Error('Incorrect password. Please try again.');
-      } else if (error.code === 'auth/invalid-email') {
-        throw new Error('Please enter a valid email address.');
-      } else if (error.code === 'auth/user-disabled') {
-        throw new Error('This account has been disabled. Please contact support.');
-      } else if (error.code === 'auth/too-many-requests') {
-        throw new Error('Too many failed attempts. Please try again later.');
+      if (error.code === &apos;auth/user-not-found&apos;) {
+        throw new Error(&apos;No account found with this email address. Please sign up first.&apos;);
+      } else if (error.code === &apos;auth/wrong-password&apos;) {
+        throw new Error(&apos;Incorrect password. Please try again.&apos;);
+      } else if (error.code === &apos;auth/invalid-email&apos;) {
+        throw new Error(&apos;Please enter a valid email address.&apos;);
+      } else if (error.code === &apos;auth/user-disabled&apos;) {
+        throw new Error(&apos;This account has been disabled. Please contact support.&apos;);
+      } else if (error.code === &apos;auth/too-many-requests&apos;) {
+        throw new Error(&apos;Too many failed attempts. Please try again later.&apos;);
       } else {
-        throw new Error('Sign in failed. Please check your credentials and try again.');
+        throw new Error(&apos;Sign in failed. Please check your credentials and try again.&apos;);
       }
     }
   };
 
-  const signUp = async (email: string, password: string, role: 'admin' | 'business' | 'customer' = 'customer', customerName?: string) => {
+  const signUp = async (email: string, password: string, role: &apos;admin&apos; | &apos;business&apos; | &apos;customer&apos; = &apos;customer&apos;, customerName?: string) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -276,44 +276,44 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       };
 
       // Add customer-specific fields if role is customer
-      if (role === 'customer' && customerName) {
+      if (role === &apos;customer&apos; && customerName) {
         userData.name = customerName;
         // Note: businessId and classId will be assigned when they scan QR or use referral
         // For now, they remain empty until customer joins a business
-        userData.businessId = ''; // Will be assigned when they scan QR or use referral
-        userData.classId = ''; // Will be assigned when they scan QR or use referral
+        userData.businessId = &apos;'; // Will be assigned when they scan QR or use referral
+        userData.classId = &apos;'; // Will be assigned when they scan QR or use referral
         userData.referralCode = generateReferralCode();
         userData.points = 0;
         userData.totalEarned = 0;
         userData.totalRedeemed = 0;
-        userData.status = 'active';
+        userData.status = &apos;active';
         userData.lastActivity = new Date();
       }
 
-      await setDoc(doc(db, 'users', user.uid), userData);
+      await setDoc(doc(db, &apos;users&apos;, user.uid), userData);
       setAppUser(userData);
-    } catch (error: any) {
-      console.error('❌ Signup error:', error);
+    } catch (error: unknown) {
+      console.error(&apos;❌ Signup error:&apos;, error);
       
       // Handle specific Firebase Auth errors
-      if (error.code === 'auth/email-already-in-use') {
-        throw new Error('This email address is already registered. Please use a different email or try signing in instead.');
-      } else if (error.code === 'auth/weak-password') {
-        throw new Error('Password is too weak. Please choose a stronger password.');
-      } else if (error.code === 'auth/invalid-email') {
-        throw new Error('Please enter a valid email address.');
-      } else if (error.code === 'auth/operation-not-allowed') {
-        throw new Error('Email/password accounts are not enabled. Please contact support.');
+      if (error.code === &apos;auth/email-already-in-use&apos;) {
+        throw new Error(&apos;This email address is already registered. Please use a different email or try signing in instead.&apos;);
+      } else if (error.code === &apos;auth/weak-password&apos;) {
+        throw new Error(&apos;Password is too weak. Please choose a stronger password.&apos;);
+      } else if (error.code === &apos;auth/invalid-email&apos;) {
+        throw new Error(&apos;Please enter a valid email address.&apos;);
+      } else if (error.code === &apos;auth/operation-not-allowed&apos;) {
+        throw new Error(&apos;Email/password accounts are not enabled. Please contact support.&apos;);
       } else {
-        throw new Error('Signup failed. Please try again later.');
+        throw new Error(&apos;Signup failed. Please try again later.&apos;);
       }
     }
   };
 
-  const updateUserRole = async (role: 'admin' | 'business' | 'customer') => {
+  const updateUserRole = async (role: &apos;admin&apos; | &apos;business&apos; | &apos;customer&apos;) => {
     if (!user) return;
     
-    await updateDoc(doc(db, 'users', user.uid), {
+    await updateDoc(doc(db, &apos;users&apos;, user.uid), {
       role,
       updatedAt: new Date(),
     });
@@ -343,7 +343,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // Debug: Log the function availability
-  console.log('🔍 AuthContext value validateAndFixCustomerAssignment:', typeof validateAndFixCustomerAssignment);
+  console.log(&apos;🔍 AuthContext value validateAndFixCustomerAssignment:&apos;, typeof validateAndFixCustomerAssignment);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

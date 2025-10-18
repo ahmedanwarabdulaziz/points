@@ -1,15 +1,15 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import { QrCode, Camera, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
-import { parseQRCode } from '@/lib/qrCode';
+import { useState, useRef } from &apos;react';
+import { useRouter } from &apos;next/navigation';
+import { useAuth } from &apos;@/contexts/AuthContext';
+import { QrCode, Camera, CheckCircle, XCircle, ArrowLeft } from &apos;lucide-react';
+import { parseQRCode } from &apos;@/lib/qrCode';
 
 export default function ScanQR() {
   const [isScanning, setIsScanning] = useState(false);
   const [scannedData, setScannedData] = useState<any>(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(&apos;');
   const [success, setSuccess] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -19,17 +19,17 @@ export default function ScanQR() {
   const startScanning = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } 
+        video: { facingMode: &apos;environment&apos; } 
       });
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.play();
         setIsScanning(true);
-        setError('');
+        setError(&apos;');
       }
     } catch (err) {
-      setError('Unable to access camera. Please check permissions.');
+      setError(&apos;Unable to access camera. Please check permissions.&apos;);
     }
   };
 
@@ -46,7 +46,7 @@ export default function ScanQR() {
     const parsedData = parseQRCode(qrData);
     
     if (!parsedData) {
-      setError('Invalid QR code. Please try again.');
+      setError(&apos;Invalid QR code. Please try again.&apos;);
       return;
     }
 
@@ -63,8 +63,8 @@ export default function ScanQR() {
     if (scannedData) {
       // Here you would implement the logic to join the business
       // This would involve creating a customer record and assigning them to the business
-      console.log('Joining business:', scannedData);
-      router.push('/dashboard');
+      console.log(&apos;Joining business:&apos;, scannedData);
+      router.push(&apos;/dashboard&apos;);
     }
   };
 
@@ -77,10 +77,10 @@ export default function ScanQR() {
           </div>
           <h2 className="text-2xl font-bold text-navy mb-2">Successfully Joined!</h2>
           <p className="text-gray-600 mb-4">
-            You've been added to {scannedData?.businessName} as a {scannedData?.className} member.
+            You&apos;ve been added to {scannedData?.businessName} as a {scannedData?.className} member.
           </p>
           <button
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push(&apos;/dashboard&apos;)}
             className="bg-orange text-white px-6 py-3 rounded-lg hover:bg-orange-light transition-colors"
           >
             Go to Dashboard

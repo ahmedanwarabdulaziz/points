@@ -1,16 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import { Shield, CheckCircle, ArrowRight } from 'lucide-react';
+import { useState } from &apos;react';
+import { useRouter } from &apos;next/navigation';
+import { useAuth } from &apos;@/contexts/AuthContext';
+import { Shield, CheckCircle, ArrowRight } from &apos;lucide-react';
 
 export default function AdminSetup() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [adminName, setAdminName] = useState('');
+  const [email, setEmail] = useState(&apos;');
+  const [password, setPassword] = useState(&apos;');
+  const [adminName, setAdminName] = useState(&apos;');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(&apos;');
   const [success, setSuccess] = useState(false);
   
   const { signUp } = useAuth();
@@ -18,29 +18,29 @@ export default function AdminSetup() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError(&apos;');
 
     if (!adminName.trim()) {
-      setError('Please enter admin name');
+      setError(&apos;Please enter admin name&apos;);
       return;
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError(&apos;Password must be at least 6 characters&apos;);
       return;
     }
 
     try {
       setLoading(true);
-      await signUp(email, password, 'admin', adminName);
+      await signUp(email, password, &apos;admin&apos;, adminName);
       setSuccess(true);
       
       // Redirect to admin dashboard after 2 seconds
       setTimeout(() => {
-        router.push('/admin-dashboard');
+        router.push(&apos;/admin-dashboard&apos;);
       }, 2000);
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError(error.message);
     } finally {
       setLoading(false);
@@ -152,7 +152,7 @@ export default function AdminSetup() {
                 disabled={loading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange hover:bg-orange-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Creating admin account...' : 'Create Admin Account'}
+                {loading ? &apos;Creating admin account...&apos; : &apos;Create Admin Account&apos;}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </button>
             </div>

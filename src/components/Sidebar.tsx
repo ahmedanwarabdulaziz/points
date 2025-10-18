@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useState } from &apos;react';
+import Link from &apos;next/link';
+import { usePathname } from &apos;next/navigation';
 import { 
   LayoutDashboard, 
   Users, 
@@ -18,10 +18,10 @@ import {
   X,
   ChevronDown,
   ChevronRight
-} from 'lucide-react';
+} from &apos;lucide-react';
 
 interface SidebarProps {
-  userRole: 'admin' | 'business' | 'customer';
+  userRole: &apos;admin&apos; | &apos;business&apos; | &apos;customer';
   onLogout: () => void;
 }
 
@@ -40,83 +40,83 @@ export default function Sidebar({ userRole, onLogout }: SidebarProps) {
 
   const menuItems: MenuItem[] = [
     {
-      id: 'dashboard',
-      label: 'Dashboard',
+      id: &apos;dashboard&apos;,
+      label: &apos;Dashboard&apos;,
       icon: LayoutDashboard,
-      href: userRole === 'admin' ? '/admin-dashboard' : 
-            userRole === 'business' ? '/business-dashboard' : '/dashboard'
+      href: userRole === &apos;admin&apos; ? &apos;/admin-dashboard&apos; : 
+            userRole === &apos;business&apos; ? &apos;/business-dashboard&apos; : &apos;/dashboard&apos;
     },
-    ...(userRole === 'customer' ? [
+    ...(userRole === &apos;customer&apos; ? [
       {
-        id: 'rewards',
-        label: 'Rewards',
+        id: &apos;rewards&apos;,
+        label: &apos;Rewards&apos;,
         icon: Gift,
-        href: '/rewards'
+        href: &apos;/rewards&apos;
       },
       {
-        id: 'gift-cards',
-        label: 'Gift Cards',
+        id: &apos;gift-cards&apos;,
+        label: &apos;Gift Cards&apos;,
         icon: CreditCard,
-        href: '/gift-cards'
+        href: &apos;/gift-cards&apos;
       },
       {
-        id: 'scan-qr',
-        label: 'Scan QR',
+        id: &apos;scan-qr&apos;,
+        label: &apos;Scan QR&apos;,
         icon: QrCode,
-        href: '/scan-qr'
+        href: &apos;/scan-qr&apos;
       }
     ] : []),
-    ...(userRole === 'business' ? [
+    ...(userRole === &apos;business&apos; ? [
       {
-        id: 'customers',
-        label: 'Customers',
+        id: &apos;customers&apos;,
+        label: &apos;Customers&apos;,
         icon: Users,
-        href: '/business-customers'
+        href: &apos;/business-customers&apos;
       },
       {
-        id: 'qr-codes',
-        label: 'QR Codes',
+        id: &apos;qr-codes&apos;,
+        label: &apos;QR Codes&apos;,
         icon: QrCode,
-        href: '/business-qr'
+        href: &apos;/business-qr&apos;
       },
       {
-        id: 'analytics',
-        label: 'Analytics',
+        id: &apos;analytics&apos;,
+        label: &apos;Analytics&apos;,
         icon: BarChart3,
-        href: '/business-analytics'
+        href: &apos;/business-analytics&apos;
       }
     ] : []),
-    ...(userRole === 'admin' ? [
+    ...(userRole === &apos;admin&apos; ? [
       {
-        id: 'businesses',
-        label: 'Business Approvals',
+        id: &apos;businesses&apos;,
+        label: &apos;Business Approvals&apos;,
         icon: Building2,
-        href: '/admin-dashboard?tab=businesses'
+        href: &apos;/admin-dashboard?tab=businesses&apos;
       },
       {
-        id: 'users',
-        label: 'Users',
+        id: &apos;users&apos;,
+        label: &apos;Users&apos;,
         icon: Users,
-        href: '/admin-dashboard?tab=users'
+        href: &apos;/admin-dashboard?tab=users&apos;
       },
       {
-        id: 'analytics',
-        label: 'Analytics',
+        id: &apos;analytics&apos;,
+        label: &apos;Analytics&apos;,
         icon: BarChart3,
-        href: '/admin-dashboard?tab=analytics'
+        href: &apos;/admin-dashboard?tab=analytics&apos;
       },
       {
-        id: 'settings',
-        label: 'System Settings',
+        id: &apos;settings&apos;,
+        label: &apos;System Settings&apos;,
         icon: Settings,
-        href: '/admin-dashboard?tab=settings'
+        href: &apos;/admin-dashboard?tab=settings&apos;
       }
     ] : []),
-    ...(userRole !== 'admin' ? [{
-      id: 'settings',
-      label: 'Settings',
+    ...(userRole !== &apos;admin&apos; ? [{
+      id: &apos;settings&apos;,
+      label: &apos;Settings&apos;,
       icon: Settings,
-      href: '/settings'
+      href: &apos;/settings&apos;
     }] : [])
   ];
 
@@ -144,8 +144,8 @@ export default function Sidebar({ userRole, onLogout }: SidebarProps) {
           href={item.href}
           className={`flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
             active
-              ? 'bg-orange text-white'
-              : 'text-gray-700 hover:bg-gray-100 hover:text-navy'
+              ? &apos;bg-orange text-white&apos;
+              : &apos;text-gray-700 hover:bg-gray-100 hover:text-navy&apos;
           }`}
         >
           <Icon className="h-5 w-5 flex-shrink-0" />
@@ -179,8 +179,8 @@ export default function Sidebar({ userRole, onLogout }: SidebarProps) {
                 href={child.href}
                 className={`flex items-center space-x-3 px-4 py-2 text-sm rounded-lg transition-colors ${
                   isActive(child.href)
-                    ? 'bg-orange/20 text-orange'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-navy'
+                    ? &apos;bg-orange/20 text-orange&apos;
+                    : &apos;text-gray-600 hover:bg-gray-100 hover:text-navy&apos;
                 }`}
               >
                 <child.icon className="h-4 w-4" />
@@ -195,7 +195,7 @@ export default function Sidebar({ userRole, onLogout }: SidebarProps) {
 
   return (
     <div className={`bg-white shadow-lg border-r border-gray-200 transition-all duration-300 ${
-      isCollapsed ? 'w-16' : 'w-64'
+      isCollapsed ? &apos;w-16&apos; : &apos;w-64&apos;
     }`}>
       {/* Header */}
       <div className="p-4 border-b border-gray-200">
@@ -203,9 +203,9 @@ export default function Sidebar({ userRole, onLogout }: SidebarProps) {
           {!isCollapsed && (
             <div className="flex items-center space-x-3">
               <div className="bg-navy p-2 rounded-lg">
-                {userRole === 'admin' ? (
+                {userRole === &apos;admin&apos; ? (
                   <Shield className="h-6 w-6 text-white" />
-                ) : userRole === 'business' ? (
+                ) : userRole === &apos;business&apos; ? (
                   <Building2 className="h-6 w-6 text-white" />
                 ) : (
                   <Gift className="h-6 w-6 text-white" />
@@ -213,8 +213,8 @@ export default function Sidebar({ userRole, onLogout }: SidebarProps) {
               </div>
               <div>
                 <h2 className="text-lg font-bold text-navy">
-                  {userRole === 'admin' ? 'Admin' : 
-                   userRole === 'business' ? 'Business' : 'Customer'}
+                  {userRole === &apos;admin&apos; ? &apos;Admin&apos; : 
+                   userRole === &apos;business&apos; ? &apos;Business&apos; : &apos;Customer&apos;}
                 </h2>
                 <p className="text-xs text-gray-500">Dashboard</p>
               </div>

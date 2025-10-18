@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase';
+import { useState, useEffect } from &apos;react';
+import { db } from &apos;@/lib/firebase';
 import { 
   collection, 
   getDocs, 
@@ -13,7 +13,7 @@ import {
   query, 
   where, 
   orderBy 
-} from 'firebase/firestore';
+} from &apos;firebase/firestore';
 import { 
   Plus, 
   Edit, 
@@ -24,8 +24,8 @@ import {
   Settings,
   Save,
   X
-} from 'lucide-react';
-import { CustomerClass } from '@/types';
+} from &apos;lucide-react';
+import { CustomerClass } from &apos;@/types';
 
 interface CustomerClassManagerProps {
   businessId: string;
@@ -38,15 +38,15 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingClass, setEditingClass] = useState<CustomerClass | null>(null);
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
+    name: &apos;',
+    description: &apos;',
     pointsPerDollar: 1,
     referralBonus: 0,
     minSpend: 0,
     maxPointsPerTransaction: 1000,
     expiryDays: 365,
-    specialRewards: '',
-    restrictions: ''
+    specialRewards: &apos;',
+    restrictions: &apos;'
   });
 
   useEffect(() => {
@@ -57,14 +57,14 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
     try {
       setLoading(true);
       const classesQuery = query(
-        collection(db, 'customerClasses'),
-        where('businessId', '==', businessId),
-        orderBy('createdAt', 'desc')
+        collection(db, &apos;customerClasses&apos;),
+        where(&apos;businessId&apos;, &apos;==&apos;, businessId),
+        orderBy(&apos;createdAt&apos;, &apos;desc&apos;)
       );
       const snapshot = await getDocs(classesQuery);
       const classesData = snapshot.docs.map(doc => {
         const data = doc.data();
-        console.log('📊 Class data structure:', {
+        console.log(&apos;📊 Class data structure:&apos;, {
           id: doc.id,
           name: data.name,
           features: data.features,
@@ -82,7 +82,7 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
       
       setClasses(classesData);
     } catch (error) {
-      console.error('Error fetching classes:', error);
+      console.error(&apos;Error fetching classes:&apos;, error);
     } finally {
       setLoading(false);
     }
@@ -92,18 +92,18 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
     e.preventDefault();
     
     try {
-      const classRef = doc(collection(db, 'customerClasses'));
+      const classRef = doc(collection(db, &apos;customerClasses&apos;));
       const newClass: CustomerClass = {
         id: classRef.id,
         businessId,
         name: formData.name,
-        type: 'custom',
+        type: &apos;custom&apos;,
         description: formData.description,
         features: {
           pointsPerDollar: formData.pointsPerDollar,
           referralBonus: formData.referralBonus,
-          specialRewards: formData.specialRewards.split(',').map(s => s.trim()).filter(s => s),
-          restrictions: formData.restrictions.split(',').map(s => s.trim()).filter(s => s),
+          specialRewards: formData.specialRewards.split(&apos;,').map(s => s.trim()).filter(s => s),
+          restrictions: formData.restrictions.split(&apos;,').map(s => s.trim()).filter(s => s),
           minSpend: formData.minSpend,
           maxPointsPerTransaction: formData.maxPointsPerTransaction,
           expiryDays: formData.expiryDays
@@ -111,7 +111,7 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
         isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
-        createdBy: 'current-user', // TODO: Get actual user ID
+        createdBy: &apos;current-user&apos;, // TODO: Get actual user ID
         customerCount: 0,
         totalPointsIssued: 0
       };
@@ -125,9 +125,9 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
         onClassCreated(classRef.id);
       }
       
-      console.log('✅ Customer class created:', newClass.name);
+      console.log(&apos;✅ Customer class created:&apos;, newClass.name);
     } catch (error) {
-      console.error('Error creating class:', error);
+      console.error(&apos;Error creating class:&apos;, error);
     }
   };
 
@@ -143,8 +143,8 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
         features: {
           pointsPerDollar: formData.pointsPerDollar,
           referralBonus: formData.referralBonus,
-          specialRewards: formData.specialRewards.split(',').map(s => s.trim()).filter(s => s),
-          restrictions: formData.restrictions.split(',').map(s => s.trim()).filter(s => s),
+          specialRewards: formData.specialRewards.split(&apos;,').map(s => s.trim()).filter(s => s),
+          restrictions: formData.restrictions.split(&apos;,').map(s => s.trim()).filter(s => s),
           minSpend: formData.minSpend,
           maxPointsPerTransaction: formData.maxPointsPerTransaction,
           expiryDays: formData.expiryDays
@@ -152,14 +152,14 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
         updatedAt: new Date()
       };
 
-      await updateDoc(doc(db, 'customerClasses', editingClass.id), updatedClass);
+      await updateDoc(doc(db, &apos;customerClasses&apos;, editingClass.id), updatedClass);
       setClasses(prev => prev.map(c => c.id === editingClass.id ? updatedClass : c));
       setEditingClass(null);
       resetForm();
       
-      console.log('✅ Customer class updated:', updatedClass.name);
+      console.log(&apos;✅ Customer class updated:&apos;, updatedClass.name);
     } catch (error) {
-      console.error('Error updating class:', error);
+      console.error(&apos;Error updating class:&apos;, error);
     }
   };
 
@@ -169,11 +169,11 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
     }
     
     try {
-      await deleteDoc(doc(db, 'customerClasses', classId));
+      await deleteDoc(doc(db, &apos;customerClasses&apos;, classId));
       setClasses(prev => prev.filter(c => c.id !== classId));
-      console.log('✅ Customer class deleted:', className);
+      console.log(&apos;✅ Customer class deleted:&apos;, className);
     } catch (error) {
-      console.error('Error deleting class:', error);
+      console.error(&apos;Error deleting class:&apos;, error);
     }
   };
 
@@ -187,22 +187,22 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
       minSpend: classItem.features?.minSpend || 0,
       maxPointsPerTransaction: classItem.features?.maxPointsPerTransaction || 1000,
       expiryDays: classItem.features?.expiryDays || 365,
-      specialRewards: classItem.features?.specialRewards?.join(', ') || '',
-      restrictions: classItem.features?.restrictions?.join(', ') || ''
+      specialRewards: classItem.features?.specialRewards?.join(&apos;, &apos;) || &apos;',
+      restrictions: classItem.features?.restrictions?.join(&apos;, &apos;) || &apos;'
     });
   };
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      description: '',
+      name: &apos;',
+      description: &apos;',
       pointsPerDollar: 1,
       referralBonus: 0,
       minSpend: 0,
       maxPointsPerTransaction: 1000,
       expiryDays: 365,
-      specialRewards: '',
-      restrictions: ''
+      specialRewards: &apos;',
+      restrictions: &apos;'
     });
     setShowCreateForm(false);
     setEditingClass(null);
@@ -211,15 +211,15 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
   const handleViewQR = (classId: string) => {
     // Open QR code display page
     const qrDisplayUrl = `/qr-display?business=${businessId}&class=${classId}`;
-    console.log('🔗 Opening QR display URL:', qrDisplayUrl);
-    window.open(qrDisplayUrl, '_blank');
+    console.log(&apos;🔗 Opening QR display URL:&apos;, qrDisplayUrl);
+    window.open(qrDisplayUrl, &apos;_blank&apos;);
   };
 
   const handleDownloadQR = (classId: string) => {
     // Open QR display page for download
     const qrDisplayUrl = `/qr-display?business=${businessId}&class=${classId}`;
-    console.log('🔗 Opening QR display URL for download:', qrDisplayUrl);
-    window.open(qrDisplayUrl, '_blank');
+    console.log(&apos;🔗 Opening QR display URL for download:&apos;, qrDisplayUrl);
+    window.open(qrDisplayUrl, &apos;_blank&apos;);
   };
 
   if (loading) {
@@ -252,7 +252,7 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-navy">
-              {editingClass ? 'Edit Class' : 'Create New Class'}
+              {editingClass ? &apos;Edit Class&apos; : &apos;Create New Class&apos;}
             </h3>
             <button
               onClick={resetForm}
@@ -375,7 +375,7 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
                 className="bg-navy text-white px-4 py-2 rounded-lg hover:bg-navy-light transition-colors inline-flex items-center space-x-2"
               >
                 <Save className="h-4 w-4" />
-                <span>{editingClass ? 'Update Class' : 'Create Class'}</span>
+                <span>{editingClass ? &apos;Update Class&apos; : &apos;Create Class&apos;}</span>
               </button>
             </div>
           </form>
@@ -390,15 +390,15 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
               <div className="flex items-center space-x-2">
                 <h3 className="font-semibold text-navy">{classItem.name}</h3>
                 <span className={`px-2 py-1 rounded-full text-xs ${
-                  classItem.type === 'permanent' 
-                    ? 'bg-blue-100 text-blue-800' 
-                    : 'bg-green-100 text-green-800'
+                  classItem.type === &apos;permanent&apos; 
+                    ? &apos;bg-blue-100 text-blue-800&apos; 
+                    : &apos;bg-green-100 text-green-800&apos;
                 }`}>
                   {classItem.type}
                 </span>
               </div>
               <div className="flex space-x-1">
-                {classItem.type === 'custom' && (
+                {classItem.type === &apos;custom&apos; && (
                   <>
                     <button
                       onClick={() => startEdit(classItem)}
