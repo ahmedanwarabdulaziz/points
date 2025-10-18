@@ -18,8 +18,8 @@ import {
 export default function QRDisplayPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [business, setBusiness] = useState<any>(null);
-  const [customerClass, setCustomerClass] = useState<any>(null);
+  const [business, setBusiness] = useState<Business | null>(null);
+  const [customerClass, setCustomerClass] = useState<CustomerClass | null>(null);
   const [loading, setLoading] = useState(true);
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');

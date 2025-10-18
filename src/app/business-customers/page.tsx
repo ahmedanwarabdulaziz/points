@@ -29,15 +29,15 @@ export default function BusinessCustomers() {
   const { user, appUser, business, loading } = useAuth();
   const router = useRouter();
   
-  const [customers, setCustomers] = useState<any[]>([]);
-  const [filteredCustomers, setFilteredCustomers] = useState<any[]>([]);
-  const [customerClasses, setCustomerClasses] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<User[]>([]);
+  const [filteredCustomers, setFilteredCustomers] = useState<User[]>([]);
+  const [customerClasses, setCustomerClasses] = useState<CustomerClass[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterClass, setFilterClass] = useState('');
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<User | null>(null);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
 
   // Fetch customers for this business

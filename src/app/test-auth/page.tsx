@@ -7,7 +7,7 @@ import { db } from '@/lib/firebase';
 
 export default function TestAuth() {
   const { user, appUser, loading, signUp, signIn } = useAuth();
-  const [testResults, setTestResults] = useState<any[]>([]);
+  const [testResults, setTestResults] = useState<{ test: string; result: string; success: boolean }[]>([]);
   const [testing, setTesting] = useState(false);
 
   const addResult = (test: string, result: 'success' | 'error', message: string) => {

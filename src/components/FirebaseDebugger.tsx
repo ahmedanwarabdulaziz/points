@@ -7,7 +7,7 @@ import { db } from '@/lib/firebase';
 
 export default function FirebaseDebugger() {
   const { user, appUser, loading } = useAuth();
-  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [debugInfo, setDebugInfo] = useState<{ permissions: string[]; userData: any } | null>(null);
   const [error, setError] = useState<string>('');
 
   useEffect(() => {

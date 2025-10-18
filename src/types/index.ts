@@ -116,7 +116,7 @@ export interface QRCodeData {
   classId: string;
   type: 'class' | 'referral';
   expiry?: Date;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 // Analytics Types

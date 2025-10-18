@@ -8,7 +8,7 @@ import { parseQRCode } from '@/lib/qrCode';
 
 export default function ScanQR() {
   const [isScanning, setIsScanning] = useState(false);
-  const [scannedData, setScannedData] = useState<any>(null);
+  const [scannedData, setScannedData] = useState<{ businessName: string; className: string } | null>(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);

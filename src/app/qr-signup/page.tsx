@@ -19,8 +19,8 @@ export default function QRSignupPage() {
   const { user, signUp, assignCustomerToBusiness } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [business, setBusiness] = useState<any>(null);
-  const [customerClass, setCustomerClass] = useState<any>(null);
+  const [business, setBusiness] = useState<Business | null>(null);
+  const [customerClass, setCustomerClass] = useState<CustomerClass | null>(null);
   const [loading, setLoading] = useState(true);
   const [signingUp, setSigningUp] = useState(false);
   const [formData, setFormData] = useState({
