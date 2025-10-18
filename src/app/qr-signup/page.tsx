@@ -1,11 +1,11 @@
 'use client';
 
-import { useAuth } from &apos;@/contexts/AuthContext';
-import { useRouter, useSearchParams } from &apos;next/navigation';
-import { useEffect, useState } from &apos;react';
-import { db, auth } from &apos;@/lib/firebase';
-import { doc, getDoc, setDoc, collection, addDoc } from &apos;firebase/firestore';
-import { createUserWithEmailAndPassword } from &apos;firebase/auth';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { db, auth } from '@/lib/firebase';
+import { doc, getDoc, setDoc, collection, addDoc } from 'firebase/firestore';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { 
   Building2, 
   Users, 
@@ -13,7 +13,7 @@ import {
   CheckCircle,
   ArrowRight,
   Star
-} from &apos;lucide-react';
+} from 'lucide-react';
 
 export default function QRSignupPage() {
   const { user, signUp, assignCustomerToBusiness } = useAuth();
@@ -24,21 +24,21 @@ export default function QRSignupPage() {
   const [loading, setLoading] = useState(true);
   const [signingUp, setSigningUp] = useState(false);
   const [formData, setFormData] = useState({
-    name: &apos;',
-    email: &apos;',
-    password: &apos;',
-    confirmPassword: &apos;'
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
   });
-  const [error, setError] = useState(&apos;');
+  const [error, setError] = useState('');
 
-  const businessId = searchParams.get(&apos;business&apos;);
-  const classId = searchParams.get(&apos;class&apos;);
+  const businessId = searchParams.get('business');
+  const classId = searchParams.get('class');
 
   useEffect(() => {
     const fetchBusinessData = async () => {
-      console.log(&apos;🔍 Fetching business data...&apos;, { businessId, classId });
-      console.log(&apos;🔍 URL parameters received:&apos;, { businessId, classId });
-      console.log(&apos;🔍 Parameter types:&apos;, { 
+      console.log('🔍 Fetching business data...', { businessId, classId });
+      console.log('🔍 URL parameters received:', { businessId, classId });
+      console.log('🔍 Parameter types:', { 
         businessIdType: typeof businessId, 
         classIdType: typeof classId,
         businessIdLength: businessId?.length,
@@ -46,60 +46,60 @@ export default function QRSignupPage() {
       });
       
       // Validate URL parameters
-      if (!businessId || businessId.trim() === &apos;' || !classId || classId.trim() === &apos;') {
-        console.error(&apos;❌ Missing or invalid business/class ID:&apos;, { businessId, classId });
-        setError(&apos;Invalid QR code. Missing business or class information.&apos;);
+      if (!businessId || businessId.trim() === '' || !classId || classId.trim() === '') {
+        console.error('❌ Missing or invalid business/class ID:', { businessId, classId });
+        setError('Invalid QR code. Missing business or class information.');
         setLoading(false);
         return;
       }
 
       // Additional validation for document ID format
       if (businessId.length < 3 || classId.length < 3) {
-        console.error(&apos;❌ Invalid document ID format:&apos;, { businessId, classId });
-        setError(&apos;Invalid QR code format.&apos;);
+        console.error('❌ Invalid document ID format:', { businessId, classId });
+        setError('Invalid QR code format.');
         setLoading(false);
         return;
       }
 
       try {
-        console.log(&apos;📊 Fetching business document...&apos;, businessId);
+        console.log('📊 Fetching business document...', businessId);
         // Fetch business data
-        const businessDoc = await getDoc(doc(db, &apos;businesses&apos;, businessId));
-        console.log(&apos;📊 Business doc exists:&apos;, businessDoc.exists());
+        const businessDoc = await getDoc(doc(db, 'businesses', businessId));
+        console.log('📊 Business doc exists:', businessDoc.exists());
         
         if (!businessDoc.exists()) {
-          console.error(&apos;❌ Business document not found&apos;);
-          setError(&apos;Business not found.&apos;);
+          console.error('❌ Business document not found');
+          setError('Business not found.');
           setLoading(false);
           return;
         }
         
         const businessData = { id: businessDoc.id, ...businessDoc.data() };
-        console.log(&apos;✅ Business data loaded:&apos;, businessData);
+        console.log('✅ Business data loaded:', businessData);
         setBusiness(businessData);
 
-        console.log(&apos;📊 Fetching customer class document...&apos;, classId);
+        console.log('📊 Fetching customer class document...', classId);
         // Fetch customer class data
-        const classDoc = await getDoc(doc(db, &apos;customerClasses&apos;, classId));
-        console.log(&apos;📊 Class doc exists:&apos;, classDoc.exists());
+        const classDoc = await getDoc(doc(db, 'customerClasses', classId));
+        console.log('📊 Class doc exists:', classDoc.exists());
         
         if (!classDoc.exists()) {
-          console.error(&apos;❌ Customer class document not found&apos;);
-          setError(&apos;Customer class not found.&apos;);
+          console.error('❌ Customer class document not found');
+          setError('Customer class not found.');
           setLoading(false);
           return;
         }
         
         const classData = { id: classDoc.id, ...classDoc.data() };
-        console.log(&apos;✅ Customer class data loaded:&apos;, classData);
+        console.log('✅ Customer class data loaded:', classData);
         setCustomerClass(classData);
 
       } catch (error) {
-        console.error(&apos;❌ Error fetching business data:&apos;, error);
-        if (error.message && error.message.includes(&apos;Invalid document reference&apos;)) {
-          setError(&apos;Invalid QR code. Please scan a valid QR code.&apos;);
+        console.error('❌ Error fetching business data:', error);
+        if (error.message && error.message.includes('Invalid document reference')) {
+          setError('Invalid QR code. Please scan a valid QR code.');
         } else {
-          setError(&apos;Failed to load business information.&apos;);
+          setError('Failed to load business information.');
         }
       } finally {
         setLoading(false);
@@ -119,52 +119,52 @@ export default function QRSignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(&apos;');
+    setError('');
 
     // Validation
     if (!formData.name.trim()) {
-      setError(&apos;Please enter your name.&apos;);
+      setError('Please enter your name.');
       return;
     }
     if (!formData.email.trim()) {
-      setError(&apos;Please enter your email.&apos;);
+      setError('Please enter your email.');
       return;
     }
     if (!formData.password) {
-      setError(&apos;Please enter a password.&apos;);
+      setError('Please enter a password.');
       return;
     }
     if (formData.password !== formData.confirmPassword) {
-      setError(&apos;Passwords do not match.&apos;);
+      setError('Passwords do not match.');
       return;
     }
     if (formData.password.length < 6) {
-      setError(&apos;Password must be at least 6 characters.&apos;);
+      setError('Password must be at least 6 characters.');
       return;
     }
 
     try {
       setSigningUp(true);
 
-      console.log(&apos;🔍 Starting QR signup process...&apos;, { businessId, classId, email: formData.email });
-      console.log(&apos;🔍 Business and Class IDs for assignment:&apos;, { 
+      console.log('🔍 Starting QR signup process...', { businessId, classId, email: formData.email });
+      console.log('🔍 Business and Class IDs for assignment:', { 
         businessId, 
         classId,
-        businessIdValid: businessId && businessId.trim() !== &apos;',
-        classIdValid: classId && classId.trim() !== &apos;'
+        businessIdValid: businessId && businessId.trim() !== '',
+        classIdValid: classId && classId.trim() !== ''
       });
 
       // Create user account using Firebase Auth directly for QR signup
       const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
       const newUser = userCredential.user;
 
-      console.log(&apos;✅ User created successfully:&apos;, newUser.uid);
+      console.log('✅ User created successfully:', newUser.uid);
 
       // Create unified user document with customer data and business/class assignment
       const userData = {
         id: newUser.uid,
         email: newUser.email!,
-        role: &apos;customer&apos;,
+        role: 'customer',
         createdAt: new Date(),
         updatedAt: new Date(),
         
@@ -176,40 +176,40 @@ export default function QRSignupPage() {
         points: 0,
         totalEarned: 0,
         totalRedeemed: 0,
-        status: &apos;active&apos;,
+        status: 'active',
         lastActivity: new Date()
       };
 
-      console.log(&apos;🔍 Creating user document with business/class assignment:&apos;, userData);
+      console.log('🔍 Creating user document with business/class assignment:', userData);
 
-      await setDoc(doc(db, &apos;users&apos;, newUser.uid), userData);
+      await setDoc(doc(db, 'users', newUser.uid), userData);
       
-      console.log(&apos;✅ User document created with business/class assignment&apos;);
+      console.log('✅ User document created with business/class assignment');
 
       // Double-check: Ensure customer is properly assigned using AuthContext function
-      console.log(&apos;🔍 Double-checking assignment with AuthContext...&apos;);
+      console.log('🔍 Double-checking assignment with AuthContext...');
       await assignCustomerToBusiness(newUser.uid, businessId, classId);
       
-      console.log(&apos;✅ Customer assignment completed successfully&apos;);
+      console.log('✅ Customer assignment completed successfully');
 
       // Redirect to customer dashboard
-      router.push(&apos;/dashboard&apos;);
+      router.push('/dashboard');
     } catch (error: unknown) {
-      console.error(&apos;❌ QR Signup error:&apos;, error);
-      console.error(&apos;❌ Error details:&apos;, {
+      console.error('❌ QR Signup error:', error);
+      console.error('❌ Error details:', {
         code: error.code,
         message: error.message,
         stack: error.stack
       });
-      setError(error.message || &apos;Failed to create account. Please try again.&apos;);
+      setError(error.message || 'Failed to create account. Please try again.');
     } finally {
       setSigningUp(false);
     }
   };
 
   const generateReferralCode = (): string => {
-    const chars = &apos;ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = &apos;';
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
     for (let i = 0; i < 8; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
@@ -235,7 +235,7 @@ export default function QRSignupPage() {
             <p className="text-red-600">{error}</p>
           </div>
           <button
-            onClick={() => router.push(&apos;/')}
+            onClick={() => router.push('/')}
             className="bg-navy text-white px-6 py-2 rounded-lg hover:bg-navy-light transition-colors"
           >
             Go to Homepage
@@ -380,8 +380,8 @@ export default function QRSignupPage() {
                 disabled={signingUp}
                 className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors inline-flex items-center justify-center ${
                   signingUp
-                    ? &apos;bg-gray-400 text-gray-200 cursor-not-allowed&apos;
-                    : &apos;bg-orange text-white hover:bg-orange-light&apos;
+                    ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                    : 'bg-orange text-white hover:bg-orange-light'
                 }`}
               >
                 {signingUp ? (
@@ -400,9 +400,9 @@ export default function QRSignupPage() {
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
-                Already have an account?{&apos; '}
+                Already have an account?{' '}
                 <button
-                  onClick={() => router.push(&apos;/signin&apos;)}
+                  onClick={() => router.push('/signin')}
                   className="text-orange hover:text-orange-light font-medium"
                 >
                   Sign in here

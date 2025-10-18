@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from &apos;react';
-import Link from &apos;next/link';
-import { useAuth } from &apos;@/contexts/AuthContext';
-import { Menu, X, Gift, User, ShoppingBag, Building2, Shield, QrCode } from &apos;lucide-react';
+import { useState } from 'react';
+import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
+import { Menu, X, Gift, User, ShoppingBag, Building2, Shield, QrCode } from 'lucide-react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -34,7 +34,7 @@ export default function Header() {
             <Link href="/" className="text-navy hover:text-orange transition-colors font-medium">
               Home
             </Link>
-            {appUser?.role === &apos;customer&apos; && (
+            {appUser?.role === 'customer' && (
               <>
                 <Link href="/rewards" className="text-navy hover:text-orange transition-colors font-medium">
                   Rewards
@@ -47,7 +47,7 @@ export default function Header() {
                 </Link>
               </>
             )}
-            {appUser?.role === &apos;business&apos; && (
+            {appUser?.role === 'business' && (
               <>
                 <Link href="/business-dashboard" className="text-navy hover:text-orange transition-colors font-medium">
                   Dashboard
@@ -60,7 +60,7 @@ export default function Header() {
                 </Link>
               </>
             )}
-            {appUser?.role === &apos;admin&apos; && (
+            {appUser?.role === 'admin' && (
               <Link href="/admin-dashboard" className="text-navy hover:text-orange transition-colors font-medium">
                 Admin
               </Link>
@@ -74,19 +74,19 @@ export default function Header() {
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <>
-                {appUser?.role === &apos;customer&apos; && (
+                {appUser?.role === 'customer' && (
                   <Link href="/dashboard" className="flex items-center space-x-1 text-navy hover:text-orange transition-colors">
                     <User className="h-5 w-5" />
                     <span>Dashboard</span>
                   </Link>
                 )}
-                {appUser?.role === &apos;business&apos; && (
+                {appUser?.role === 'business' && (
                   <Link href="/business-dashboard" className="flex items-center space-x-1 text-navy hover:text-orange transition-colors">
                     <Building2 className="h-5 w-5" />
                     <span>Business</span>
                   </Link>
                 )}
-                {appUser?.role === &apos;admin&apos; && (
+                {appUser?.role === 'admin' && (
                   <Link href="/admin-dashboard" className="flex items-center space-x-1 text-navy hover:text-orange transition-colors">
                     <Shield className="h-5 w-5" />
                     <span>Admin</span>
@@ -129,7 +129,7 @@ export default function Header() {
               <Link href="/" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
                 Home
               </Link>
-              {appUser?.role === &apos;customer&apos; && (
+              {appUser?.role === 'customer' && (
                 <>
                   <Link href="/rewards" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
                     Rewards
@@ -142,7 +142,7 @@ export default function Header() {
                   </Link>
                 </>
               )}
-              {appUser?.role === &apos;business&apos; && (
+              {appUser?.role === 'business' && (
                 <>
                   <Link href="/business-dashboard" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
                     Dashboard
@@ -155,7 +155,7 @@ export default function Header() {
                   </Link>
                 </>
               )}
-              {appUser?.role === &apos;admin&apos; && (
+              {appUser?.role === 'admin' && (
                 <Link href="/admin-dashboard" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
                   Admin
                 </Link>
@@ -166,17 +166,17 @@ export default function Header() {
               <div className="border-t border-gray-200 pt-3 mt-3">
                 {user ? (
                   <>
-                    {appUser?.role === &apos;customer&apos; && (
+                    {appUser?.role === 'customer' && (
                       <Link href="/dashboard" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
                         Dashboard
                       </Link>
                     )}
-                    {appUser?.role === &apos;business&apos; && (
+                    {appUser?.role === 'business' && (
                       <Link href="/business-dashboard" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
                         Business Dashboard
                       </Link>
                     )}
-                    {appUser?.role === &apos;admin&apos; && (
+                    {appUser?.role === 'admin' && (
                       <Link href="/admin-dashboard" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
                         Admin Dashboard
                       </Link>

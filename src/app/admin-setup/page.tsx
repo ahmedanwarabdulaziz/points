@@ -1,16 +1,16 @@
 'use client';
 
-import { useState } from &apos;react';
-import { useRouter } from &apos;next/navigation';
-import { useAuth } from &apos;@/contexts/AuthContext';
-import { Shield, CheckCircle, ArrowRight } from &apos;lucide-react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { Shield, CheckCircle, ArrowRight } from 'lucide-react';
 
 export default function AdminSetup() {
-  const [email, setEmail] = useState(&apos;');
-  const [password, setPassword] = useState(&apos;');
-  const [adminName, setAdminName] = useState(&apos;');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [adminName, setAdminName] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(&apos;');
+  const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   
   const { signUp } = useAuth();
@@ -18,26 +18,26 @@ export default function AdminSetup() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(&apos;');
+    setError('');
 
     if (!adminName.trim()) {
-      setError(&apos;Please enter admin name&apos;);
+      setError('Please enter admin name');
       return;
     }
 
     if (password.length < 6) {
-      setError(&apos;Password must be at least 6 characters&apos;);
+      setError('Password must be at least 6 characters');
       return;
     }
 
     try {
       setLoading(true);
-      await signUp(email, password, &apos;admin&apos;, adminName);
+      await signUp(email, password, 'admin', adminName);
       setSuccess(true);
       
       // Redirect to admin dashboard after 2 seconds
       setTimeout(() => {
-        router.push(&apos;/admin-dashboard&apos;);
+        router.push('/admin-dashboard');
       }, 2000);
       
     } catch (error: unknown) {
@@ -152,7 +152,7 @@ export default function AdminSetup() {
                 disabled={loading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange hover:bg-orange-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? &apos;Creating admin account...&apos; : &apos;Create Admin Account&apos;}
+                {loading ? 'Creating admin account...' : 'Create Admin Account'}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </button>
             </div>

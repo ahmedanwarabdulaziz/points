@@ -1,68 +1,68 @@
-import { Users, Star, CreditCard, Gift, CheckCircle, ArrowRight } from &apos;lucide-react';
-import Link from &apos;next/link';
+import { Users, Star, CreditCard, Gift, CheckCircle, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 export default function HowItWorks() {
   const steps = [
     {
       number: 1,
-      title: &apos;Sign Up&apos;,
-      description: &apos;Create your free account in just a few minutes&apos;,
+      title: 'Sign Up',
+      description: 'Create your free account in just a few minutes',
       icon: Users,
-      color: &apos;bg-navy&apos;,
+      color: 'bg-navy',
       details: [
-        &apos;Enter your email and create a password&apos;,
-        &apos;Verify your email address&apos;,
-        &apos;Complete your profile setup&apos;,
-        &apos;Get 100 welcome bonus points&apos;
+        'Enter your email and create a password',
+        'Verify your email address',
+        'Complete your profile setup',
+        'Get 100 welcome bonus points'
       ]
     },
     {
       number: 2,
-      title: &apos;Earn Points&apos;,
-      description: &apos;Make purchases and watch your points grow&apos;,
+      title: 'Earn Points',
+      description: 'Make purchases and watch your points grow',
       icon: Star,
-      color: &apos;bg-orange&apos;,
+      color: 'bg-orange',
       details: [
-        &apos;Earn 1 point for every $1 spent&apos;,
-        &apos;Get bonus points for special offers&apos;,
-        &apos;Refer friends for 100 points each&apos;,
-        &apos;Complete tasks for extra points&apos;
+        'Earn 1 point for every $1 spent',
+        'Get bonus points for special offers',
+        'Refer friends for 100 points each',
+        'Complete tasks for extra points'
       ]
     },
     {
       number: 3,
-      title: &apos;Redeem Rewards&apos;,
-      description: &apos;Use your points for amazing rewards and gift cards&apos;,
+      title: 'Redeem Rewards',
+      description: 'Use your points for amazing rewards and gift cards',
       icon: CreditCard,
-      color: &apos;bg-green-500&apos;,
+      color: 'bg-green-500',
       details: [
-        &apos;Browse our selection of rewards&apos;,
-        &apos;Choose from gift cards and exclusive items&apos;,
-        &apos;Redeem instantly with your points&apos;,
-        &apos;Enjoy your rewards immediately&apos;
+        'Browse our selection of rewards',
+        'Choose from gift cards and exclusive items',
+        'Redeem instantly with your points',
+        'Enjoy your rewards immediately'
       ]
     }
   ];
 
   const benefits = [
     {
-      title: &apos;Easy to Use&apos;,
-      description: &apos;Simple and intuitive interface that makes earning and redeeming points effortless&apos;,
+      title: 'Easy to Use',
+      description: 'Simple and intuitive interface that makes earning and redeeming points effortless',
       icon: CheckCircle
     },
     {
-      title: &apos;Great Rewards&apos;,
-      description: &apos;Access to exclusive gift cards and rewards from top brands&apos;,
+      title: 'Great Rewards',
+      description: 'Access to exclusive gift cards and rewards from top brands',
       icon: Gift
     },
     {
-      title: &apos;Secure & Safe&apos;,
-      description: &apos;Your data and points are protected with enterprise-grade security&apos;,
+      title: 'Secure & Safe',
+      description: 'Your data and points are protected with enterprise-grade security',
       icon: CheckCircle
     },
     {
-      title: &apos;No Expiration&apos;,
-      description: &apos;Your points never expire, so you can save them for the perfect reward&apos;,
+      title: 'No Expiration',
+      description: 'Your points never expire, so you can save them for the perfect reward',
       icon: CheckCircle
     }
   ];
@@ -138,7 +138,7 @@ export default function HowItWorks() {
             </div>
             <div className="border-b border-gray-200 pb-4">
               <h3 className="text-lg font-semibold text-navy mb-2">Do my points expire?</h3>
-              <p className="text-gray-600">No, your points never expire. You can save them for as long as you want and redeem them whenever you&apos;re ready.</p>
+              <p className="text-gray-600">No, your points never expire. You can save them for as long as you want and redeem them whenever you're ready.</p>
             </div>
             <div className="border-b border-gray-200 pb-4">
               <h3 className="text-lg font-semibold text-navy mb-2">How do I redeem rewards?</h3>
@@ -150,7 +150,7 @@ export default function HowItWorks() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-navy mb-2">Can I refer friends?</h3>
-              <p className="text-gray-600">Absolutely! Refer friends and earn 100 points for each friend who signs up. They&apos;ll also get 100 welcome bonus points.</p>
+              <p className="text-gray-600">Absolutely! Refer friends and earn 100 points for each friend who signs up. They'll also get 100 welcome bonus points.</p>
             </div>
           </div>
         </div>
