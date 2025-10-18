@@ -1,4 +1,4 @@
-import QRCode from &apos;qrcode';
+import QRCode from 'qrcode';
 
 export interface QRCodeOptions {
   businessId: string;
