@@ -81,7 +81,7 @@ export default function AdminDashboard() {
         // Combine user data with business data
         const enrichedUsers = usersData.map(user => {
           const userData = user as User; // Type assertion for Firebase data
-          const businessData = businessesData.find(business => business.id === userData.businessId) as Business;
+          const businessData = businessesData.find(business => business.id === userData.businessId) as Business | undefined;
           
           return {
             ...user,
