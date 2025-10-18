@@ -77,7 +77,7 @@ export default function ScanQR() {
           </div>
           <h2 className="text-2xl font-bold text-navy mb-2">Successfully Joined!</h2>
           <p className="text-gray-600 mb-4">
-            You've been added to {scannedData?.businessName} as a {scannedData?.className} member.
+            You&apos;ve been added to {scannedData?.businessName} as a {scannedData?.className} member.
           </p>
           <button
             onClick={() => router.push('/dashboard')}

@@ -138,7 +138,7 @@ export default function HowItWorks() {
             </div>
             <div className="border-b border-gray-200 pb-4">
               <h3 className="text-lg font-semibold text-navy mb-2">Do my points expire?</h3>
-              <p className="text-gray-600">No, your points never expire. You can save them for as long as you want and redeem them whenever you're ready.</p>
+              <p className="text-gray-600">No, your points never expire. You can save them for as long as you want and redeem them whenever you&apos;re ready.</p>
             </div>
             <div className="border-b border-gray-200 pb-4">
               <h3 className="text-lg font-semibold text-navy mb-2">How do I redeem rewards?</h3>
@@ -150,7 +150,7 @@ export default function HowItWorks() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-navy mb-2">Can I refer friends?</h3>
-              <p className="text-gray-600">Absolutely! Refer friends and earn 100 points for each friend who signs up. They'll also get 100 welcome bonus points.</p>
+              <p className="text-gray-600">Absolutely! Refer friends and earn 100 points for each friend who signs up. They&apos;ll also get 100 welcome bonus points.</p>
             </div>
           </div>
         </div>
