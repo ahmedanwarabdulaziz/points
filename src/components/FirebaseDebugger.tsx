@@ -8,7 +8,7 @@ import { User } from '@/types';
 
 export default function FirebaseDebugger() {
   const { user, appUser, loading } = useAuth();
-  const [debugInfo, setDebugInfo] = useState<{ permissions: string[]; userData: User | null } | null>(null);
+  const [debugInfo, setDebugInfo] = useState<{ permissions: string; userData: User | null } | null>(null);
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
@@ -35,26 +35,15 @@ export default function FirebaseDebugger() {
       await setDoc(doc(db, 'test', user!.uid), testData);
       
       setDebugInfo({
-        user: {
-          uid: user!.uid,
-          email: user!.email,
-          emailVerified: user!.emailVerified
-        },
-        appUser: appUser,
-        userDoc: userData,
-        permissions: 'Write access confirmed'
+        permissions: 'Write access confirmed',
+        userData: userData as User | null
       });
       
     } catch (err: unknown) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'Unknown error');
       setDebugInfo({
-        user: {
-          uid: user!.uid,
-          email: user!.email,
-          emailVerified: user!.emailVerified
-        },
-        appUser: appUser,
-        error: err.message
+        permissions: 'Write access denied',
+        userData: null
       });
     }
   };
@@ -86,19 +75,19 @@ export default function FirebaseDebugger() {
       
       <div className="space-y-2 text-sm">
         <div>
-          <span className="font-semibold">User ID:</span> {debugInfo?.user?.uid}
+          <span className="font-semibold">User ID:</span> {user?.uid}
         </div>
         <div>
-          <span className="font-semibold">Email:</span> {debugInfo?.user?.email}
+          <span className="font-semibold">Email:</span> {user?.email}
         </div>
         <div>
-          <span className="font-semibold">Email Verified:</span> {debugInfo?.user?.emailVerified ? 'Yes' : 'No'}
+          <span className="font-semibold">Email Verified:</span> {user?.emailVerified ? 'Yes' : 'No'}
         </div>
         <div>
-          <span className="font-semibold">App User Role:</span> {debugInfo?.appUser?.role || 'Not set'}
+          <span className="font-semibold">App User Role:</span> {appUser?.role || 'Not set'}
         </div>
         <div>
-          <span className="font-semibold">User Document:</span> {debugInfo?.userDoc ? 'Exists' : 'Missing'}
+          <span className="font-semibold">User Document:</span> {debugInfo?.userData ? 'Exists' : 'Missing'}
         </div>
         {debugInfo?.permissions && (
           <div>

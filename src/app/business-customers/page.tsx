@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
+import { User, CustomerClass } from '@/types';
 import { 
   Users, 
   Search, 
@@ -11,7 +12,7 @@ import {
   Eye, 
   Edit, 
   MoreVertical,
-  User,
+  User as UserIcon,
   Mail,
   Calendar,
   Star,
@@ -95,8 +96,15 @@ export default function BusinessCustomers() {
           });
           return {
             id: doc.id,
-            ...data,
+            email: data.email || '',
+            role: data.role || 'customer',
+            name: data.name || '',
+            businessId: data.businessId || '',
+            classId: data.classId || '',
+            points: data.points || 0,
+            status: data.status || 'active',
             createdAt: data.createdAt?.toDate?.() || new Date(),
+            updatedAt: data.updatedAt?.toDate?.() || new Date(),
             lastActivity: data.lastActivity?.toDate?.() || new Date()
           };
         });
@@ -119,11 +127,20 @@ export default function BusinessCustomers() {
           where('businessId', '==', business.id)
         );
         const classesSnapshot = await getDocs(classesQuery);
-        const classesData = classesSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate?.() || new Date()
-        }));
+        const classesData = classesSnapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            businessId: data.businessId || '',
+            name: data.name || '',
+            type: data.type || 'custom',
+            description: data.description || '',
+            features: data.features || {},
+            isActive: data.isActive !== undefined ? data.isActive : true,
+            createdAt: data.createdAt?.toDate?.() || new Date(),
+            updatedAt: data.updatedAt?.toDate?.() || new Date()
+          };
+        });
 
         console.log('✅ Customer classes fetched:', classesData.length);
         setCustomerClasses(classesData);
@@ -161,12 +178,33 @@ export default function BusinessCustomers() {
 
     // Sort
     filtered.sort((a, b) => {
-      let aValue = a[sortBy];
-      let bValue = b[sortBy];
+      let aValue: string | number;
+      let bValue: string | number;
       
-      if (sortBy === 'createdAt' || sortBy === 'lastActivity') {
-        aValue = aValue?.getTime() || 0;
-        bValue = bValue?.getTime() || 0;
+      switch (sortBy) {
+        case 'name':
+          aValue = a.name || '';
+          bValue = b.name || '';
+          break;
+        case 'email':
+          aValue = a.email || '';
+          bValue = b.email || '';
+          break;
+        case 'points':
+          aValue = a.points || 0;
+          bValue = b.points || 0;
+          break;
+        case 'createdAt':
+          aValue = a.createdAt?.getTime() || 0;
+          bValue = b.createdAt?.getTime() || 0;
+          break;
+        case 'lastActivity':
+          aValue = a.lastActivity?.getTime() || 0;
+          bValue = b.lastActivity?.getTime() || 0;
+          break;
+        default:
+          aValue = a.name || '';
+          bValue = b.name || '';
       }
       
       if (sortOrder === 'asc') {
@@ -179,7 +217,7 @@ export default function BusinessCustomers() {
     setFilteredCustomers(filtered);
   }, [customers, searchTerm, filterClass, sortBy, sortOrder]);
 
-  const handleViewCustomer = (customer: unknown) => {
+  const handleViewCustomer = (customer: User) => {
     setSelectedCustomer(customer);
     setShowCustomerModal(true);
   };
@@ -439,7 +477,7 @@ export default function BusinessCustomers() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="bg-navy text-white rounded-full w-10 h-10 flex items-center justify-center">
-                            <User className="h-5 w-5" />
+                            <UserIcon className="h-5 w-5" />
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">
@@ -454,7 +492,7 @@ export default function BusinessCustomers() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {getCustomerClassName(customer.classId)}
+                          {getCustomerClassName(customer.classId || '')}
                         </span>
                         {customer.classId && (
                           <div className="text-xs text-gray-500 mt-1">
@@ -553,7 +591,7 @@ export default function BusinessCustomers() {
                   {/* Customer Info */}
                   <div className="flex items-center space-x-4">
                     <div className="bg-navy text-white rounded-full w-16 h-16 flex items-center justify-center">
-                      <User className="h-8 w-8" />
+                      <UserIcon className="h-8 w-8" />
                     </div>
                     <div>
                       <h3 className="text-xl font-semibold text-gray-900">
@@ -620,26 +658,29 @@ export default function BusinessCustomers() {
                       <label className="text-sm font-medium text-gray-600">Class</label>
                       <div className="mt-1">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                          {getCustomerClassName(selectedCustomer.classId)}
+                          {getCustomerClassName(selectedCustomer.classId || '')}
                         </span>
                         {selectedCustomer.classId && (
                           <p className="text-sm text-gray-500 mt-1">
                             ID: {selectedCustomer.classId}
                           </p>
                         )}
-                        {getCustomerClassDetails(selectedCustomer.classId) && (
-                          <div className="mt-2 p-3 bg-gray-50 rounded-lg">
-                            <p className="text-sm text-gray-600">
-                              <strong>Description:</strong> {getCustomerClassDetails(selectedCustomer.classId).description || 'No description'}
-                            </p>
-                            <p className="text-sm text-gray-600 mt-1">
-                              <strong>Points per $:</strong> {getCustomerClassDetails(selectedCustomer.classId).features?.pointsPerDollar || 0}
-                            </p>
-                            <p className="text-sm text-gray-600 mt-1">
-                              <strong>Referral Bonus:</strong> {getCustomerClassDetails(selectedCustomer.classId).features?.referralBonus || 0} points
-                            </p>
-                          </div>
-                        )}
+                        {(() => {
+                          const classDetails = getCustomerClassDetails(selectedCustomer.classId || '');
+                          return classDetails && (
+                            <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+                              <p className="text-sm text-gray-600">
+                                <strong>Description:</strong> {classDetails.description || 'No description'}
+                              </p>
+                              <p className="text-sm text-gray-600 mt-1">
+                                <strong>Points per $:</strong> {classDetails.features?.pointsPerDollar || 0}
+                              </p>
+                              <p className="text-sm text-gray-600 mt-1">
+                                <strong>Referral Bonus:</strong> {classDetails.features?.referralBonus || 0} points
+                              </p>
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                     <div>

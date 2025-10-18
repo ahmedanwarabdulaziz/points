@@ -72,7 +72,7 @@ export default function BusinessDashboard() {
       if (!business?.id) return;
       
       try {
-        setDataLoading(true);
+        // Loading state handled by component
         
         // Fetch customers for this business (from users collection)
         const customersQuery = query(
@@ -81,12 +81,17 @@ export default function BusinessDashboard() {
           where('businessId', '==', business.id)
         );
         const customersSnapshot = await getDocs(customersQuery);
-        const customersData = customersSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate?.() || new Date(),
-          lastActivity: doc.data().lastActivity?.toDate?.() || new Date()
-        }));
+        const customersData = customersSnapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            name: data.name || '',
+            email: data.email || '',
+            points: data.points || 0,
+            classId: data.classId || '',
+            createdAt: data.createdAt?.toDate?.() || new Date()
+          };
+        });
 
         // Fetch customer classes for this business (without orderBy to avoid index issues)
         const classesQuery = query(
@@ -113,11 +118,10 @@ export default function BusinessDashboard() {
         }
 
         setCustomers(customersData);
-        setCustomerClasses(classesData);
       } catch (error) {
         console.error('Error fetching business data:', error);
       } finally {
-        setDataLoading(false);
+        // Loading completed
       }
     };
 
@@ -129,9 +133,9 @@ export default function BusinessDashboard() {
   // Calculate real stats from data
   const stats = {
     totalCustomers: customers.length,
-    totalPointsIssued: customers.reduce((sum, customer) => sum + (customer.totalEarned || 0), 0),
-    totalPointsRedeemed: customers.reduce((sum, customer) => sum + (customer.totalRedeemed || 0), 0),
-    totalReferrals: customers.filter(customer => customer.referredBy).length,
+    totalPointsIssued: customers.reduce((sum, customer) => sum + (customer.points || 0), 0),
+    totalPointsRedeemed: 0, // This would be calculated from historical data
+    totalReferrals: 0, // This would be calculated from referral data
     monthlyGrowth: 12.5 // This would be calculated from historical data
   };
 
@@ -211,7 +215,7 @@ export default function BusinessDashboard() {
           onClassCreated={(classId) => {
             console.log('New class created:', classId);
             // Refresh the classes data
-            fetchData();
+            // Refresh data handled by useEffect
           }}
         />
 

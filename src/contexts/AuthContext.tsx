@@ -2,9 +2,9 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
-import { User as AppUser, Business, Customer } from '@/types';
+import { User as AppUser, Business } from '@/types';
 
 // Generate a unique referral code
   const generateReferralCode = (): string => {
@@ -34,18 +34,8 @@ import { User as AppUser, Business, Customer } from '@/types';
       console.log('✅ Customer document updated successfully');
 
       // Update the customer data in state if it's the current user
-      if (appUser && appUser.id === customerId) {
-        console.log('🔍 Updating appUser state with business/class assignment');
-        setAppUser(prev => ({
-          ...prev,
-          businessId: businessId,
-          classId: classId,
-          referredBy: referredBy || null,
-          updatedAt: new Date(),
-          lastActivity: new Date()
-        }));
-      }
-
+      // Note: This function is called from outside the component context
+      // so we can't access appUser state directly here
       console.log('✅ Customer assigned to business and class:', { customerId, businessId, classId });
     } catch (error) {
       console.error('❌ Error assigning customer to business:', error);
@@ -141,7 +131,7 @@ interface AuthContextType {
   user: User | null;
   appUser: AppUser | null;
   business: Business | null;
-  customer: Customer | null;
+  customer: AppUser | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, role?: 'admin' | 'business' | 'customer', customerName?: string) => Promise<void>;
@@ -161,6 +151,8 @@ const AuthContext = createContext<AuthContextType>({
   signUp: async () => {},
   logout: async () => {},
   updateUserRole: async () => {},
+  assignCustomerToBusiness: async () => {},
+  validateAndFixCustomerAssignment: async () => false,
 });
 
 export const useAuth = () => {
@@ -175,7 +167,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [appUser, setAppUser] = useState<AppUser | null>(null);
   const [business, setBusiness] = useState<Business | null>(null);
-  const [customer, setCustomer] = useState<Customer | null>(null);
+  const [customer, setCustomer] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -203,7 +195,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             // Customer data is now part of the user document
             if (userData.role === 'customer') {
               // Customer data is already in userData, no need to fetch separately
-              setCustomer(userData as Customer);
+              setCustomer(userData);
             } else {
               setCustomer(null);
             }
@@ -245,19 +237,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error('❌ Signin error:', error);
       
       // Handle specific Firebase Auth errors
-      if (error.code === 'auth/user-not-found') {
-        throw new Error('No account found with this email address. Please sign up first.');
-      } else if (error.code === 'auth/wrong-password') {
-        throw new Error('Incorrect password. Please try again.');
-      } else if (error.code === 'auth/invalid-email') {
-        throw new Error('Please enter a valid email address.');
-      } else if (error.code === 'auth/user-disabled') {
-        throw new Error('This account has been disabled. Please contact support.');
-      } else if (error.code === 'auth/too-many-requests') {
-        throw new Error('Too many failed attempts. Please try again later.');
-      } else {
-        throw new Error('Sign in failed. Please check your credentials and try again.');
+      if (error instanceof Error && 'code' in error) {
+        const firebaseError = error as { code: string };
+        if (firebaseError.code === 'auth/user-not-found') {
+          throw new Error('No account found with this email address. Please sign up first.');
+        } else if (firebaseError.code === 'auth/wrong-password') {
+          throw new Error('Incorrect password. Please try again.');
+        } else if (firebaseError.code === 'auth/invalid-email') {
+          throw new Error('Please enter a valid email address.');
+        } else if (firebaseError.code === 'auth/user-disabled') {
+          throw new Error('This account has been disabled. Please contact support.');
+        } else if (firebaseError.code === 'auth/too-many-requests') {
+          throw new Error('Too many failed attempts. Please try again later.');
+        }
       }
+      throw new Error('Sign in failed. Please check your credentials and try again.');
     }
   };
 
@@ -296,17 +290,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error('❌ Signup error:', error);
       
       // Handle specific Firebase Auth errors
-      if (error.code === 'auth/email-already-in-use') {
-        throw new Error('This email address is already registered. Please use a different email or try signing in instead.');
-      } else if (error.code === 'auth/weak-password') {
-        throw new Error('Password is too weak. Please choose a stronger password.');
-      } else if (error.code === 'auth/invalid-email') {
-        throw new Error('Please enter a valid email address.');
-      } else if (error.code === 'auth/operation-not-allowed') {
-        throw new Error('Email/password accounts are not enabled. Please contact support.');
-      } else {
-        throw new Error('Signup failed. Please try again later.');
+      if (error instanceof Error && 'code' in error) {
+        const firebaseError = error as { code: string };
+        if (firebaseError.code === 'auth/email-already-in-use') {
+          throw new Error('This email address is already registered. Please use a different email or try signing in instead.');
+        } else if (firebaseError.code === 'auth/weak-password') {
+          throw new Error('Password is too weak. Please choose a stronger password.');
+        } else if (firebaseError.code === 'auth/invalid-email') {
+          throw new Error('Please enter a valid email address.');
+        } else if (firebaseError.code === 'auth/operation-not-allowed') {
+          throw new Error('Email/password accounts are not enabled. Please contact support.');
+        }
       }
+      throw new Error('Signup failed. Please try again later.');
     }
   };
 

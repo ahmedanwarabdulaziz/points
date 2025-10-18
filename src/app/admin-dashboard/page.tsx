@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import RoleRedirect from '@/components/RoleRedirect';
 import DashboardLayout from '@/components/DashboardLayout';
 import { db } from '@/lib/firebase';
@@ -19,7 +19,7 @@ import {
   Settings,
 } from 'lucide-react';
 
-export default function AdminDashboard() {
+function AdminDashboardContent() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const [selectedTab, setSelectedTab] = useState('businesses');
@@ -71,12 +71,18 @@ export default function AdminDashboard() {
         // Fetch businesses
         const businessesQuery = query(collection(db, 'businesses'), orderBy('createdAt', 'desc'));
         const businessesSnapshot = await getDocs(businessesQuery);
-        const businessesData = businessesSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate?.() || new Date(),
-          updatedAt: doc.data().updatedAt?.toDate?.() || new Date()
-        }));
+        const businessesData = businessesSnapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            name: data.name || 'Unknown Business',
+            description: data.description || '',
+            status: data.status || 'pending',
+            ownerId: data.ownerId || '',
+            createdAt: data.createdAt?.toDate?.() || new Date(),
+            updatedAt: data.updatedAt?.toDate?.() || new Date()
+          };
+        });
 
         // Combine user data with business data
         const enrichedUsers = usersData.map(user => {
@@ -362,7 +368,7 @@ export default function AdminDashboard() {
                             </span>
                           </div>
                           <p className="text-gray-600 text-sm mb-1">{business.description}</p>
-                          <p className="text-gray-500 text-xs">Owner: {business.owner} • Created: {business.createdAt ? new Date(business.createdAt).toLocaleDateString() : 'N/A'}</p>
+                          <p className="text-gray-500 text-xs">Owner: {business.ownerId} • Created: {business.createdAt ? new Date(business.createdAt).toLocaleDateString() : 'N/A'}</p>
                         </div>
                         {business.status === 'pending' && (
                           <div className="flex space-x-2">
@@ -485,12 +491,12 @@ export default function AdminDashboard() {
                                 <div className="flex-shrink-0 h-10 w-10">
                                   <div className="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center">
                                     <span className="text-orange-600 font-medium text-sm">
-                                      {user.name.split(' ').map(n => n[0]).join('')}
+                                      {user.name?.split(' ').map(n => n[0]).join('') || 'U'}
                                     </span>
                                   </div>
                                 </div>
                                 <div className="ml-4">
-                                  <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                                  <div className="text-sm font-medium text-gray-900">{user.name || 'Unknown User'}</div>
                                   <div className="text-sm text-gray-500">{user.email}</div>
                                 </div>
                               </div>
@@ -507,11 +513,11 @@ export default function AdminDashboard() {
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {user.businessName || 'N/A'}
+                              {(user as { businessName?: string }).businessName || 'N/A'}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                               <div className="flex items-center">
-                                <span className="font-medium">{user.points.toLocaleString()}</span>
+                                <span className="font-medium">{(user.points || 0).toLocaleString()}</span>
                                 {user.role === 'customer' && (
                                   <span className="ml-2 text-xs text-gray-500">pts</span>
                                 )}
@@ -525,7 +531,7 @@ export default function AdminDashboard() {
                                   ? 'bg-yellow-100 text-yellow-800'
                                   : 'bg-red-100 text-red-800'
                               }`}>
-                                {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                                {(user.status || 'active').charAt(0).toUpperCase() + (user.status || 'active').slice(1)}
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -673,5 +679,18 @@ export default function AdminDashboard() {
         </div>
       </DashboardLayout>
     </RoleRedirect>
+  );
+}
+
+export default function AdminDashboard() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange mx-auto mb-4"></div>
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    </div>}>
+      <AdminDashboardContent />
+    </Suspense>
   );
 }

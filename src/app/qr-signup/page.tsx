@@ -2,7 +2,8 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Business, CustomerClass } from '@/types';
+import { useEffect, useState, Suspense } from 'react';
 import { db, auth } from '@/lib/firebase';
 import { doc, getDoc, setDoc, collection, addDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
@@ -15,7 +16,7 @@ import {
   Star
 } from 'lucide-react';
 
-export default function QRSignupPage() {
+function QRSignupContent() {
   const { user, signUp, assignCustomerToBusiness } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -74,7 +75,19 @@ export default function QRSignupPage() {
           return;
         }
         
-        const businessData = { id: businessDoc.id, ...businessDoc.data() };
+        const data = businessDoc.data();
+        const businessData = {
+          id: businessDoc.id,
+          name: data.name || '',
+          description: data.description || '',
+          ownerId: data.ownerId || '',
+          status: data.status || 'pending',
+          createdAt: data.createdAt?.toDate?.() || new Date(),
+          settings: data.settings || {
+            allowReferrals: true,
+            defaultPointsPerDollar: 1
+          }
+        };
         console.log('✅ Business data loaded:', businessData);
         setBusiness(businessData);
 
@@ -90,13 +103,24 @@ export default function QRSignupPage() {
           return;
         }
         
-        const classData = { id: classDoc.id, ...classDoc.data() };
+        const classDocData = classDoc.data();
+        const classData = {
+          id: classDoc.id,
+          businessId: classDocData.businessId || '',
+          name: classDocData.name || '',
+          type: classDocData.type || 'custom',
+          description: classDocData.description || '',
+          features: classDocData.features || {},
+          isActive: classDocData.isActive !== undefined ? classDocData.isActive : true,
+          createdAt: classDocData.createdAt?.toDate?.() || new Date(),
+          updatedAt: classDocData.updatedAt?.toDate?.() || new Date()
+        };
         console.log('✅ Customer class data loaded:', classData);
         setCustomerClass(classData);
 
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('❌ Error fetching business data:', error);
-        if (error.message && error.message.includes('Invalid document reference')) {
+        if (error instanceof Error && error.message && error.message.includes('Invalid document reference')) {
           setError('Invalid QR code. Please scan a valid QR code.');
         } else {
           setError('Failed to load business information.');
@@ -188,7 +212,7 @@ export default function QRSignupPage() {
 
       // Double-check: Ensure customer is properly assigned using AuthContext function
       console.log('🔍 Double-checking assignment with AuthContext...');
-      await assignCustomerToBusiness(newUser.uid, businessId, classId);
+      await assignCustomerToBusiness(newUser.uid, businessId || '', classId || '');
       
       console.log('✅ Customer assignment completed successfully');
 
@@ -197,11 +221,11 @@ export default function QRSignupPage() {
     } catch (error: unknown) {
       console.error('❌ QR Signup error:', error);
       console.error('❌ Error details:', {
-        code: error.code,
-        message: error.message,
-        stack: error.stack
+        code: error instanceof Error ? error.message : 'Unknown error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack trace'
       });
-      setError(error.message || 'Failed to create account. Please try again.');
+      setError(error instanceof Error ? error.message : 'Failed to create account. Please try again.');
     } finally {
       setSigningUp(false);
     }
@@ -286,9 +310,9 @@ export default function QRSignupPage() {
                 </div>
                 <p className="text-sm text-gray-600">{customerClass?.description}</p>
                 <div className="mt-2 text-sm text-gray-500">
-                  <p>• {customerClass?.pointsPerDollar} point per dollar spent</p>
-                  {customerClass?.referralBonus > 0 && (
-                    <p>• {customerClass?.referralBonus} bonus points for referrals</p>
+                  <p>• {customerClass?.features?.pointsPerDollar || 1} point per dollar spent</p>
+                  {(customerClass?.features?.referralBonus || 0) > 0 && (
+                    <p>• {customerClass?.features?.referralBonus} bonus points for referrals</p>
                   )}
                 </div>
               </div>
@@ -413,5 +437,18 @@ export default function QRSignupPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function QRSignupPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange mx-auto mb-4"></div>
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    </div>}>
+      <QRSignupContent />
+    </Suspense>
   );
 }

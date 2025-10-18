@@ -1,7 +1,8 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
+import { Business, CustomerClass } from '@/types';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import QRCode from 'qrcode';
@@ -15,7 +16,7 @@ import {
   Users
 } from 'lucide-react';
 
-export default function QRDisplayPage() {
+function QRDisplayContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [business, setBusiness] = useState<Business | null>(null);
@@ -39,13 +40,36 @@ export default function QRDisplayPage() {
         // Fetch business data
         const businessDoc = await getDoc(doc(db, 'businesses', businessId));
         if (businessDoc.exists()) {
-          setBusiness({ id: businessDoc.id, ...businessDoc.data() });
+          const data = businessDoc.data();
+          setBusiness({
+            id: businessDoc.id,
+            name: data.name || '',
+            description: data.description || '',
+            ownerId: data.ownerId || '',
+            status: data.status || 'pending',
+            createdAt: data.createdAt?.toDate?.() || new Date(),
+            settings: data.settings || {
+              allowReferrals: true,
+              defaultPointsPerDollar: 1
+            }
+          });
         }
 
         // Fetch customer class data
         const classDoc = await getDoc(doc(db, 'customerClasses', classId));
         if (classDoc.exists()) {
-          setCustomerClass({ id: classDoc.id, ...classDoc.data() });
+          const classData = classDoc.data();
+          setCustomerClass({
+            id: classDoc.id,
+            businessId: classData.businessId || '',
+            name: classData.name || '',
+            type: classData.type || 'custom',
+            description: classData.description || '',
+            features: classData.features || {},
+            isActive: classData.isActive !== undefined ? classData.isActive : true,
+            createdAt: classData.createdAt?.toDate?.() || new Date(),
+            updatedAt: classData.updatedAt?.toDate?.() || new Date()
+          });
         }
 
         // Generate QR code URL
@@ -235,9 +259,9 @@ export default function QRDisplayPage() {
                   </div>
                   <p className="text-sm text-gray-600 mb-2">{customerClass?.description}</p>
                   <div className="text-sm text-gray-500 space-y-1">
-                    <p>• {customerClass?.pointsPerDollar} point per dollar spent</p>
-                    {customerClass?.referralBonus > 0 && (
-                      <p>• {customerClass?.referralBonus} bonus points for referrals</p>
+                    <p>• {customerClass?.features?.pointsPerDollar || 1} point per dollar spent</p>
+                    {(customerClass?.features?.referralBonus || 0) > 0 && (
+                      <p>• {customerClass?.features?.referralBonus} bonus points for referrals</p>
                     )}
                   </div>
                 </div>
@@ -283,5 +307,18 @@ export default function QRDisplayPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function QRDisplayPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange mx-auto mb-4"></div>
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    </div>}>
+      <QRDisplayContent />
+    </Suspense>
   );
 }

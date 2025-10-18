@@ -41,7 +41,7 @@ export default function AdminSetup() {
       }, 2000);
       
     } catch (error: unknown) {
-      setError(error.message);
+      setError(error instanceof Error ? error.message : 'An error occurred');
     } finally {
       setLoading(false);
     }

@@ -25,7 +25,7 @@ export default function SignIn() {
       await signIn(email, password);
       router.push('/dashboard');
     } catch (error: unknown) {
-      setError(error.message);
+      setError(error instanceof Error ? error.message : 'An error occurred');
     } finally {
       setLoading(false);
     }

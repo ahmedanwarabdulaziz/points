@@ -7,11 +7,11 @@ import { db } from '@/lib/firebase';
 
 export default function TestAuth() {
   const { user, appUser, loading, signUp, signIn } = useAuth();
-  const [testResults, setTestResults] = useState<{ test: string; result: string; success: boolean }[]>([]);
+  const [testResults, setTestResults] = useState<{ test: string; result: string; success: boolean; timestamp: Date; message: string }[]>([]);
   const [testing, setTesting] = useState(false);
 
   const addResult = (test: string, result: 'success' | 'error', message: string) => {
-    setTestResults(prev => [...prev, { test, result, message, timestamp: new Date() }]);
+    setTestResults(prev => [...prev, { test, result: message, success: result === 'success', timestamp: new Date(), message }]);
   };
 
   const runTests = async () => {
@@ -35,7 +35,7 @@ export default function TestAuth() {
           addResult('User Document', 'error', 'User document does not exist');
         }
       } catch (err: unknown) {
-        addResult('User Document', 'error', `Error reading user document: ${err.message}`);
+        addResult('User Document', 'error', `Error reading user document: ${err instanceof Error ? err.message : 'Unknown error'}`);
       }
 
       // Test 3: Test write permissions
@@ -47,7 +47,7 @@ export default function TestAuth() {
         });
         addResult('Write Permissions', 'success', 'Write permissions working');
       } catch (err: unknown) {
-        addResult('Write Permissions', 'error', `Write error: ${err.message}`);
+        addResult('Write Permissions', 'error', `Write error: ${err instanceof Error ? err.message : 'Unknown error'}`);
       }
 
       // Test 4: Test collection creation
@@ -59,7 +59,7 @@ export default function TestAuth() {
         });
         addResult('Collection Creation', 'success', 'Collection creation working');
       } catch (err: unknown) {
-        addResult('Collection Creation', 'error', `Collection creation error: ${err.message}`);
+        addResult('Collection Creation', 'error', `Collection creation error: ${err instanceof Error ? err.message : 'Unknown error'}`);
       }
 
       // Test 5: Test customer document creation
@@ -81,12 +81,12 @@ export default function TestAuth() {
           });
           addResult('Customer Document', 'success', 'Customer document created');
         } catch (err: unknown) {
-          addResult('Customer Document', 'error', `Customer document error: ${err.message}`);
+          addResult('Customer Document', 'error', `Customer document error: ${err instanceof Error ? err.message : 'Unknown error'}`);
         }
       }
 
     } catch (err: unknown) {
-      addResult('General', 'error', `General error: ${err.message}`);
+      addResult('General', 'error', `General error: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setTesting(false);
     }

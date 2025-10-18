@@ -42,7 +42,7 @@ export default function SignUp() {
       await signUp(email, password, 'customer', customerName);
       router.push('/dashboard');
     } catch (error: unknown) {
-      setError(error.message);
+      setError(error instanceof Error ? error.message : 'An error occurred');
     } finally {
       setLoading(false);
     }

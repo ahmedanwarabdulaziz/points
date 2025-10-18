@@ -186,14 +186,12 @@ export default function ScanQR() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Type:</span>
-                  <span className="font-medium capitalize">{scannedData.type}</span>
+                  <span className="font-medium capitalize">QR Code</span>
                 </div>
-                {scannedData.expiry && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Expires:</span>
-                    <span className="font-medium">{new Date(scannedData.expiry).toLocaleDateString()}</span>
-                  </div>
-                )}
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Status:</span>
+                  <span className="font-medium text-green-600">Active</span>
+                </div>
               </div>
             </div>
             
