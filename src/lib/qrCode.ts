@@ -5,7 +5,7 @@ export interface QRCodeOptions {
   classId: string;
   businessName: string;
   className: string;
-  type: &apos;class&apos; | &apos;referral';
+  type: 'class' | 'referral';
   expiry?: Date;
 }
 
@@ -31,10 +31,10 @@ export const generateQRCode = async (options: QRCodeOptions): Promise<string> =>
     width: 300,
     margin: 2,
     color: {
-      dark: &apos;#1e3a8a&apos;, // Navy blue
-      light: &apos;#ffffff&apos;, // White
+      dark: '#1e3a8a', // Navy blue
+      light: '#ffffff', // White
     },
-    errorCorrectionLevel: &apos;M',
+    errorCorrectionLevel: 'M',
   });
 
   return qrCodeDataURL;
@@ -63,10 +63,10 @@ export const generateQRCodeWithLogo = async (
     width: 300,
     margin: 2,
     color: {
-      dark: &apos;#1e3a8a&apos;,
-      light: &apos;#ffffff&apos;,
+      dark: '#1e3a8a',
+      light: '#ffffff',
     },
-    errorCorrectionLevel: &apos;M',
+    errorCorrectionLevel: 'M',
   });
 
   // If logo is provided, we can overlay it on the QR code
@@ -90,7 +90,7 @@ export const parseQRCode = (qrString: string): QRCodeOptions | null => {
 
     return data as QRCodeOptions;
   } catch (error) {
-    console.error(&apos;Error parsing QR code:&apos;, error);
+    console.error('Error parsing QR code:', error);
     return null;
   }
 };
@@ -107,7 +107,7 @@ export const generateQRCodeForClass = async (
     classId,
     businessName,
     className,
-    type: &apos;class&apos;,
+    type: 'class',
     expiry,
   });
 };
@@ -124,7 +124,7 @@ export const generateQRCodeForReferral = async (
     classId,
     businessName,
     className,
-    type: &apos;referral&apos;,
+    type: 'referral',
     expiry,
   });
 };
