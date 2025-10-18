@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { User } from '@/types';
 
 export default function FirebaseDebugger() {
   const { user, appUser, loading } = useAuth();
-  const [debugInfo, setDebugInfo] = useState<{ permissions: string[]; userData: any } | null>(null);
+  const [debugInfo, setDebugInfo] = useState<{ permissions: string[]; userData: User | null } | null>(null);
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
