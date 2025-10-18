@@ -85,7 +85,7 @@ export default function AdminDashboard() {
           
           return {
             ...user,
-            email: userData.email || user.email || '',
+            email: userData.email || '',
             role: userData.role || 'customer',
             name: userData.name || userData.email?.split('@')[0] || 'Unknown User',
             points: userData.points || 0,
