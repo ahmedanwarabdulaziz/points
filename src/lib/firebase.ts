@@ -6,12 +6,12 @@ import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCxgAb3jpB35mDAXcbifMJHq9FxaHhYu5U",
-  authDomain: "cadeala-cd61d.firebaseapp.com",
-  projectId: "cadeala-cd61d",
-  storageBucket: "cadeala-cd61d.firebasestorage.app",
-  messagingSenderId: "202865893881",
-  appId: "1:202865893881:web:85f345c1e8d1d246459d28"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyCxgAb3jpB35mDAXcbifMJHq9FxaHhYu5U",
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "cadeala-cd61d.firebaseapp.com",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "cadeala-cd61d",
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "cadeala-cd61d.firebasestorage.app",
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "202865893881",
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:202865893881:web:85f345c1e8d1d246459d28"
 };
 
 // Initialize Firebase
