@@ -1,3 +1,5 @@
+'use client';
+
 import { Gift, Star, CreditCard, Users, ArrowRight, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 
