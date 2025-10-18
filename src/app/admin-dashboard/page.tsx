@@ -7,7 +7,7 @@ import RoleRedirect from '@/components/RoleRedirect';
 import DashboardLayout from '@/components/DashboardLayout';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, orderBy, doc, updateDoc } from 'firebase/firestore';
-import { User } from '@/types';
+import { User, Business } from '@/types';
 import { 
   Shield, 
   Building2, 
@@ -81,7 +81,7 @@ export default function AdminDashboard() {
         // Combine user data with business data
         const enrichedUsers = usersData.map(user => {
           const userData = user as User; // Type assertion for Firebase data
-          const businessData = businessesData.find(business => business.id === userData.businessId) as any;
+          const businessData = businessesData.find(business => business.id === userData.businessId) as Business;
           
           return {
             ...user,
