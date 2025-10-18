@@ -1,7 +1,6 @@
 'use client';
 
 import { Gift, Star, CreditCard, ShoppingBag, Coffee, Music } from 'lucide-react';
-import Link from 'next/link';
 
 export default function Rewards() {
   const rewards = [

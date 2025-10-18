@@ -1,4 +1,4 @@
-import { CreditCard, ShoppingBag, Coffee, Music, Gamepad2, Camera, Car, Plane } from 'lucide-react';
+import { CreditCard, ShoppingBag, Coffee, Music, Gamepad2, Car, Plane } from 'lucide-react';
 
 export default function GiftCards() {
   const giftCards = [

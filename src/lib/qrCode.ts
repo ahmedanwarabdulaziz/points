@@ -41,8 +41,7 @@ export const generateQRCode = async (options: QRCodeOptions): Promise<string> =>
 };
 
 export const generateQRCodeWithLogo = async (
-  options: QRCodeOptions,
-  logoUrl?: string
+  options: QRCodeOptions
 ): Promise<string> => {
   const { businessId, classId, businessName, className, type, expiry } = options;
   

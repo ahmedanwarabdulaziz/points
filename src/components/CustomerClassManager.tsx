@@ -5,7 +5,6 @@ import { db } from '@/lib/firebase';
 import { 
   collection, 
   getDocs, 
-  addDoc, 
   doc, 
   setDoc, 
   updateDoc, 
@@ -20,7 +19,6 @@ import {
   Trash2, 
   QrCode, 
   Users, 
-  Star,
   Settings,
   Save,
   X

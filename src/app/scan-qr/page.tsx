@@ -13,7 +13,6 @@ export default function ScanQR() {
   const [success, setSuccess] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { user, appUser } = useAuth();
   const router = useRouter();
 
   const startScanning = async () => {
@@ -28,7 +27,7 @@ export default function ScanQR() {
         setIsScanning(true);
         setError('');
       }
-    } catch (err) {
+    } catch {
       setError('Unable to access camera. Please check permissions.');
     }
   };
@@ -42,22 +41,6 @@ export default function ScanQR() {
     setIsScanning(false);
   };
 
-  const handleQRScan = (qrData: string) => {
-    const parsedData = parseQRCode(qrData);
-    
-    if (!parsedData) {
-      setError('Invalid QR code. Please try again.');
-      return;
-    }
-
-    setScannedData(parsedData);
-    stopScanning();
-    
-    // Simulate processing
-    setTimeout(() => {
-      setSuccess(true);
-    }, 1000);
-  };
 
   const handleJoinBusiness = () => {
     if (scannedData) {

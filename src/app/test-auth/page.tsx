@@ -6,7 +6,7 @@ import { doc, getDoc, setDoc, collection, addDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 export default function TestAuth() {
-  const { user, appUser, loading, signUp, signIn } = useAuth();
+  const { user, appUser, loading } = useAuth();
   const [testResults, setTestResults] = useState<{ test: string; result: string; success: boolean; timestamp: Date; message: string }[]>([]);
   const [testing, setTesting] = useState(false);
 

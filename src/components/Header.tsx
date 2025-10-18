@@ -3,11 +3,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { Menu, X, Gift, User, ShoppingBag, Building2, Shield, QrCode } from 'lucide-react';
+import { Menu, X, Gift, User, Building2, Shield } from 'lucide-react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, appUser, business, customer, logout } = useAuth();
+  const { user, appUser, logout } = useAuth();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);

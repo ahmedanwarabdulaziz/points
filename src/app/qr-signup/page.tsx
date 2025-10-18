@@ -5,19 +5,18 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Business, CustomerClass } from '@/types';
 import { useEffect, useState, Suspense } from 'react';
 import { db, auth } from '@/lib/firebase';
-import { doc, getDoc, setDoc, collection, addDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { 
   Building2, 
   Users, 
   QrCode, 
-  CheckCircle,
   ArrowRight,
   Star
 } from 'lucide-react';
 
 function QRSignupContent() {
-  const { user, signUp, assignCustomerToBusiness } = useAuth();
+  const { assignCustomerToBusiness } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [business, setBusiness] = useState<Business | null>(null);
