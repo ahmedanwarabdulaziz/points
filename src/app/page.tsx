@@ -1,9 +1,14 @@
 'use client';
 
+import { useEffect } from 'react';
 import { Gift, Star, CreditCard, Users, ArrowRight, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
+  useEffect(() => {
+    console.log('CADEALA Home page loaded successfully!');
+  }, []);
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
