@@ -3,19 +3,15 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { Gift, Star, CreditCard, History, Settings, LogOut } from 'lucide-react';
+import { Gift, Star, CreditCard, History } from 'lucide-react';
 import FirebaseDebugger from '@/components/FirebaseDebugger';
 import RoleRedirect from '@/components/RoleRedirect';
 import DashboardLayout from '@/components/DashboardLayout';
 
 export default function Dashboard() {
-  const { user, appUser, customer, loading, logout, validateAndFixCustomerAssignment } = useAuth();
+  const { user, appUser, loading, logout, validateAndFixCustomerAssignment } = useAuth();
   const router = useRouter();
 
-  const handleLogout = async () => {
-    await logout();
-    router.push('/');
-  };
 
   // Validate customer assignment on component mount
   useEffect(() => {

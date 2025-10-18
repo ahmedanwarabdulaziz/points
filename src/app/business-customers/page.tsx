@@ -4,11 +4,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where, orderBy, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { 
   Users, 
   Search, 
-  Filter, 
   Download, 
   Eye, 
   Edit, 
@@ -27,7 +26,6 @@ import DashboardLayout from '@/components/DashboardLayout';
 
 export default function BusinessCustomers() {
   const { user, appUser, business, loading } = useAuth();
-  const router = useRouter();
   
   const [customers, setCustomers] = useState<User[]>([]);
   const [filteredCustomers, setFilteredCustomers] = useState<User[]>([]);

@@ -18,7 +18,6 @@ import CustomerClassManager from '@/components/CustomerClassManager';
 
 export default function BusinessDashboard() {
   const { business } = useAuth();
-  const router = useRouter();
   const [customers, setCustomers] = useState<Array<{
     id: string;
     name?: string;
@@ -27,7 +26,6 @@ export default function BusinessDashboard() {
     classId?: string;
     createdAt: Date;
   }>>([]);
-  const [dataLoading, setDataLoading] = useState(true);
 
 
 
@@ -138,32 +136,6 @@ export default function BusinessDashboard() {
     monthlyGrowth: 12.5 // This would be calculated from historical data
   };
 
-  const mockClasses = [
-    {
-      id: '1',
-      name: 'General',
-      type: 'permanent',
-      customers: 856,
-      pointsIssued: 25680,
-      qrCode: 'https://example.com/qr/general'
-    },
-    {
-      id: '2',
-      name: 'Referral',
-      type: 'permanent',
-      customers: 234,
-      pointsIssued: 12000,
-      qrCode: 'https://example.com/qr/referral'
-    },
-    {
-      id: '3',
-      name: 'VIP Members',
-      type: 'custom',
-      customers: 157,
-      pointsIssued: 8000,
-      qrCode: 'https://example.com/qr/vip'
-    }
-  ];
 
   return (
     <RoleRedirect allowedRoles={['business']}>

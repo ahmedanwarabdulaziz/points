@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import RoleRedirect from '@/components/RoleRedirect';
 import DashboardLayout from '@/components/DashboardLayout';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where, orderBy, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { 
   Shield, 
   Building2, 
@@ -19,8 +19,7 @@ import {
 } from 'lucide-react';
 
 export default function AdminDashboard() {
-  const { user, logout } = useAuth();
-  const router = useRouter();
+  const { user } = useAuth();
   const searchParams = useSearchParams();
   const [selectedTab, setSelectedTab] = useState('businesses');
   const [users, setUsers] = useState<Array<{
@@ -68,20 +67,6 @@ export default function AdminDashboard() {
           updatedAt: doc.data().updatedAt?.toDate?.() || new Date()
         }));
 
-        // Fetch customers for additional data (from users collection)
-        const customersQuery = query(
-          collection(db, 'users'), 
-          where('role', '==', 'customer'),
-          orderBy('createdAt', 'desc')
-        );
-        const customersSnapshot = await getDocs(customersQuery);
-        const customersData = customersSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate?.() || new Date(),
-          lastActivity: doc.data().lastActivity?.toDate?.() || new Date()
-        }));
-
         // Fetch businesses
         const businessesQuery = query(collection(db, 'businesses'), orderBy('createdAt', 'desc'));
         const businessesSnapshot = await getDocs(businessesQuery);
@@ -92,20 +77,19 @@ export default function AdminDashboard() {
           updatedAt: doc.data().updatedAt?.toDate?.() || new Date()
         }));
 
-        // Combine user data with customer data
+        // Combine user data with business data
         const enrichedUsers = usersData.map(user => {
-          const customerData = customersData.find(customer => customer.userId === user.id);
           const businessData = businessesData.find(business => business.id === user.businessId);
           
           return {
             ...user,
-            name: customerData?.name || user.email?.split('@')[0] || 'Unknown User',
-            points: customerData?.points || 0,
+            name: user.name || user.email?.split('@')[0] || 'Unknown User',
+            points: user.points || 0,
             businessName: businessData?.name || (user.role === 'business' ? 'Business Owner' : 'N/A'),
-            businessId: customerData?.businessId || user.businessId || '',
-            status: customerData?.status || 'active',
-            lastActivity: customerData?.lastActivity || user.updatedAt,
-            referralCode: customerData?.referralCode || 'N/A'
+            businessId: user.businessId || '',
+            status: user.status || 'active',
+            lastActivity: user.lastActivity || user.updatedAt,
+            referralCode: user.referralCode || 'N/A'
           };
         });
 
@@ -130,108 +114,6 @@ export default function AdminDashboard() {
     totalReferrals: 890
   };
 
-  const mockBusinesses = [
-    {
-      id: '1',
-      name: 'Coffee Corner',
-      owner: 'john@example.com',
-      status: 'pending',
-      createdAt: '2024-01-15',
-      description: 'Local coffee shop with fresh beans'
-    },
-    {
-      id: '2',
-      name: 'Tech Solutions',
-      owner: 'jane@example.com',
-      status: 'approved',
-      createdAt: '2024-01-10',
-      description: 'IT consulting and software development'
-    },
-    {
-      id: '3',
-      name: 'Fitness Center',
-      owner: 'mike@example.com',
-      status: 'pending',
-      createdAt: '2024-01-20',
-      description: 'Full-service gym with personal training'
-    },
-    {
-      id: '4',
-      name: 'Restaurant XYZ',
-      owner: 'sarah@example.com',
-      status: 'approved',
-      createdAt: '2024-01-05',
-      description: 'Fine dining restaurant with local cuisine'
-    }
-  ];
-
-  const mockUsers = [
-    {
-      id: '1',
-      name: 'Alice Johnson',
-      email: 'alice@example.com',
-      role: 'customer',
-      businessName: 'Coffee Corner',
-      businessId: '1',
-      points: 1250,
-      status: 'active',
-      joinedDate: '2024-01-10',
-      lastActivity: '2024-01-18',
-      referralCode: 'ALICE123'
-    },
-    {
-      id: '2',
-      name: 'Bob Smith',
-      email: 'bob@example.com',
-      role: 'business',
-      businessName: 'Tech Solutions',
-      businessId: '2',
-      points: 0,
-      status: 'active',
-      joinedDate: '2024-01-05',
-      lastActivity: '2024-01-18',
-      referralCode: 'BOB456'
-    },
-    {
-      id: '3',
-      name: 'Carol Davis',
-      email: 'carol@example.com',
-      role: 'customer',
-      businessName: 'Fashion Boutique',
-      businessId: '3',
-      points: 850,
-      status: 'active',
-      joinedDate: '2024-01-12',
-      lastActivity: '2024-01-17',
-      referralCode: 'CAROL789'
-    },
-    {
-      id: '4',
-      name: 'David Wilson',
-      email: 'david@example.com',
-      role: 'customer',
-      businessName: 'Coffee Corner',
-      businessId: '1',
-      points: 2100,
-      status: 'active',
-      joinedDate: '2024-01-08',
-      lastActivity: '2024-01-18',
-      referralCode: 'DAVID012'
-    },
-    {
-      id: '5',
-      name: 'Emma Brown',
-      email: 'emma@example.com',
-      role: 'admin',
-      businessName: 'System Admin',
-      businessId: '',
-      points: 0,
-      status: 'active',
-      joinedDate: '2024-01-01',
-      lastActivity: '2024-01-18',
-      referralCode: 'EMMA345'
-    }
-  ];
 
   const handleApprove = async (businessId: string) => {
     try {
