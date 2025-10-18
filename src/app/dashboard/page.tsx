@@ -9,7 +9,7 @@ import RoleRedirect from '@/components/RoleRedirect';
 import DashboardLayout from '@/components/DashboardLayout';
 
 export default function Dashboard() {
-  const { user, appUser, loading, logout, validateAndFixCustomerAssignment } = useAuth();
+  const { user, appUser, loading, validateAndFixCustomerAssignment } = useAuth();
   const router = useRouter();
 
 

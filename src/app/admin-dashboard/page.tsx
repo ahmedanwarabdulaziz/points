@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import RoleRedirect from '@/components/RoleRedirect';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -79,17 +79,18 @@ export default function AdminDashboard() {
 
         // Combine user data with business data
         const enrichedUsers = usersData.map(user => {
-          const businessData = businessesData.find(business => business.id === user.businessId);
+          const userData = user as any; // Type assertion for Firebase data
+          const businessData = businessesData.find(business => business.id === userData.businessId);
           
           return {
             ...user,
-            name: user.name || user.email?.split('@')[0] || 'Unknown User',
-            points: user.points || 0,
-            businessName: businessData?.name || (user.role === 'business' ? 'Business Owner' : 'N/A'),
-            businessId: user.businessId || '',
-            status: user.status || 'active',
-            lastActivity: user.lastActivity || user.updatedAt,
-            referralCode: user.referralCode || 'N/A'
+            name: userData.name || user.email?.split('@')[0] || 'Unknown User',
+            points: userData.points || 0,
+            businessName: businessData?.name || (userData.role === 'business' ? 'Business Owner' : 'N/A'),
+            businessId: userData.businessId || '',
+            status: userData.status || 'active',
+            lastActivity: userData.lastActivity || user.updatedAt,
+            referralCode: userData.referralCode || 'N/A'
           };
         });
 
