@@ -14,6 +14,7 @@ import {
   Share2
 } from 'lucide-react';
 import CustomerClassManager from '@/components/CustomerClassManager';
+import { MOBILE_CONFIG, getMobileClasses } from '@/config/mobile';
 
 export default function BusinessDashboard() {
   const { business } = useAuth();
@@ -158,53 +159,45 @@ export default function BusinessDashboard() {
           </div>
         )}
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Customers</p>
-                <p className="text-2xl font-bold text-navy">{stats.totalCustomers.toLocaleString()}</p>
+        {/* Stats Overview - All 4 in Same Row */}
+        <div className="grid grid-cols-4 gap-2 lg:gap-6">
+          <div className={`${getMobileClasses.card()} hover:shadow-md transition-shadow`}>
+            <div className="flex flex-col items-center text-center">
+              <div className="bg-blue-100 p-2 lg:p-3 rounded-full mb-2">
+                <Users className="h-4 w-4 lg:h-6 lg:w-6 text-blue-600" />
               </div>
-              <div className="bg-blue-100 p-3 rounded-full">
-                <Users className="h-6 w-6 text-blue-600" />
-              </div>
+              <p className={`${MOBILE_CONFIG.textSizes.statLabel} text-gray-600 mb-1`}>Customers</p>
+              <p className={`${MOBILE_CONFIG.textSizes.statValue} font-bold text-navy`}>{stats.totalCustomers.toLocaleString()}</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Points Issued</p>
-                <p className="text-2xl font-bold text-navy">{stats.totalPointsIssued.toLocaleString()}</p>
+          <div className={`${getMobileClasses.card()} hover:shadow-md transition-shadow`}>
+            <div className="flex flex-col items-center text-center">
+              <div className="bg-green-100 p-2 lg:p-3 rounded-full mb-2">
+                <BarChart3 className="h-4 w-4 lg:h-6 lg:w-6 text-green-600" />
               </div>
-              <div className="bg-green-100 p-3 rounded-full">
-                <BarChart3 className="h-6 w-6 text-green-600" />
-              </div>
+              <p className={`${MOBILE_CONFIG.textSizes.statLabel} text-gray-600 mb-1`}>Issued</p>
+              <p className={`${MOBILE_CONFIG.textSizes.statValue} font-bold text-navy`}>{stats.totalPointsIssued.toLocaleString()}</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Points Redeemed</p>
-                <p className="text-2xl font-bold text-navy">{stats.totalPointsRedeemed.toLocaleString()}</p>
+          <div className={`${getMobileClasses.card()} hover:shadow-md transition-shadow`}>
+            <div className="flex flex-col items-center text-center">
+              <div className="bg-orange-100 p-2 lg:p-3 rounded-full mb-2">
+                <QrCode className="h-4 w-4 lg:h-6 lg:w-6 text-orange-600" />
               </div>
-              <div className="bg-orange-100 p-3 rounded-full">
-                <QrCode className="h-6 w-6 text-orange-600" />
-              </div>
+              <p className={`${MOBILE_CONFIG.textSizes.statLabel} text-gray-600 mb-1`}>Redeemed</p>
+              <p className={`${MOBILE_CONFIG.textSizes.statValue} font-bold text-navy`}>{stats.totalPointsRedeemed.toLocaleString()}</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Referrals</p>
-                <p className="text-2xl font-bold text-navy">{stats.totalReferrals}</p>
+          <div className={`${getMobileClasses.card()} hover:shadow-md transition-shadow`}>
+            <div className="flex flex-col items-center text-center">
+              <div className="bg-purple-100 p-2 lg:p-3 rounded-full mb-2">
+                <Share2 className="h-4 w-4 lg:h-6 lg:w-6 text-purple-600" />
               </div>
-              <div className="bg-purple-100 p-3 rounded-full">
-                <Share2 className="h-6 w-6 text-purple-600" />
-              </div>
+              <p className={`${MOBILE_CONFIG.textSizes.statLabel} text-gray-600 mb-1`}>Referrals</p>
+              <p className={`${MOBILE_CONFIG.textSizes.statValue} font-bold text-navy`}>{stats.totalReferrals}</p>
             </div>
           </div>
         </div>
@@ -219,43 +212,43 @@ export default function BusinessDashboard() {
           }}
         />
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="bg-navy p-2 rounded-lg">
-                <Users className="h-6 w-6 text-white" />
+        {/* Quick Actions - Global Mobile Layout */}
+        <div className={getMobileClasses.grid('actionCards')}>
+          <div className={`${getMobileClasses.card()} hover:shadow-md transition-all duration-200`}>
+            <div className="flex items-center space-x-3 mb-3 lg:mb-4">
+              <div className="bg-navy p-2 lg:p-3 rounded-lg">
+                <Users className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
               </div>
-              <h3 className="text-lg font-semibold text-navy">Manage Customers</h3>
+              <h3 className={`${MOBILE_CONFIG.textSizes.h3} font-semibold text-navy`}>Manage Customers</h3>
             </div>
-            <p className="text-gray-600 mb-4">View and manage your customer base</p>
-            <button className="w-full bg-navy text-white py-2 px-4 rounded-lg hover:bg-navy-light transition-colors">
+            <p className={`${MOBILE_CONFIG.textSizes.body} text-gray-600 mb-3 lg:mb-4`}>View and manage your customer base</p>
+            <button className={`w-full bg-navy text-white ${getMobileClasses.button('medium')} hover:bg-navy-light`}>
               View Customers
             </button>
           </div>
 
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="bg-orange p-2 rounded-lg">
-                <QrCode className="h-6 w-6 text-white" />
+          <div className={`${getMobileClasses.card()} hover:shadow-md transition-all duration-200`}>
+            <div className="flex items-center space-x-3 mb-3 lg:mb-4">
+              <div className="bg-orange p-2 lg:p-3 rounded-lg">
+                <QrCode className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
               </div>
-              <h3 className="text-lg font-semibold text-navy">QR Codes</h3>
+              <h3 className={`${MOBILE_CONFIG.textSizes.h3} font-semibold text-navy`}>QR Codes</h3>
             </div>
-            <p className="text-gray-600 mb-4">Generate and manage QR codes for classes</p>
-            <button className="w-full bg-orange text-white py-2 px-4 rounded-lg hover:bg-orange-light transition-colors">
+            <p className={`${MOBILE_CONFIG.textSizes.body} text-gray-600 mb-3 lg:mb-4`}>Generate and manage QR codes for classes</p>
+            <button className={`w-full bg-orange text-white ${getMobileClasses.button('medium')} hover:bg-orange-light`}>
               Manage QR Codes
             </button>
           </div>
 
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="bg-green-500 p-2 rounded-lg">
-                <BarChart3 className="h-6 w-6 text-white" />
+          <div className={`${getMobileClasses.card()} hover:shadow-md transition-all duration-200`}>
+            <div className="flex items-center space-x-3 mb-3 lg:mb-4">
+              <div className="bg-green-500 p-2 lg:p-3 rounded-lg">
+                <BarChart3 className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
               </div>
-              <h3 className="text-lg font-semibold text-navy">Analytics</h3>
+              <h3 className={`${MOBILE_CONFIG.textSizes.h3} font-semibold text-navy`}>Analytics</h3>
             </div>
-            <p className="text-gray-600 mb-4">View detailed analytics and reports</p>
-            <button className="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors">
+            <p className={`${MOBILE_CONFIG.textSizes.body} text-gray-600 mb-3 lg:mb-4`}>View detailed analytics and reports</p>
+            <button className={`w-full bg-green-500 text-white ${getMobileClasses.button('medium')} hover:bg-green-600`}>
               View Analytics
             </button>
           </div>

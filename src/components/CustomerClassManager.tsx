@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
+import QRCode from 'qrcode';
 import { 
   collection, 
   getDocs, 
@@ -21,7 +22,9 @@ import {
   Users, 
   Settings,
   Save,
-  X
+  X,
+  Info,
+  Share2
 } from 'lucide-react';
 import { CustomerClass } from '@/types';
 
@@ -35,6 +38,11 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingClass, setEditingClass] = useState<CustomerClass | null>(null);
+  const [showDescriptionModal, setShowDescriptionModal] = useState(false);
+  const [selectedClassDescription, setSelectedClassDescription] = useState('');
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [selectedClassForQR, setSelectedClassForQR] = useState<CustomerClass | null>(null);
+  const [qrCodeDataURL, setQrCodeDataURL] = useState<string>('');
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -206,11 +214,31 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
     setEditingClass(null);
   };
 
-  const handleViewQR = (classId: string) => {
-    // Open QR code display page
-    const qrDisplayUrl = `/qr-display?business=${businessId}&class=${classId}`;
-    console.log('🔗 Opening QR display URL:', qrDisplayUrl);
-    window.open(qrDisplayUrl, '_blank');
+  const handleViewQR = async (classId: string) => {
+    // Find the class and show QR dialog
+    const selectedClass = classes.find(cls => cls.id === classId);
+    if (selectedClass) {
+      setSelectedClassForQR(selectedClass);
+      
+      // Generate QR code data URL
+      try {
+        const qrData = `${window.location.origin}/qr-signup?business=${businessId}&class=${classId}`;
+        const qrCodeURL = await QRCode.toDataURL(qrData, {
+          width: 256,
+          margin: 2,
+          color: {
+            dark: '#274290', // Navy color
+            light: '#FFFFFF'
+          }
+        });
+        setQrCodeDataURL(qrCodeURL);
+      } catch (error) {
+        console.error('Error generating QR code:', error);
+        setQrCodeDataURL('');
+      }
+      
+      setShowQRModal(true);
+    }
   };
 
   const handleDownloadQR = (classId: string) => {
@@ -218,6 +246,66 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
     const qrDisplayUrl = `/qr-display?business=${businessId}&class=${classId}`;
     console.log('🔗 Opening QR display URL for download:', qrDisplayUrl);
     window.open(qrDisplayUrl, '_blank');
+  };
+
+  const handleDownloadQRCode = () => {
+    if (qrCodeDataURL) {
+      const link = document.createElement('a');
+      link.download = `qr-code-${selectedClassForQR?.name || 'class'}.png`;
+      link.href = qrCodeDataURL;
+      link.click();
+    }
+  };
+
+  const handleShareLink = async () => {
+    const signupUrl = `${window.location.origin}/qr-signup?business=${businessId}&class=${selectedClassForQR?.id}`;
+    const shareTitle = `Join ${selectedClassForQR?.name} - Customer Class`;
+    const shareText = `Join our customer class: ${selectedClassForQR?.name}`;
+    
+    console.log('🔗 Share attempt:', { signupUrl, shareTitle, shareText });
+    console.log('📱 Navigator share available:', !!navigator.share);
+    console.log('🔒 Is HTTPS:', window.location.protocol === 'https:');
+    console.log('🌐 User Agent:', navigator.userAgent);
+    console.log('📱 Is Mobile:', /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    
+    // Check if we're on HTTPS (required for native share on Android)
+    if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+      alert('⚠️ Share requires HTTPS. Please access this page via HTTPS to use native sharing.');
+      console.log('❌ Not HTTPS - share not available');
+      return;
+    }
+    
+    // ONLY use native share API - no fallbacks to clipboard
+    if (navigator.share) {
+      try {
+        console.log('🚀 Opening native share menu...');
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: signupUrl
+        });
+        console.log('✅ Native share completed');
+        return;
+      } catch (error) {
+        console.log('❌ Native share error:', error);
+        if (error.name === 'AbortError') {
+          console.log('👤 User cancelled share');
+          return;
+        }
+        // If native share fails for any reason, show error
+        alert('❌ Share failed. Please try again or copy the link manually.');
+        return;
+      }
+    } else {
+      // If native share is not available, show detailed error message
+      console.log('❌ navigator.share not available');
+      alert(`❌ Share not supported on this device.\n\nDebug info:\n- HTTPS: ${window.location.protocol === 'https:'}\n- User Agent: ${navigator.userAgent.substring(0, 50)}...\n\nPlease copy the link manually: ${signupUrl}`);
+    }
+  };
+
+  const handleShowDescription = (description: string) => {
+    setSelectedClassDescription(description);
+    setShowDescriptionModal(true);
   };
 
   if (loading) {
@@ -380,14 +468,14 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
         </div>
       )}
 
-      {/* Classes List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Classes List - 2 Cards per Row */}
+      <div className="grid grid-cols-2 gap-4 lg:gap-6">
         {classes.map((classItem) => (
-          <div key={classItem.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <h3 className="font-semibold text-navy">{classItem.name}</h3>
-                <span className={`px-2 py-1 rounded-full text-xs ${
+          <div key={classItem.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6 flex flex-col h-full">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-1">
+                <h3 className="font-semibold text-navy text-sm lg:text-base">{classItem.name}</h3>
+                <span className={`px-1.5 py-0.5 rounded-full text-xs ${
                   classItem.type === 'permanent' 
                     ? 'bg-blue-100 text-blue-800' 
                     : 'bg-green-100 text-green-800'
@@ -396,55 +484,62 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
                 </span>
               </div>
               <div className="flex space-x-1">
+                <button
+                  onClick={() => handleShowDescription(classItem.description || 'No description available')}
+                  className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                  title="View Description"
+                >
+                  <Info className="h-3 w-3 lg:h-4 lg:w-4" />
+                </button>
                 {classItem.type === 'custom' && (
                   <>
                     <button
                       onClick={() => startEdit(classItem)}
                       className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
                     >
-                      <Edit className="h-4 w-4" />
+                      <Edit className="h-3 w-3 lg:h-4 lg:w-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteClass(classItem.id, classItem.name)}
                       className="p-1 text-gray-400 hover:text-red-600 transition-colors"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-3 w-3 lg:h-4 lg:w-4" />
                     </button>
                   </>
                 )}
               </div>
             </div>
 
-            <p className="text-gray-600 text-sm mb-4">{classItem.description}</p>
-
-            <div className="space-y-2 mb-4">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Points per $:</span>
-                <span className="font-medium">{classItem.features?.pointsPerDollar || 0}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Referral bonus:</span>
-                <span className="font-medium">{classItem.features?.referralBonus || 0} pts</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Customers:</span>
-                <span className="font-medium">{classItem.customerCount || 0}</span>
+            <div className="flex-1 flex flex-col">
+              <div className="space-y-1 flex-1">
+                <div className="flex justify-between text-xs lg:text-sm">
+                  <span className="text-gray-600">Points per $:</span>
+                  <span className="font-medium">{classItem.features?.pointsPerDollar || 0}</span>
+                </div>
+                <div className="flex justify-between text-xs lg:text-sm">
+                  <span className="text-gray-600">Referral:</span>
+                  <span className="font-medium">{classItem.features?.referralBonus || 0} pts</span>
+                </div>
+                <div className="flex justify-between text-xs lg:text-sm">
+                  <span className="text-gray-600">Customers:</span>
+                  <span className="font-medium">{classItem.customerCount || 0}</span>
+                </div>
               </div>
             </div>
 
-            <div className="flex space-x-2">
+            <div className="flex flex-col space-y-2 mt-auto pt-4">
               <button 
                 onClick={() => handleViewQR(classItem.id)}
-                className="flex-1 bg-navy text-white py-2 px-3 rounded-lg hover:bg-navy-light transition-colors inline-flex items-center justify-center text-sm"
+                className="w-full bg-navy text-white py-1.5 lg:py-2 px-2 lg:px-3 rounded-lg hover:bg-navy-light transition-colors inline-flex items-center justify-center text-xs lg:text-sm"
               >
-                <QrCode className="h-4 w-4 mr-1" />
+                <QrCode className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
                 View QR
               </button>
               <button 
                 onClick={() => handleDownloadQR(classItem.id)}
-                className="flex-1 bg-gray-100 text-gray-700 py-2 px-3 rounded-lg hover:bg-gray-200 transition-colors inline-flex items-center justify-center text-sm"
+                className="w-full bg-gray-100 text-gray-700 py-1.5 lg:py-2 px-2 lg:px-3 rounded-lg hover:bg-gray-200 transition-colors inline-flex items-center justify-center text-xs lg:text-sm"
               >
-                <Settings className="h-4 w-4 mr-1" />
+                <Settings className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
                 Settings
               </button>
             </div>
@@ -457,6 +552,109 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
           <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
           <p>No customer classes found</p>
           <p className="text-sm">Create your first customer class to get started</p>
+        </div>
+      )}
+
+      {/* Description Modal */}
+      {showDescriptionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-navy">Class Description</h3>
+                <button
+                  onClick={() => setShowDescriptionModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="text-gray-700 text-sm leading-relaxed">
+                {selectedClassDescription}
+              </div>
+              <div className="flex justify-end mt-6">
+                <button
+                  onClick={() => setShowDescriptionModal(false)}
+                  className="bg-navy text-white px-4 py-2 rounded-lg hover:bg-navy-light transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* QR Code Modal */}
+      {showQRModal && selectedClassForQR && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-semibold text-navy">QR Code - {selectedClassForQR.name}</h3>
+                <button
+                  onClick={() => setShowQRModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              
+              <div className="text-center">
+                <div className="bg-gray-100 rounded-lg p-8 mb-6">
+                  <div className="bg-white rounded-lg p-4 inline-block">
+                    {qrCodeDataURL ? (
+                      <img 
+                        src={qrCodeDataURL} 
+                        alt={`QR Code for ${selectedClassForQR.name}`}
+                        className="w-48 h-48 rounded-lg"
+                      />
+                    ) : (
+                      <div className="w-48 h-48 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <div className="text-center">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-navy mx-auto mb-2"></div>
+                          <p className="text-sm text-gray-500">Generating QR Code...</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="text-sm text-gray-600 mb-4">
+                  <p className="font-medium mb-2">QR Code Details:</p>
+                  <p>Business ID: {businessId}</p>
+                  <p>Class ID: {selectedClassForQR.id}</p>
+                  <p>Class Name: {selectedClassForQR.name}</p>
+                </div>
+                
+                <div className="flex flex-col space-y-3">
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={handleDownloadQRCode}
+                      disabled={!qrCodeDataURL}
+                      className="flex-1 bg-navy text-white py-2 px-4 rounded-lg hover:bg-navy-light transition-colors inline-flex items-center justify-center disabled:bg-gray-300 disabled:cursor-not-allowed"
+                    >
+                      <QrCode className="h-4 w-4 mr-2" />
+                      Download QR
+                    </button>
+                    <button
+                      onClick={handleShareLink}
+                      className="flex-1 bg-orange text-white py-2 px-4 rounded-lg hover:bg-orange-light transition-colors inline-flex items-center justify-center"
+                    >
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Share Link
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => setShowQRModal(false)}
+                    className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

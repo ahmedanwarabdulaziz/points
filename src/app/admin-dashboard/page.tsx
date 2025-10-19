@@ -226,8 +226,8 @@ function AdminDashboardContent() {
   return (
     <RoleRedirect allowedRoles={['admin']}>
       <DashboardLayout userRole="admin">
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        {/* Stats Overview - All 4 in Same Row */}
+        <div className="grid grid-cols-4 gap-2 lg:gap-6 mb-8">
           <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
@@ -276,17 +276,6 @@ function AdminDashboardContent() {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Referrals</p>
-                <p className="text-2xl font-bold text-navy">{mockStats.totalReferrals}</p>
-              </div>
-              <div className="bg-yellow-100 p-3 rounded-full">
-                <Users className="h-6 w-6 text-yellow-600" />
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Navigation Tabs */}

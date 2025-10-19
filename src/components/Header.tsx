@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { Menu, X, Gift, User, Building2, Shield } from 'lucide-react';
+import { Menu, X, Gift, User, Building2, Shield, Users } from 'lucide-react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -123,85 +123,184 @@ export default function Header() {
         </div>
 
         {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200">
-              <Link href="/" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
-                Home
-              </Link>
-              {appUser?.role === 'customer' && (
-                <>
-                  <Link href="/rewards" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
-                    Rewards
+        <div className={`md:hidden fixed inset-0 z-50 transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+          {/* Transparent backdrop - allows website background to show through */}
+          <div 
+            className="fixed inset-0 bg-transparent transition-opacity duration-300"
+            onClick={toggleMenu}
+          />
+          
+          {/* Mobile menu panel - slides from right */}
+          <div className={`fixed top-0 right-0 h-full w-72 max-w-sm bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+            <div className="flex flex-col h-full">
+              {/* Header with brand */}
+              <div className="flex items-center justify-between p-6 border-b-2 border-gray-100 bg-gradient-to-r from-navy to-navy-light">
+                <div className="flex items-center space-x-3">
+                  <div className="bg-white p-2 rounded-lg shadow-sm">
+                    <Gift className="h-6 w-6 text-navy" />
+                  </div>
+                  <span className="text-xl font-bold text-white">Cadeala</span>
+                </div>
+                <button
+                  onClick={toggleMenu}
+                  className="text-white hover:text-orange transition-colors p-2 rounded-lg hover:bg-white hover:bg-opacity-10"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              {/* Navigation Links */}
+              <div className="flex-1 overflow-y-auto">
+                <div className="px-4 py-6 space-y-2">
+                  <Link 
+                    href="/" 
+                    className="flex items-center px-3 py-3 text-navy hover:bg-orange hover:text-white transition-all duration-200 font-medium rounded-lg"
+                    onClick={toggleMenu}
+                  >
+                    <span className="text-base">Home</span>
                   </Link>
-                  <Link href="/gift-cards" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
-                    Gift Cards
+                  
+                  {appUser?.role === 'customer' && (
+                    <>
+                      <Link 
+                        href="/rewards" 
+                        className="flex items-center px-3 py-3 text-navy hover:bg-orange hover:text-white transition-all duration-200 font-medium rounded-lg"
+                        onClick={toggleMenu}
+                      >
+                        <span className="text-base">Rewards</span>
+                      </Link>
+                      <Link 
+                        href="/gift-cards" 
+                        className="flex items-center px-3 py-3 text-navy hover:bg-orange hover:text-white transition-all duration-200 font-medium rounded-lg"
+                        onClick={toggleMenu}
+                      >
+                        <span className="text-base">Gift Cards</span>
+                      </Link>
+                      <Link 
+                        href="/scan-qr" 
+                        className="flex items-center px-3 py-3 text-navy hover:bg-orange hover:text-white transition-all duration-200 font-medium rounded-lg"
+                        onClick={toggleMenu}
+                      >
+                        <span className="text-base">Scan QR</span>
+                      </Link>
+                    </>
+                  )}
+                  
+                  {appUser?.role === 'business' && (
+                    <>
+                      <Link 
+                        href="/business-dashboard" 
+                        className="flex items-center px-3 py-3 text-navy hover:bg-orange hover:text-white transition-all duration-200 font-medium rounded-lg"
+                        onClick={toggleMenu}
+                      >
+                        <Building2 className="h-4 w-4 mr-2" />
+                        <span className="text-base">Dashboard</span>
+                      </Link>
+                      <Link 
+                        href="/business-customers" 
+                        className="flex items-center px-3 py-3 text-navy hover:bg-orange hover:text-white transition-all duration-200 font-medium rounded-lg"
+                        onClick={toggleMenu}
+                      >
+                        <Users className="h-4 w-4 mr-2" />
+                        <span className="text-base">Customers</span>
+                      </Link>
+                      <Link 
+                        href="/business-qr" 
+                        className="flex items-center px-3 py-3 text-navy hover:bg-orange hover:text-white transition-all duration-200 font-medium rounded-lg"
+                        onClick={toggleMenu}
+                      >
+                        <span className="text-base">QR Codes</span>
+                      </Link>
+                    </>
+                  )}
+                  
+                  {appUser?.role === 'admin' && (
+                    <Link 
+                      href="/admin-dashboard" 
+                      className="flex items-center px-3 py-3 text-navy hover:bg-orange hover:text-white transition-all duration-200 font-medium rounded-lg"
+                      onClick={toggleMenu}
+                    >
+                      <Shield className="h-4 w-4 mr-2" />
+                      <span className="text-base">Admin</span>
+                    </Link>
+                  )}
+                  
+                  <Link 
+                    href="/how-it-works" 
+                    className="flex items-center px-3 py-3 text-navy hover:bg-orange hover:text-white transition-all duration-200 font-medium rounded-lg"
+                    onClick={toggleMenu}
+                  >
+                    <span className="text-base">How It Works</span>
                   </Link>
-                  <Link href="/scan-qr" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
-                    Scan QR
-                  </Link>
-                </>
-              )}
-              {appUser?.role === 'business' && (
-                <>
-                  <Link href="/business-dashboard" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
-                    Dashboard
-                  </Link>
-                  <Link href="/business-customers" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
-                    Customers
-                  </Link>
-                  <Link href="/business-qr" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
-                    QR Codes
-                  </Link>
-                </>
-              )}
-              {appUser?.role === 'admin' && (
-                <Link href="/admin-dashboard" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
-                  Admin
-                </Link>
-              )}
-              <Link href="/how-it-works" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
-                How It Works
-              </Link>
-              <div className="border-t border-gray-200 pt-3 mt-3">
+                </div>
+              </div>
+
+              {/* User Actions - Prominent Login/Signup */}
+              <div className="border-t-2 border-gray-100 p-4 bg-gray-50">
                 {user ? (
-                  <>
+                  <div className="space-y-4">
                     {appUser?.role === 'customer' && (
-                      <Link href="/dashboard" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
+                      <Link 
+                        href="/dashboard" 
+                        className="flex items-center justify-center w-full px-6 py-4 bg-orange text-white rounded-xl hover:bg-orange-light transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl"
+                        onClick={toggleMenu}
+                      >
+                        <User className="h-6 w-6 mr-3" />
                         Dashboard
                       </Link>
                     )}
                     {appUser?.role === 'business' && (
-                      <Link href="/business-dashboard" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
+                      <Link 
+                        href="/business-dashboard" 
+                        className="flex items-center justify-center w-full px-6 py-4 bg-orange text-white rounded-xl hover:bg-orange-light transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl"
+                        onClick={toggleMenu}
+                      >
+                        <Building2 className="h-6 w-6 mr-3" />
                         Business Dashboard
                       </Link>
                     )}
                     {appUser?.role === 'admin' && (
-                      <Link href="/admin-dashboard" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
+                      <Link 
+                        href="/admin-dashboard" 
+                        className="flex items-center justify-center w-full px-6 py-4 bg-orange text-white rounded-xl hover:bg-orange-light transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl"
+                        onClick={toggleMenu}
+                      >
+                        <Shield className="h-6 w-6 mr-3" />
                         Admin Dashboard
                       </Link>
                     )}
                     <button 
-                      onClick={handleLogout}
-                      className="w-full text-left px-3 py-2 text-navy hover:text-orange transition-colors font-medium"
+                      onClick={() => {
+                        handleLogout();
+                        toggleMenu();
+                      }}
+                      className="w-full flex items-center justify-center px-6 py-4 text-navy hover:bg-gray-200 transition-all duration-200 font-semibold text-lg rounded-xl border-2 border-gray-300 hover:border-gray-400"
                     >
                       Sign Out
                     </button>
-                  </>
+                  </div>
                 ) : (
-                  <>
-                    <Link href="/signin" className="block px-3 py-2 text-navy hover:text-orange transition-colors font-medium">
+                  <div className="space-y-4">
+                    <Link 
+                      href="/signin" 
+                      className="flex items-center justify-center w-full px-6 py-4 bg-navy text-white rounded-xl hover:bg-navy-light transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl"
+                      onClick={toggleMenu}
+                    >
                       Sign In
                     </Link>
-                    <Link href="/signup" className="block px-3 py-2 bg-orange text-white rounded-lg hover:bg-orange-light transition-colors font-medium">
+                    <Link 
+                      href="/signup" 
+                      className="flex items-center justify-center w-full px-6 py-4 bg-orange text-white rounded-xl hover:bg-orange-light transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl"
+                      onClick={toggleMenu}
+                    >
                       Sign Up
                     </Link>
-                  </>
+                  </div>
                 )}
               </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </header>
   );
