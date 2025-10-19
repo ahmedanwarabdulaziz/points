@@ -65,8 +65,7 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
       setLoading(true);
       const classesQuery = query(
         collection(db, 'customerClasses'),
-        where('businessId', '==', businessId),
-        orderBy('createdAt', 'desc')
+        where('businessId', '==', businessId)
       );
       const snapshot = await getDocs(classesQuery);
       
@@ -106,8 +105,13 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
         })
       ) as CustomerClass[];
       
-      console.log('✅ Classes fetched with customer counts:', classesData);
-      setClasses(classesData);
+      // Sort classes by creation date (newest first) on the client side
+      const sortedClasses = classesData.sort((a, b) => 
+        b.createdAt.getTime() - a.createdAt.getTime()
+      );
+      
+      console.log('✅ Classes fetched with customer counts:', sortedClasses);
+      setClasses(sortedClasses);
     } catch (error) {
       console.error('Error fetching classes:', error);
     } finally {

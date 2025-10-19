@@ -174,7 +174,9 @@ function QRSignupContent() {
         businessId, 
         classId,
         businessIdValid: businessId && businessId.trim() !== '',
-        classIdValid: classId && classId.trim() !== ''
+        classIdValid: classId && classId.trim() !== '',
+        businessIdType: typeof businessId,
+        classIdType: typeof classId
       });
 
       // Create user account using Firebase Auth directly for QR signup
@@ -204,6 +206,12 @@ function QRSignupContent() {
       };
 
       console.log('🔍 Creating user document with business/class assignment:', userData);
+      console.log('🔍 Business and Class IDs in userData:', {
+        businessId: userData.businessId,
+        classId: userData.classId,
+        businessIdValid: userData.businessId && userData.businessId.trim() !== '',
+        classIdValid: userData.classId && userData.classId.trim() !== ''
+      });
 
       await setDoc(doc(db, 'users', newUser.uid), userData);
       
@@ -212,6 +220,19 @@ function QRSignupContent() {
       // Double-check: Ensure customer is properly assigned using AuthContext function
       console.log('🔍 Double-checking assignment with AuthContext...');
       await assignCustomerToBusiness(newUser.uid, businessId || '', classId || '');
+      
+      // Verify the assignment was saved correctly
+      console.log('🔍 Verifying customer assignment...');
+      const verifyDoc = await getDoc(doc(db, 'users', newUser.uid));
+      if (verifyDoc.exists()) {
+        const verifyData = verifyDoc.data();
+        console.log('🔍 Customer data after assignment:', {
+          businessId: verifyData.businessId,
+          classId: verifyData.classId,
+          name: verifyData.name,
+          status: verifyData.status
+        });
+      }
       
       console.log('✅ Customer assignment completed successfully');
 

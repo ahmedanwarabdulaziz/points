@@ -35,6 +35,8 @@ export interface Business {
   logo?: string;
   ownerId: string;
   status: 'pending' | 'approved' | 'rejected';
+  industryId?: string;
+  typeId?: string;
   createdAt: Date;
   approvedAt?: Date;
   approvedBy?: string;

@@ -1,11 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Building2, Upload, CheckCircle, ArrowRight } from 'lucide-react';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+
+interface BusinessIndustry {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  isActive: boolean;
+}
+
+interface BusinessType {
+  id: string;
+  industryId: string;
+  name: string;
+  description: string;
+  icon: string;
+  isActive: boolean;
+}
+
 
 export default function BusinessRegistration() {
   const [formData, setFormData] = useState({
@@ -15,17 +33,71 @@ export default function BusinessRegistration() {
     phone: '',
     address: '',
     logo: null as File | null,
+    industryId: '',
+    typeId: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [industries, setIndustries] = useState<BusinessIndustry[]>([]);
+  const [businessTypes, setBusinessTypes] = useState<BusinessType[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   
   const { user, updateUserRole } = useAuth();
   const router = useRouter();
 
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      setLoadingCategories(true);
+      
+      // Fetch industries
+      const industriesQuery = query(
+        collection(db, 'businessIndustries'),
+        where('isActive', '==', true)
+      );
+      const industriesSnapshot = await getDocs(industriesQuery);
+      const industriesData = industriesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as BusinessIndustry[];
+      
+      // Fetch business types
+      const typesQuery = query(
+        collection(db, 'businessTypes'),
+        where('isActive', '==', true)
+      );
+      const typesSnapshot = await getDocs(typesQuery);
+      const typesData = typesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as BusinessType[];
+      
+      setIndustries(industriesData);
+      setBusinessTypes(typesData);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ 
+      ...prev, 
+      [name]: value,
+      // Reset type when industry changes
+      ...(name === 'industryId' ? { typeId: '' } : {})
+    }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,6 +123,8 @@ export default function BusinessRegistration() {
         website: formData.website,
         phone: formData.phone,
         address: formData.address,
+        industryId: formData.industryId,
+        typeId: formData.typeId,
         ownerId: user.uid,
         status: 'pending',
         createdAt: new Date(),
@@ -166,6 +240,60 @@ export default function BusinessRegistration() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange focus:border-orange"
                 placeholder="Describe your business and what you offer"
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="industryId" className="block text-sm font-medium text-gray-700 mb-2">
+                  Industry *
+                </label>
+                <select
+                  id="industryId"
+                  name="industryId"
+                  required
+                  value={formData.industryId}
+                  onChange={handleSelectChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange focus:border-orange"
+                  disabled={loadingCategories}
+                >
+                  <option value="">Select Industry</option>
+                  {industries.map(industry => (
+                    <option key={industry.id} value={industry.id}>
+                      {industry.name}
+                    </option>
+                  ))}
+                </select>
+                {loadingCategories && (
+                  <p className="text-xs text-gray-500 mt-1">Loading industries...</p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="typeId" className="block text-sm font-medium text-gray-700 mb-2">
+                  Business Type *
+                </label>
+                <select
+                  id="typeId"
+                  name="typeId"
+                  required
+                  value={formData.typeId}
+                  onChange={handleSelectChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange focus:border-orange"
+                  disabled={!formData.industryId || loadingCategories}
+                >
+                  <option value="">Select Business Type</option>
+                  {businessTypes
+                    .filter(type => type.industryId === formData.industryId)
+                    .map(type => (
+                      <option key={type.id} value={type.id}>
+                        {type.name}
+                      </option>
+                    ))}
+                </select>
+                {!formData.industryId && (
+                  <p className="text-xs text-gray-500 mt-1">Please select an industry first</p>
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

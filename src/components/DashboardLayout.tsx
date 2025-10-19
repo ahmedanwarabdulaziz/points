@@ -12,7 +12,7 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
-  const { logout } = useAuth();
+  const { logout, appUser } = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -50,15 +50,20 @@ export default function DashboardLayout({ children, userRole }: DashboardLayoutP
               <div className="flex items-center space-x-2 lg:space-x-3">
                 <div className="w-8 h-8 bg-navy rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-semibold">
-                    {userRole === 'admin' ? 'A' : userRole === 'business' ? 'B' : 'C'}
+                    {appUser?.name ? appUser.name.charAt(0).toUpperCase() : 
+                     userRole === 'admin' ? 'A' : userRole === 'business' ? 'B' : 'C'}
                   </span>
                 </div>
                 <div className="hidden lg:block">
                   <p className="text-sm font-medium text-gray-900">
-                    {userRole === 'admin' ? 'Admin User' : 
-                     userRole === 'business' ? 'Business Owner' : 'Customer'}
+                    {appUser?.name || 
+                     (userRole === 'admin' ? 'Admin User' : 
+                      userRole === 'business' ? 'Business Owner' : 'Customer')}
                   </p>
-                  <p className="text-xs text-gray-500">Online</p>
+                  <p className="text-xs text-gray-500">
+                    {userRole === 'admin' ? 'Administrator' : 
+                     userRole === 'business' ? 'Business Owner' : 'Customer'} • Online
+                  </p>
                 </div>
               </div>
             </div>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   LayoutDashboard, 
   Users, 
@@ -34,6 +35,7 @@ interface MenuItem {
 }
 
 export default function Sidebar({ userRole, onLogout }: SidebarProps) {
+  const { appUser } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const pathname = usePathname();
@@ -94,6 +96,18 @@ export default function Sidebar({ userRole, onLogout }: SidebarProps) {
         href: '/admin-dashboard?tab=businesses'
       },
       {
+        id: 'businesses-overview',
+        label: 'Businesses Overview',
+        icon: Building2,
+        href: '/admin-businesses'
+      },
+      {
+        id: 'customers',
+        label: 'Customers Overview',
+        icon: Users,
+        href: '/admin-customers'
+      },
+      {
         id: 'users',
         label: 'Users',
         icon: Users,
@@ -104,6 +118,12 @@ export default function Sidebar({ userRole, onLogout }: SidebarProps) {
         label: 'Analytics',
         icon: BarChart3,
         href: '/admin-dashboard?tab=analytics'
+      },
+      {
+        id: 'business-categories',
+        label: 'Business Categories',
+        icon: Settings,
+        href: '/admin-settings'
       },
       {
         id: 'settings',
@@ -213,10 +233,14 @@ export default function Sidebar({ userRole, onLogout }: SidebarProps) {
               </div>
               <div>
                 <h2 className="text-lg font-bold text-navy">
-                  {userRole === 'admin' ? 'Admin' : 
-                   userRole === 'business' ? 'Business' : 'Customer'}
+                  {appUser?.name || 
+                   (userRole === 'admin' ? 'Admin' : 
+                    userRole === 'business' ? 'Business' : 'Customer')}
                 </h2>
-                <p className="text-xs text-gray-500">Dashboard</p>
+                <p className="text-xs text-gray-500">
+                  {userRole === 'admin' ? 'Administrator' : 
+                   userRole === 'business' ? 'Business Owner' : 'Customer'}
+                </p>
               </div>
             </div>
           )}
@@ -239,7 +263,7 @@ export default function Sidebar({ userRole, onLogout }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+      <div className="absolute bottom-0 left-0 right-0 p-4">
         <button
           onClick={onLogout}
           className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-red-600 rounded-lg transition-colors"

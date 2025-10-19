@@ -3,7 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { User, CustomerClass } from '@/types';
 import { 
   Users, 
@@ -38,6 +38,15 @@ export default function BusinessCustomers() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [selectedCustomer, setSelectedCustomer] = useState<User | null>(null);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState<User | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    email: '',
+    classId: '',
+    status: 'active' as 'active' | 'inactive' | 'suspended'
+  });
+  const [updateLoading, setUpdateLoading] = useState(false);
 
   // Fetch customers for this business
   useEffect(() => {
@@ -221,6 +230,48 @@ export default function BusinessCustomers() {
   const handleViewCustomer = (customer: User) => {
     setSelectedCustomer(customer);
     setShowCustomerModal(true);
+  };
+
+  const handleEditCustomer = (customer: User) => {
+    setEditingCustomer(customer);
+    setEditFormData({
+      name: customer.name || '',
+      email: customer.email,
+      classId: customer.classId || '',
+      status: customer.status || 'active'
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCustomer) return;
+
+    try {
+      setUpdateLoading(true);
+      
+      const customerRef = doc(db, 'users', editingCustomer.id);
+      await updateDoc(customerRef, {
+        name: editFormData.name,
+        classId: editFormData.classId,
+        status: editFormData.status,
+        updatedAt: new Date()
+      });
+
+      // Update the local state
+      setCustomers(prev => prev.map(customer => 
+        customer.id === editingCustomer.id 
+          ? { ...customer, name: editFormData.name, classId: editFormData.classId, status: editFormData.status }
+          : customer
+      ));
+
+      setShowEditModal(false);
+      setEditingCustomer(null);
+    } catch (error) {
+      console.error('Error updating customer:', error);
+    } finally {
+      setUpdateLoading(false);
+    }
   };
 
   const handleExportCustomers = () => {
@@ -683,6 +734,7 @@ export default function BusinessCustomers() {
                               <Eye className="h-4 w-4" />
                             </button>
                             <button
+                              onClick={() => handleEditCustomer(customer)}
                               className="text-gray-400 hover:text-gray-600 transition-colors p-1"
                               title="Edit Customer"
                             >
@@ -848,6 +900,105 @@ export default function BusinessCustomers() {
                       </div>
                     )}
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Edit Customer Modal */}
+          {showEditModal && editingCustomer && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-navy">Edit Customer</h3>
+                    <button
+                      onClick={() => setShowEditModal(false)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleUpdateCustomer} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Customer Name
+                      </label>
+                      <input
+                        type="text"
+                        value={editFormData.name}
+                        onChange={(e) => setEditFormData(prev => ({ ...prev, name: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-orange focus:border-orange"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        value={editFormData.email}
+                        disabled
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Customer Class
+                      </label>
+                      <select
+                        value={editFormData.classId}
+                        onChange={(e) => setEditFormData(prev => ({ ...prev, classId: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-orange focus:border-orange"
+                      >
+                        <option value="">No Class Assigned</option>
+                        {customerClasses.map(classItem => (
+                          <option key={classItem.id} value={classItem.id}>
+                            {classItem.name} ({classItem.type})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Status
+                      </label>
+                      <select
+                        value={editFormData.status}
+                        onChange={(e) => setEditFormData(prev => ({ ...prev, status: e.target.value as 'active' | 'inactive' | 'suspended' }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-orange focus:border-orange"
+                      >
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="suspended">Suspended</option>
+                      </select>
+                    </div>
+
+                    <div className="flex justify-end space-x-3 pt-4">
+                      <button
+                        type="button"
+                        onClick={() => setShowEditModal(false)}
+                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={updateLoading}
+                        className="px-4 py-2 text-sm font-medium text-white bg-orange rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
+                      >
+                        {updateLoading ? 'Updating...' : 'Update Customer'}
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>
