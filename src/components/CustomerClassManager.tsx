@@ -288,7 +288,7 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
         return;
       } catch (error) {
         console.log('❌ Native share error:', error);
-        if (error.name === 'AbortError') {
+        if (error instanceof Error && error.name === 'AbortError') {
           console.log('👤 User cancelled share');
           return;
         }
