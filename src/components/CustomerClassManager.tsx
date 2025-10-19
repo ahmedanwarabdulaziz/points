@@ -24,7 +24,8 @@ import {
   Save,
   X,
   Info,
-  Share2
+  Share2,
+  RefreshCw
 } from 'lucide-react';
 import { CustomerClass } from '@/types';
 
@@ -68,24 +69,44 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
         orderBy('createdAt', 'desc')
       );
       const snapshot = await getDocs(classesQuery);
-      const classesData = snapshot.docs.map(doc => {
-        const data = doc.data();
-        console.log('📊 Class data structure:', {
-          id: doc.id,
-          name: data.name,
-          features: data.features,
-          hasFeatures: !!data.features,
-          featuresType: typeof data.features
-        });
-        
-        return {
-          id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate?.() || new Date(),
-          updatedAt: data.updatedAt?.toDate?.() || new Date()
-        };
-      }) as CustomerClass[];
       
+      // Fetch classes with customer counts
+      const classesData = await Promise.all(
+        snapshot.docs.map(async (doc) => {
+          const data = doc.data();
+          console.log('📊 Class data structure:', {
+            id: doc.id,
+            name: data.name,
+            features: data.features,
+            hasFeatures: !!data.features,
+            featuresType: typeof data.features
+          });
+          
+          // Get customer count for this class
+          let customerCount = 0;
+          try {
+            const customersQuery = query(
+              collection(db, 'users'),
+              where('businessId', '==', businessId),
+              where('classId', '==', doc.id)
+            );
+            const customersSnapshot = await getDocs(customersQuery);
+            customerCount = customersSnapshot.size;
+          } catch (error) {
+            console.error('Error fetching customer count for class:', doc.id, error);
+          }
+          
+          return {
+            id: doc.id,
+            ...data,
+            customerCount,
+            createdAt: data.createdAt?.toDate?.() || new Date(),
+            updatedAt: data.updatedAt?.toDate?.() || new Date()
+          };
+        })
+      ) as CustomerClass[];
+      
+      console.log('✅ Classes fetched with customer counts:', classesData);
       setClasses(classesData);
     } catch (error) {
       console.error('Error fetching classes:', error);
@@ -308,6 +329,31 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
     setShowDescriptionModal(true);
   };
 
+  const refreshCustomerCounts = async () => {
+    // Refresh customer counts for all classes
+    const updatedClasses = await Promise.all(
+      classes.map(async (classItem) => {
+        try {
+          const customersQuery = query(
+            collection(db, 'users'),
+            where('businessId', '==', businessId),
+            where('classId', '==', classItem.id)
+          );
+          const customersSnapshot = await getDocs(customersQuery);
+          return {
+            ...classItem,
+            customerCount: customersSnapshot.size
+          };
+        } catch (error) {
+          console.error('Error refreshing customer count for class:', classItem.id, error);
+          return classItem;
+        }
+      })
+    );
+    
+    setClasses(updatedClasses);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-8">
@@ -467,6 +513,20 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
           </form>
         </div>
       )}
+
+      {/* Classes List Header */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-semibold text-navy">
+          Customer Classes ({classes.length})
+        </h2>
+        <button
+          onClick={refreshCustomerCounts}
+          className="flex items-center space-x-2 px-3 py-2 text-sm bg-orange text-white rounded-lg hover:bg-orange-600 transition-colors"
+        >
+          <RefreshCw className="h-4 w-4" />
+          <span>Refresh</span>
+        </button>
+      </div>
 
       {/* Classes List - 2 Cards per Row */}
       <div className="grid grid-cols-2 gap-4 lg:gap-6">
