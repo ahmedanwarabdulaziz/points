@@ -101,8 +101,17 @@ export default function CustomerQRCode({ customer }: CustomerQRCodeProps) {
         updatedAt: new Date()
       });
       
-      // Update local state
-      setQrCodeDataUrl(qrCodeUrl);
+      // Generate and display QR image immediately
+      const dataUrl = await QRCode.toDataURL(qrCodeUrl, {
+        width: 300,
+        margin: 2,
+        color: {
+          dark: '#1e3a8a',
+          light: '#ffffff',
+        },
+        errorCorrectionLevel: 'M',
+      });
+      setQrCodeDataUrl(dataUrl);
       
       console.log('✅ Customer code generated:', customerCode);
       
