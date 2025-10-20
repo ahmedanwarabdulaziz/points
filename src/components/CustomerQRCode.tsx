@@ -74,6 +74,44 @@ export default function CustomerQRCode({ customer }: CustomerQRCodeProps) {
 
   // Show QR button even if no code exists, but with different behavior
   const hasCode = !!customer.customerCode;
+  
+  // Function to generate customer code if missing
+  const generateMissingCode = async () => {
+    if (!customer.businessId) {
+      console.error('Cannot generate code: customer not assigned to business');
+      return;
+    }
+    
+    try {
+      setQrCodeLoading(true);
+      
+      // Generate a simple customer code
+      const timestamp = Date.now().toString(36);
+      const random = Math.random().toString(36).substring(2, 8);
+      const customerCode = `${customer.businessId.substring(0, 3).toUpperCase()}-${timestamp}-${random}`.toUpperCase();
+      const qrCodeUrl = generateQRCodeUrl(customerCode);
+      
+      // Update the customer document
+      const { doc, updateDoc } = await import('firebase/firestore');
+      const { db } = await import('@/lib/firebase');
+      
+      await updateDoc(doc(db, 'users', customer.id), {
+        customerCode: customerCode,
+        qrCodeUrl: qrCodeUrl,
+        updatedAt: new Date()
+      });
+      
+      // Update local state
+      setQrCodeDataUrl(qrCodeUrl);
+      
+      console.log('✅ Customer code generated:', customerCode);
+      
+    } catch (error) {
+      console.error('Error generating customer code:', error);
+    } finally {
+      setQrCodeLoading(false);
+    }
+  };
 
   return (
     <>
@@ -162,15 +200,42 @@ export default function CustomerQRCode({ customer }: CustomerQRCodeProps) {
                     <QrCode className="h-12 w-12 text-orange-600 mx-auto mb-2" />
                     <h4 className="text-lg font-semibold text-orange-900 mb-2">QR Code Not Available</h4>
                     <p className="text-orange-800">
-                      Your QR code hasn&apos;t been generated yet. Please contact your business owner to generate your customer code.
+                      Your QR code hasn&apos;t been generated yet.
                     </p>
                   </div>
+                  
+                  {/* Generate Code Button */}
+                  {customer.businessId ? (
+                    <div className="mb-4">
+                      <button
+                        onClick={generateMissingCode}
+                        disabled={qrCodeLoading}
+                        className="bg-orange text-white px-6 py-3 rounded-lg font-medium hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {qrCodeLoading ? (
+                          <div className="flex items-center space-x-2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            <span>Generating...</span>
+                          </div>
+                        ) : (
+                          'Generate My QR Code'
+                        )}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="bg-red-50 p-4 rounded-lg mb-4">
+                      <h5 className="font-medium text-red-900 mb-2">Account Issue</h5>
+                      <p className="text-sm text-red-800">
+                        Your account is not properly assigned to a business. Please contact support.
+                      </p>
+                    </div>
+                  )}
                   
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <h5 className="font-medium text-blue-900 mb-2">What you can do:</h5>
                     <ul className="text-sm text-blue-800 text-left space-y-1">
-                      <li>• Ask your business owner to generate customer codes</li>
-                      <li>• They can do this from their business dashboard</li>
+                      <li>• Click &quot;Generate My QR Code&quot; above to create your code</li>
+                      <li>• Contact your business owner if you need help</li>
                       <li>• Once generated, your QR code will appear here</li>
                     </ul>
                   </div>
