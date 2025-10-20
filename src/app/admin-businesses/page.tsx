@@ -106,6 +106,15 @@ export default function AdminBusinessesPage() {
       );
       const businessesSnapshot = await getDocs(businessesQuery);
       
+      const toDate = (value: unknown): Date | undefined => {
+        if (!value) return undefined;
+        const maybeTs = value as { toDate?: () => Date };
+        if (typeof maybeTs?.toDate === 'function') return maybeTs.toDate();
+        if (value instanceof Date) return value;
+        if (typeof value === 'string' || typeof value === 'number') return new Date(value);
+        return undefined;
+      };
+
       const businessesData = await Promise.all(
         businessesSnapshot.docs.map(async (doc) => {
           const businessData = doc.data() as Business;
@@ -150,16 +159,15 @@ export default function AdminBusinessesPage() {
             classes: classesWithCustomerCounts,
             totalCustomers,
             totalClasses: classes.length,
-            createdAt: businessData.createdAt || new Date(),
-            approvedAt: businessData.approvedAt || new Date()
+            // Normalize Firestore Timestamp or string to JS Date
+            createdAt: toDate((businessData as unknown as { createdAt?: unknown }).createdAt) || new Date(),
+            approvedAt: toDate((businessData as unknown as { approvedAt?: unknown }).approvedAt)
           };
         })
       );
 
       // Sort businesses by creation date (newest first) on the client side
-      const sortedBusinesses = businessesData.sort((a, b) => 
-        b.createdAt.getTime() - a.createdAt.getTime()
-      );
+      const sortedBusinesses = businessesData.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
       
       setBusinesses(sortedBusinesses);
     } catch (error) {

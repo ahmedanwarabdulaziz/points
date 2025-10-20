@@ -659,17 +659,6 @@ function AdminDashboardContent() {
                       className="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange focus:border-orange"
                     />
                   </div>
-                  <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                    <div>
-                      <h4 className="font-semibold text-navy">Referral Bonus</h4>
-                      <p className="text-sm text-gray-600">Points awarded for successful referrals</p>
-                    </div>
-                    <input
-                      type="number"
-                      defaultValue="100"
-                      className="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange focus:border-orange"
-                    />
-                  </div>
                 </div>
               </div>
             )}

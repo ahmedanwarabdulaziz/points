@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+// Footer removed per request
 import { AuthProvider } from "@/contexts/AuthContext";
 
 const inter = Inter({
@@ -30,7 +30,7 @@ export default function RootLayout({
             <main className="flex-1">
               {children}
             </main>
-            <Footer />
+            {/* Footer removed */}
           </div>
         </AuthProvider>
       </body>

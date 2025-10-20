@@ -18,19 +18,35 @@ export default function CustomerQRCode({ customer }: CustomerQRCodeProps) {
   const [showQRDialog, setShowQRDialog] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [qrCodeLoading, setQrCodeLoading] = useState(false);
+  const [localCustomerCode, setLocalCustomerCode] = useState<string | undefined>(customer.customerCode);
 
   useEffect(() => {
-    if (showQRDialog && customer.customerCode) {
+    if (showQRDialog && (localCustomerCode || customer.customerCode)) {
       generateQRCode();
     }
-  }, [showQRDialog, customer.customerCode]);
+  }, [showQRDialog, customer.customerCode, localCustomerCode]);
+
+  // Keep local code in sync when prop updates
+  useEffect(() => {
+    if (customer.customerCode && customer.customerCode !== localCustomerCode) {
+      setLocalCustomerCode(customer.customerCode);
+    }
+  }, [customer.customerCode]);
+
+  // Auto-generate a code if missing
+  useEffect(() => {
+    if (!customer.customerCode) {
+      generateMissingCode();
+    }
+  }, [customer.id, customer.customerCode]);
 
   const generateQRCode = async () => {
-    if (!customer.customerCode) return;
+    const code = localCustomerCode || customer.customerCode;
+    if (!code) return;
     
     try {
       setQrCodeLoading(true);
-      const qrCodeUrl = generateQRCodeUrl(customer.customerCode);
+      const qrCodeUrl = generateQRCodeUrl(code);
       
       // Generate QR code using the qrcode library
       const qrCodeDataUrl = await QRCode.toDataURL(qrCodeUrl, {
@@ -72,36 +88,37 @@ export default function CustomerQRCode({ customer }: CustomerQRCodeProps) {
     }
   };
 
-  // Show QR button even if no code exists, but with different behavior
-  const hasCode = !!customer.customerCode;
+  // Determine if we have a code (prop or locally generated)
+  const hasCode = !!(localCustomerCode || customer.customerCode);
   
   // Function to generate customer code if missing
   const generateMissingCode = async () => {
-    if (!customer.businessId) {
-      console.error('Cannot generate code: customer not assigned to business');
-      return;
-    }
-    
     try {
       setQrCodeLoading(true);
-      
-      // Generate a simple customer code
-      const timestamp = Date.now().toString(36);
-      const random = Math.random().toString(36).substring(2, 8);
-      const customerCode = `${customer.businessId.substring(0, 3).toUpperCase()}-${timestamp}-${random}`.toUpperCase();
-      const qrCodeUrl = generateQRCodeUrl(customerCode);
-      
-      // Update the customer document
+
       const { doc, updateDoc } = await import('firebase/firestore');
       const { db } = await import('@/lib/firebase');
-      
+      const { generateCustomerCode, generateGlobalCustomerCode, generateQRCodeUrl } = await import('@/lib/customerCode');
+
+      // If customer is assigned to a business, generate business-based code; else generate global code
+      let newCode: string;
+      if (customer.businessId && customer.businessId.trim() !== '') {
+        newCode = await generateCustomerCode(customer.id, customer.businessId);
+      } else {
+        newCode = await generateGlobalCustomerCode(customer.id);
+      }
+
+      const qrCodeUrl = generateQRCodeUrl(newCode);
+
       await updateDoc(doc(db, 'users', customer.id), {
-        customerCode: customerCode,
+        customerCode: newCode,
         qrCodeUrl: qrCodeUrl,
         updatedAt: new Date()
       });
-      
-      // Generate and display QR image immediately
+
+      // Update local state so UI renders immediately without refresh
+      setLocalCustomerCode(newCode);
+
       const dataUrl = await QRCode.toDataURL(qrCodeUrl, {
         width: 300,
         margin: 2,
@@ -112,9 +129,8 @@ export default function CustomerQRCode({ customer }: CustomerQRCodeProps) {
         errorCorrectionLevel: 'M',
       });
       setQrCodeDataUrl(dataUrl);
-      
-      console.log('✅ Customer code generated:', customerCode);
-      
+
+      console.log('✅ Customer code generated:', newCode);
     } catch (error) {
       console.error('Error generating customer code:', error);
     } finally {
@@ -203,51 +219,18 @@ export default function CustomerQRCode({ customer }: CustomerQRCodeProps) {
               </>
             ) : (
               <>
-                {/* No Code Message */}
+                {/* Auto-generation status */}
                 <div className="text-center mb-6">
-                  <div className="bg-orange-100 p-4 rounded-lg mb-4">
-                    <QrCode className="h-12 w-12 text-orange-600 mx-auto mb-2" />
-                    <h4 className="text-lg font-semibold text-orange-900 mb-2">QR Code Not Available</h4>
-                    <p className="text-orange-800">
-                      Your QR code hasn&apos;t been generated yet.
-                    </p>
+                  <div className="w-48 h-48 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                    {qrCodeLoading ? (
+                      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange"></div>
+                    ) : (
+                      <QrCode className="h-16 w-16 text-gray-400" />
+                    )}
                   </div>
-                  
-                  {/* Generate Code Button */}
-                  {customer.businessId ? (
-                    <div className="mb-4">
-                      <button
-                        onClick={generateMissingCode}
-                        disabled={qrCodeLoading}
-                        className="bg-orange text-white px-6 py-3 rounded-lg font-medium hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      >
-                        {qrCodeLoading ? (
-                          <div className="flex items-center space-x-2">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                            <span>Generating...</span>
-                          </div>
-                        ) : (
-                          'Generate My QR Code'
-                        )}
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="bg-red-50 p-4 rounded-lg mb-4">
-                      <h5 className="font-medium text-red-900 mb-2">Account Issue</h5>
-                      <p className="text-sm text-red-800">
-                        Your account is not properly assigned to a business. Please contact support.
-                      </p>
-                    </div>
-                  )}
-                  
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h5 className="font-medium text-blue-900 mb-2">What you can do:</h5>
-                    <ul className="text-sm text-blue-800 text-left space-y-1">
-                      <li>• Click &quot;Generate My QR Code&quot; above to create your code</li>
-                      <li>• Contact your business owner if you need help</li>
-                      <li>• Once generated, your QR code will appear here</li>
-                    </ul>
-                  </div>
+                  <p className="text-sm text-gray-600">
+                    {qrCodeLoading ? 'Generating your QR code...' : 'Preparing your QR code...'}
+                  </p>
                 </div>
               </>
             )}

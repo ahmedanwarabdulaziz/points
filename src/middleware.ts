@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// Disabled for static export compatibility
+// See: https://nextjs.org/docs/advanced-features/static-html-export
 export function middleware(_request: NextRequest) {
   const response = NextResponse.next();
   
@@ -12,16 +14,7 @@ export function middleware(_request: NextRequest) {
   return response;
 }
 
+// Export empty matcher so middleware is effectively no-op during export
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.).*)',
-  ],
+  matcher: [],
 };

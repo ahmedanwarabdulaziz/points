@@ -26,6 +26,8 @@ export interface User {
   // Customer code and QR system fields
   customerCode?: string; // Format: [2 letters][5 numbers] e.g., "AH12345"
   qrCodeUrl?: string; // URL containing customer code for QR scanning
+  // Global customer access (can interact with all businesses that allow it)
+  globalAccess?: boolean;
   
   // Business-specific fields (only for business owners)
   businessName?: string;
@@ -65,6 +67,8 @@ export interface BusinessSettings {
   // Points request system settings
   allowCustomerRequests: boolean; // Enable/disable customer points requests
   businessPrefix?: string; // 2-letter prefix for customer codes
+  // Allow customers with globalAccess to interact with this business
+  allowGlobalCustomers?: boolean;
 }
 
 // Customer Class Types
@@ -88,6 +92,7 @@ export interface CustomerClass {
 export interface ClassFeatures {
   pointsPerDollar: number;
   referralBonus: number;
+  welcomePoints?: number; // Points granted automatically upon joining this class
   specialRewards: string[];
   restrictions: string[];
   minSpend?: number; // Minimum spend to qualify

@@ -192,6 +192,8 @@ function QRSignupContent() {
         role: 'customer',
         createdAt: new Date(),
         updatedAt: new Date(),
+        // Ensure public/global access flag is explicitly set on signup
+        globalAccess: true,
         
         // Customer-specific fields with business/class assignment
         name: formData.name,

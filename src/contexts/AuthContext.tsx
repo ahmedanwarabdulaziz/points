@@ -2,11 +2,12 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { User as AppUser, Business } from '@/types';
-import { generateCustomerCode, generateQRCodeUrl } from '@/lib/customerCode';
+import { generateCustomerCode, generateQRCodeUrl, generateGlobalCustomerCode } from '@/lib/customerCode';
 import { generateBusinessPrefix } from '@/lib/businessPrefix';
+import { awardReferralPoints, createReferralRecord } from '@/lib/referral';
 
 // Generate a unique referral code
   const generateReferralCode = (): string => {
@@ -55,6 +56,107 @@ import { generateBusinessPrefix } from '@/lib/businessPrefix';
 
       console.log('✅ Customer document updated successfully');
 
+      // Award welcome points if the class has them configured
+      try {
+        const classSnap = await getDoc(doc(db, 'customerClasses', classId));
+        const classData = classSnap.data() as { name?: string; features?: { welcomePoints?: number; referralBonus?: number } } | undefined;
+        const welcomePoints: number = classData?.features?.welcomePoints || 0;
+        if (welcomePoints > 0) {
+          console.log('🎁 Awarding welcome points:', welcomePoints);
+          // Create a points transaction flagged as automatic signup/Welcome
+          await addDoc(collection(db, 'pointsTransactions'), {
+            customerId,
+            businessId,
+            points: welcomePoints,
+            type: 'signup_points',
+            reference: `Welcome points for joining ${classData?.name || 'class'}`,
+            note: 'Automatic welcome points',
+            createdAt: new Date(),
+            createdBy: 'system'
+          });
+          // Increment customer points
+          await updateDoc(customerRef, {
+            points: (customerData?.points || 0) + welcomePoints,
+            totalEarned: (customerData?.totalEarned || 0) + welcomePoints,
+            updatedAt: new Date()
+          });
+        }
+      } catch (e) {
+        console.error('❌ Error awarding welcome points:', e);
+      }
+
+      // Award referral bonuses if this customer was referred
+      if (referredBy && referredBy.trim() !== '') {
+        try {
+          console.log('🎁 Processing referral bonus for referrer:', referredBy);
+          
+          // Get the referrer's data to find their class and referral bonus
+          const referrerDoc = await getDoc(doc(db, 'users', referredBy));
+          if (referrerDoc.exists()) {
+            const referrerData = referrerDoc.data() as AppUser;
+            const referrerBusinessId = referrerData.businessId;
+            const referrerClassId = referrerData.classId;
+            
+            if (referrerBusinessId && referrerClassId) {
+              // Get the referrer's class to find their referral bonus
+              const referrerClassDoc = await getDoc(doc(db, 'customerClasses', referrerClassId));
+              if (referrerClassDoc.exists()) {
+                const referrerClassData = referrerClassDoc.data() as { features?: { referralBonus?: number } };
+                const referralBonus = referrerClassData?.features?.referralBonus || 0;
+                
+                if (referralBonus > 0) {
+                  console.log('🎁 Awarding referral bonus:', referralBonus, 'to referrer:', referredBy);
+                  
+                  // Award points to the referrer
+                  await awardReferralPoints(
+                    referredBy, // referrerId
+                    customerId, // refereeId  
+                    referralBonus, // referrerPoints
+                    0 // refereePoints (already got welcome points)
+                  );
+                  
+                  // Create referral record
+                  await createReferralRecord(
+                    referredBy,
+                    customerId,
+                    customerData?.email || '',
+                    customerData?.name || '',
+                    businessId,
+                    classId,
+                    referralBonus,
+                    0
+                  );
+                  
+                  // Create points transaction for referrer
+                  await addDoc(collection(db, 'pointsTransactions'), {
+                    customerId: referredBy,
+                    businessId: referrerBusinessId,
+                    points: referralBonus,
+                    type: 'referral_points',
+                    reference: `Referral bonus for ${customerData?.name || 'new customer'}`,
+                    note: 'Automatic referral bonus',
+                    createdAt: new Date(),
+                    createdBy: 'system'
+                  });
+                  
+                  console.log('✅ Referral bonus awarded successfully');
+                } else {
+                  console.log('⚠️ No referral bonus configured for referrer class');
+                }
+              } else {
+                console.log('⚠️ Referrer class not found');
+              }
+            } else {
+              console.log('⚠️ Referrer has no business/class assignment');
+            }
+          } else {
+            console.log('⚠️ Referrer not found');
+          }
+        } catch (e) {
+          console.error('❌ Error awarding referral bonus:', e);
+        }
+      }
+
       // Update the customer data in state if it's the current user
       // Note: This function is called from outside the component context
       // so we can't access appUser state directly here
@@ -81,6 +183,26 @@ import { generateBusinessPrefix } from '@/lib/businessPrefix';
       
       // Check if customer has businessId and classId
       if (!customerData.businessId || !customerData.classId) {
+        // If user is a global customer, skip auto-assignment but ensure they have a global code
+        if (customerData.globalAccess) {
+          console.log('ℹ️ Global customer detected; skipping auto-assignment.');
+          try {
+            if (!customerData.customerCode) {
+              console.log('🔧 Generating global customer code for public user...');
+              const newCode = await generateGlobalCustomerCode(customerId);
+              const qrUrl = generateQRCodeUrl(newCode);
+              await updateDoc(customerRef, {
+                customerCode: newCode,
+                qrCodeUrl: qrUrl,
+                updatedAt: new Date(),
+              });
+              console.log('✅ Global customer code generated and saved.');
+            }
+          } catch (e) {
+            console.error('❌ Failed to ensure global customer code:', e);
+          }
+          return true;
+        }
         console.log('⚠️ Customer missing business/class assignment:', {
           customerId,
           businessId: customerData.businessId || 'MISSING',
@@ -201,7 +323,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // Fetch user data from Firestore
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
-            const userData = userDoc.data() as AppUser;
+            let userData = userDoc.data() as AppUser;
+
+            // Safeguard: backfill globalAccess for generic customers
+            try {
+              if (
+                userData.role === 'customer' &&
+                (!userData.businessId || !userData.classId) &&
+                userData.globalAccess !== true
+              ) {
+                await updateDoc(doc(db, 'users', user.uid), {
+                  globalAccess: true,
+                  updatedAt: new Date(),
+                });
+                userData = { ...userData, globalAccess: true, updatedAt: new Date() } as AppUser;
+              }
+            } catch (e) {
+              console.error('Failed to backfill globalAccess flag:', e);
+            }
+
             setAppUser(userData);
             
             // Fetch business data if user is a business
@@ -230,6 +370,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               createdAt: new Date(),
               updatedAt: new Date(),
             };
+
+            // New generic users default to global access
+            (userData as AppUser & { globalAccess: boolean }).globalAccess = true;
             
             await setDoc(doc(db, 'users', user.uid), userData);
             setAppUser(userData);
@@ -298,6 +441,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // For now, they remain empty until customer joins a business
         userData.businessId = ''; // Will be assigned when they scan QR or use referral
         userData.classId = ''; // Will be assigned when they scan QR or use referral
+        // Mark as global access by default for direct signups (no referral/QR)
+        userData.globalAccess = true;
         userData.referralCode = generateReferralCode();
         userData.points = 0;
         userData.totalEarned = 0;
@@ -307,6 +452,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       await setDoc(doc(db, 'users', user.uid), userData);
+      // Redundant safeguard: ensure the flag is persisted even if overwritten elsewhere
+      try {
+        await updateDoc(doc(db, 'users', user.uid), { globalAccess: true, updatedAt: new Date() });
+      } catch (_) {
+        // no-op: if updateDoc fails here, onAuthStateChanged backfill will still set it
+      }
       setAppUser(userData);
     } catch (error: unknown) {
       console.error('❌ Signup error:', error);

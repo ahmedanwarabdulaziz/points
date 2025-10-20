@@ -197,7 +197,8 @@ export default function BusinessSettings() {
         settings: {
           allowReferrals: true,
           defaultPointsPerDollar: 1,
-          referralSettings: referralSettings
+          referralSettings: referralSettings,
+          allowGlobalCustomers: businessData?.settings?.allowGlobalCustomers ?? true,
         }
       };
 
@@ -599,6 +600,34 @@ export default function BusinessSettings() {
 
               {/* Customer Requests Settings */}
               <div className="border-t border-gray-200 pt-6">
+                {/* Global Customers Toggle */}
+                <div className="mb-6">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={businessData?.settings?.allowGlobalCustomers ?? true}
+                      onChange={(e) => {
+                        if (businessData) {
+                          setBusinessData({
+                            ...businessData,
+                            settings: {
+                              ...businessData.settings,
+                              allowGlobalCustomers: e.target.checked,
+                            },
+                          });
+                        }
+                      }}
+                      className="h-4 w-4 text-navy focus:ring-navy border-gray-300 rounded"
+                    />
+                    <span className="ml-2 text-sm font-medium text-gray-700">
+                      Allow global customers (customers without explicit assignment)
+                    </span>
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1 ml-6">
+                    When enabled, customers with global access can interact with your business using the General class.
+                  </p>
+                </div>
+
                 <div className="flex items-center mb-4">
                   <Gift className="h-5 w-5 text-blue-600 mr-2" />
                   <h3 className="text-lg font-medium text-gray-900">Customer Points Requests</h3>

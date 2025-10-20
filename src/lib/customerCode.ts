@@ -56,6 +56,41 @@ export async function generateCustomerCode(customerId: string, businessId: strin
 }
 
 /**
+ * Generate a unique global customer code (for public/global users without a business)
+ * Format: 'GL' + 5 digits (e.g., GL12345)
+ */
+export async function generateGlobalCustomerCode(customerId: string): Promise<string> {
+  try {
+    const globalPrefix = 'GL';
+    console.log(`🔍 Generating GLOBAL customer code for customer: ${customerId}`);
+
+    // Fetch existing global codes (prefix 'GL')
+    const usersRef = collection(db, 'users');
+    // Firestore prefix range query: codes starting with 'GL'
+    const q = query(
+      usersRef,
+      where('customerCode', '>=', globalPrefix),
+      where('customerCode', '<', 'GM')
+    );
+    const snapshot = await getDocs(q);
+
+    const existingCodes = snapshot.docs
+      .map(doc => doc.data().customerCode)
+      .filter(code => code && code.startsWith(globalPrefix));
+
+    const customerNumber = generateUniqueNumber(existingCodes, globalPrefix);
+    const customerCode = globalPrefix + customerNumber;
+
+    await updateCustomerCode(customerId, customerCode);
+    console.log(`✅ Generated GLOBAL customer code: ${customerCode}`);
+    return customerCode;
+  } catch (error) {
+    console.error('❌ Error generating global customer code:', error);
+    throw error;
+  }
+}
+
+/**
  * Generate a unique 5-digit number that doesn't conflict with existing codes
  */
 function generateUniqueNumber(existingCodes: string[], businessPrefix: string): string {

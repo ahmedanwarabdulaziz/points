@@ -3,12 +3,13 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { getEffectiveBusinessForUser } from '@/lib/businessContext';
 import { QrCode, Camera, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
 import { parseQRCode } from '@/lib/qrCode';
 
 export default function ScanQR() {
   const [isScanning, setIsScanning] = useState(false);
-  const [scannedData, setScannedData] = useState<{ businessName: string; className: string } | null>(null);
+  const [scannedData, setScannedData] = useState<{ businessId?: string; classId?: string; businessName: string; className: string } | null>(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -42,13 +43,10 @@ export default function ScanQR() {
   };
 
 
-  const handleJoinBusiness = () => {
-    if (scannedData) {
-      // Here you would implement the logic to join the business
-      // This would involve creating a customer record and assigning them to the business
-      console.log('Joining business:', scannedData);
-      router.push('/dashboard');
-    }
+  const handleJoinBusiness = async () => {
+    if (!scannedData) return;
+    // In a full flow, validate allowGlobalCustomers and assign if desired.
+    router.push('/dashboard');
   };
 
   if (success) {

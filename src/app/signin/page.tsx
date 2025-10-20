@@ -32,25 +32,25 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-8 px-4 sm:py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      <div className="w-full sm:max-w-md">
+        {/* Heading above the sign-in box */}
+        <div className="flex flex-col items-center mb-4">
           <div className="bg-navy p-3 rounded-full">
             <Gift className="h-8 w-8 text-white" />
           </div>
+          <h2 className="mt-4 text-center text-3xl font-bold text-navy">
+            Sign in to your account
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Or{' '}
+            <Link href="/signup" className="font-medium text-orange hover:text-orange-light">
+              create a new account
+            </Link>
+          </p>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-bold text-navy">
-          Sign in to your account
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Or{' '}
-          <Link href="/signup" className="font-medium text-orange hover:text-orange-light">
-            create a new account
-          </Link>
-        </p>
-      </div>
 
-      <div className="mt-6 sm:mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        {/* Sign-in box */}
         <div className="bg-white py-6 px-4 shadow-lg rounded-lg sm:py-8 sm:px-6 lg:px-10 border border-gray-200">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>

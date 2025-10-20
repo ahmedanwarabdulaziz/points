@@ -44,7 +44,7 @@ export default function TestAuth() {
           test: true,
           timestamp: new Date(),
           userId: user.uid
-        });
+        }, { merge: true });
         addResult('Write Permissions', 'success', 'Write permissions working');
       } catch (err: unknown) {
         addResult('Write Permissions', 'error', `Write error: ${err instanceof Error ? err.message : 'Unknown error'}`);
@@ -78,7 +78,7 @@ export default function TestAuth() {
             status: 'active',
             createdAt: new Date(),
             lastActivity: new Date()
-          });
+          }, { merge: true });
           addResult('Customer Document', 'success', 'Customer document created');
         } catch (err: unknown) {
           addResult('Customer Document', 'error', `Customer document error: ${err instanceof Error ? err.message : 'Unknown error'}`);

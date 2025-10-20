@@ -42,6 +42,11 @@ export default function BusinessRegistration() {
   const [industries, setIndustries] = useState<BusinessIndustry[]>([]);
   const [businessTypes, setBusinessTypes] = useState<BusinessType[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dbo3xd0df';
+  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'Points-app';
   
   const { user, updateUserRole } = useAuth();
   const router = useRouter();
@@ -104,6 +109,11 @@ export default function BusinessRegistration() {
     const file = e.target.files?.[0];
     if (file) {
       setFormData(prev => ({ ...prev, logo: file }));
+      try {
+        const objectUrl = URL.createObjectURL(file);
+        setLogoPreviewUrl(objectUrl);
+      } catch {}
+      setUploadProgress(0);
     }
   };
 
@@ -114,6 +124,62 @@ export default function BusinessRegistration() {
 
     try {
       if (!user) throw new Error('User not authenticated');
+
+      // Upload logo to Firebase Storage if provided
+      let uploadedLogoUrl = '';
+      if (formData.logo) {
+        try {
+          // Validate file type and size (<= 2MB)
+          const allowed = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/svg+xml'];
+          if (!allowed.includes(formData.logo.type)) {
+            throw new Error('Unsupported file type. Please upload PNG, JPG, SVG, or WEBP.');
+          }
+          const maxBytes = 2 * 1024 * 1024;
+          if (formData.logo.size > maxBytes) {
+            throw new Error('Logo is too large. Max size is 2MB.');
+          }
+
+          // Upload to Cloudinary (unsigned)
+          setUploadingLogo(true);
+          setUploadProgress(0);
+          const form = new FormData();
+          form.append('file', formData.logo);
+          form.append('upload_preset', uploadPreset);
+          form.append('folder', `businesses/${user.uid}`);
+          form.append('public_id', 'logo');
+
+          // Use XMLHttpRequest to track progress
+          uploadedLogoUrl = await new Promise<string>((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`);
+            xhr.upload.onprogress = (e) => {
+              if (e.lengthComputable) {
+                const pct = Math.round((e.loaded / e.total) * 100);
+                setUploadProgress(pct);
+              }
+            };
+            xhr.onload = () => {
+              try {
+                const res = JSON.parse(xhr.responseText);
+                if (xhr.status >= 200 && xhr.status < 300 && res.secure_url) {
+                  resolve(res.secure_url as string);
+                } else {
+                  reject(new Error(res.error?.message || 'Cloudinary upload failed'));
+                }
+              } catch (err) {
+                reject(err);
+              }
+            };
+            xhr.onerror = () => reject(new Error('Network error during Cloudinary upload'));
+            xhr.send(form);
+          });
+          setUploadingLogo(false);
+        } catch (uploadError) {
+          console.error('Error uploading logo:', uploadError);
+          setUploadingLogo(false);
+          throw new Error(uploadError instanceof Error ? uploadError.message : 'Failed to upload logo. Please try again.');
+        }
+      }
 
       // Create business document
       const businessData = {
@@ -134,7 +200,8 @@ export default function BusinessRegistration() {
           customBranding: {
             primaryColor: '#1e3a8a',
             secondaryColor: '#f97316',
-            logo: formData.logo ? URL.createObjectURL(formData.logo) : '',
+            // Store a permanent URL from Firebase Storage (not a temporary blob URL)
+            logo: uploadedLogoUrl,
           }
         }
       };
@@ -350,6 +417,23 @@ export default function BusinessRegistration() {
                 </label>
                 {formData.logo && (
                   <span className="text-sm text-gray-600">{formData.logo.name}</span>
+                )}
+              </div>
+              {/* Preview and progress */}
+              <div className="mt-3 flex items-center space-x-4">
+                {logoPreviewUrl && (
+                  <img src={logoPreviewUrl} alt="Logo preview" className="h-16 w-16 rounded-md object-cover border border-gray-200" />
+                )}
+                {uploadProgress !== null && (
+                  <div className="flex-1">
+                    <div className="w-full bg-gray-100 rounded-full h-2.5">
+                      <div
+                        className="bg-orange h-2.5 rounded-full transition-all"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">{uploadProgress}%</div>
+                  </div>
                 )}
               </div>
               <p className="text-xs text-gray-500 mt-1">

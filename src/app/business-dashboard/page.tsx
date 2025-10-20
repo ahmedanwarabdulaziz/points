@@ -179,6 +179,22 @@ export default function BusinessDashboard() {
   return (
     <RoleRedirect allowedRoles={['business']}>
       <DashboardLayout userRole="business">
+        {/* Blocker overlay if business is not active */}
+        {business && business.status !== 'approved' && (
+          <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+            <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4 text-center">
+              <div className="mb-3">
+                <div className="mx-auto w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
+                  <Eye className="h-6 w-6 text-yellow-600" />
+                </div>
+              </div>
+              <h3 className="text-lg font-semibold text-navy mb-2">Account Not Active</h3>
+              <p className="text-gray-600 text-sm">
+                Your business account status is <strong>{business.status}</strong>. Please contact support to activate your account.
+              </p>
+            </div>
+          </div>
+        )}
         {/* Status Banner */}
         {business?.status === 'pending' && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8">

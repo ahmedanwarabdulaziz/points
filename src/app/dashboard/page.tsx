@@ -54,13 +54,13 @@ export default function Dashboard() {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
             <div className="mb-4 lg:mb-0">
               <h2 className="text-2xl lg:text-3xl font-bold mb-2">Your Points</h2>
-              <div className="text-4xl lg:text-5xl font-bold text-orange mb-2">2,500</div>
+              <div className="text-4xl lg:text-5xl font-bold text-orange mb-2">{(appUser?.points || 0).toLocaleString()}</div>
               <p className="text-gray-200 text-sm lg:text-base">Available to redeem</p>
             </div>
             <div className="text-center lg:text-right">
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 lg:p-4">
-                <div className="text-xl lg:text-2xl font-bold">$25.00</div>
-                <div className="text-xs lg:text-sm text-gray-200">Equivalent value</div>
+                <div className="text-xl lg:text-2xl font-bold">${(((appUser?.points || 0) / 100)).toFixed(2)}</div>
+                <div className="text-xs lg:text-sm text-gray-200">Estimated value</div>
               </div>
             </div>
           </div>

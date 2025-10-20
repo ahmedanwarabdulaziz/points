@@ -3,11 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { ArrowLeft, Send, AlertCircle, CheckCircle, Clock, X } from 'lucide-react';
 import { createPointsRequest } from '@/lib/pointsRequest';
 
 export default function RequestPoints() {
-  const { appUser, business, loading } = useAuth();
+  const { appUser, loading } = useAuth();
   const router = useRouter();
 
   const [points, setPoints] = useState('');
@@ -17,6 +19,9 @@ export default function RequestPoints() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [availableBusinesses, setAvailableBusinesses] = useState<Array<{ id: string; name: string }>>([]);
+  const [selectedBusinessId, setSelectedBusinessId] = useState<string>('');
+  const [resolvingBusinesses, setResolvingBusinesses] = useState(false);
 
   // Redirect if not customer user
   useEffect(() => {
@@ -25,11 +30,49 @@ export default function RequestPoints() {
     }
   }, [appUser, router]);
 
+  // If customer has global access, load businesses that allow global customers
+  useEffect(() => {
+    const resolveBusinesses = async () => {
+      if (!appUser || appUser.role !== 'customer') return;
+      if (!appUser.globalAccess) return;
+      try {
+        setResolvingBusinesses(true);
+        const q = query(
+          collection(db, 'businesses'),
+          where('status', '==', 'approved')
+        );
+        const snapshot = await getDocs(q);
+        const list: Array<{ id: string; name: string }> = [];
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data() as { settings?: { allowGlobalCustomers?: boolean }; name?: string };
+          const allow = data?.settings?.allowGlobalCustomers ?? true;
+          if (allow) {
+            list.push({ id: docSnap.id, name: data.name || 'Business' });
+          }
+        });
+        setAvailableBusinesses(list);
+        if (list.length === 1) setSelectedBusinessId(list[0].id);
+      } catch (e) {
+        console.error('Failed to load businesses for global access', e);
+      } finally {
+        setResolvingBusinesses(false);
+      }
+    };
+    resolveBusinesses();
+  }, [appUser]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!appUser || !business) {
+    if (!appUser) {
       setError('Unable to process request. Please try again.');
+      return;
+    }
+
+    // Determine target business
+    const targetBusinessId = appUser.businessId || selectedBusinessId;
+    if (!targetBusinessId) {
+      setError('Please select a business to request points from.');
       return;
     }
 
@@ -47,7 +90,9 @@ export default function RequestPoints() {
   };
 
   const handleConfirmRequest = async () => {
-    if (!appUser || !business) return;
+    if (!appUser) return;
+    const targetBusinessId = appUser.businessId || selectedBusinessId;
+    if (!targetBusinessId) return;
 
     try {
       setSubmitting(true);
@@ -56,7 +101,7 @@ export default function RequestPoints() {
 
       const requestData = {
         customerId: appUser.id,
-        businessId: business.id,
+        businessId: targetBusinessId,
         customerName: appUser.name || 'Customer',
         customerCode: appUser.customerCode || '',
         pointsRequested: parseInt(points),
@@ -104,16 +149,7 @@ export default function RequestPoints() {
     );
   }
 
-  if (!business) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">No Business Found</h1>
-          <p className="text-gray-600">You need to be associated with a business to request points.</p>
-        </div>
-      </div>
-    );
-  }
+  // If customer lacks explicit business, show selector when globalAccess is enabled
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -132,7 +168,9 @@ export default function RequestPoints() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-navy">Request Points</h1>
-              <p className="text-gray-600">Request points from {business.name}</p>
+              <p className="text-gray-600">
+                {appUser?.businessId ? 'Request points from your business' : 'Select a business to request points from'}
+              </p>
             </div>
           </div>
         </div>
@@ -140,7 +178,29 @@ export default function RequestPoints() {
 
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-navy mb-6">Request Points from {business.name}</h2>
+          <h2 className="text-lg font-semibold text-navy mb-6">
+            {appUser?.businessId ? 'Request Points' : 'Request Points from a Business'}
+          </h2>
+
+          {/* Business selector for global customers */}
+          {!appUser?.businessId && (
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Business *</label>
+              <select
+                value={selectedBusinessId}
+                onChange={(e) => setSelectedBusinessId(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                disabled={resolvingBusinesses}
+                required
+              >
+                <option value="">{resolvingBusinesses ? 'Loading businesses...' : 'Select a business'}</option>
+                {availableBusinesses.map(b => (
+                  <option key={b.id} value={b.id}>{b.name}</option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">Only businesses that accept global customers are listed.</p>
+            </div>
+          )}
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -196,7 +256,11 @@ export default function RequestPoints() {
               <div className="space-y-2 text-sm text-gray-600">
                 <div className="flex justify-between">
                   <span>Business:</span>
-                  <span className="font-medium">{business.name}</span>
+                  <span className="font-medium">
+                    {appUser?.businessId
+                      ? 'Your assigned business'
+                      : (availableBusinesses.find(b => b.id === selectedBusinessId)?.name || 'Not selected')}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Your Code:</span>
@@ -247,7 +311,7 @@ export default function RequestPoints() {
             <div>
               <h3 className="font-medium text-blue-900 mb-1">How it works</h3>
               <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Your request will be sent to {business.name}</li>
+                <li>• Your request will be sent to {appUser?.businessId ? 'your business' : (availableBusinesses.find(b => b.id === selectedBusinessId)?.name || 'the selected business')}</li>
                 <li>• The business has 3 days to respond</li>
                 <li>• You&apos;ll be notified when they approve or reject</li>
                 <li>• Approved points will be added to your account</li>
@@ -266,7 +330,7 @@ export default function RequestPoints() {
             <div className="space-y-3 mb-6">
               <div className="flex justify-between">
                 <span className="text-gray-600">Business:</span>
-                <span className="font-medium">{business.name}</span>
+                <span className="font-medium">{appUser?.businessId ? 'your business' : (availableBusinesses.find(b => b.id === selectedBusinessId)?.name || 'Not selected')}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Points:</span>

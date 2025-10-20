@@ -12,24 +12,24 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-navy to-navy-light text-white py-20">
+      <section className="bg-gradient-to-br from-navy to-navy-light text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h1 className="text-4xl md:text-6xl font-bold mb-6">
+              <h1 className="text-3xl md:text-5xl font-bold mb-4">
                 Earn Points, <br />
                 <span className="text-orange">Redeem Rewards</span>
               </h1>
-              <p className="text-xl text-gray-200 mb-8">
+              <p className="text-lg text-gray-200 mb-6">
                 Join Cadeala and start earning points with every purchase. 
                 Redeem your points for amazing rewards and gift cards.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/signup" className="bg-orange text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-orange-light transition-colors inline-flex items-center justify-center">
-                  Get Started
+                <Link href="/signin" className="bg-orange text-white px-6 py-3 rounded-lg text-base font-semibold hover:bg-orange-light transition-colors inline-flex items-center justify-center">
+                  Sign In
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
-                <Link href="/how-it-works" className="border-2 border-white text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-white hover:text-navy transition-colors inline-flex items-center justify-center">
+                <Link href="/how-it-works" className="border-2 border-white text-white px-6 py-3 rounded-lg text-base font-semibold hover:bg-white hover:text-navy transition-colors inline-flex items-center justify-center">
                   Learn More
                 </Link>
               </div>

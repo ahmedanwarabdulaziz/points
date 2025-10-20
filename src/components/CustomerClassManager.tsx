@@ -44,11 +44,15 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
   const [showQRModal, setShowQRModal] = useState(false);
   const [selectedClassForQR, setSelectedClassForQR] = useState<CustomerClass | null>(null);
   const [qrCodeDataURL, setQrCodeDataURL] = useState<string>('');
+  const [bonusById, setBonusById] = useState<Record<string, number>>({});
+  const [savingBonusId, setSavingBonusId] = useState<string | null>(null);
+  const [saveSuccessId, setSaveSuccessId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     pointsPerDollar: 10, // Fixed at 10 points per $1 (standardized)
     referralBonus: 0,
+    welcomePoints: 0,
     minSpend: 0,
     maxPointsPerTransaction: 1000,
     expiryDays: 365,
@@ -112,6 +116,14 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
       
       console.log('✅ Classes fetched with customer counts:', sortedClasses);
       setClasses(sortedClasses);
+      // Initialize bonus editor values for permanent classes
+      const initial: Record<string, number> = {};
+      sortedClasses.forEach(c => {
+        if (c.type === 'permanent') {
+          initial[c.id] = c.features?.referralBonus || 0;
+        }
+      });
+      setBonusById(initial);
     } catch (error) {
       console.error('Error fetching classes:', error);
     } finally {
@@ -133,6 +145,7 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
         features: {
           pointsPerDollar: 10, // Fixed at 10 points per $1 (standardized)
           referralBonus: formData.referralBonus,
+          welcomePoints: formData.welcomePoints || 0,
           specialRewards: formData.specialRewards.split(',').map(s => s.trim()).filter(s => s),
           restrictions: formData.restrictions.split(',').map(s => s.trim()).filter(s => s),
           minSpend: formData.minSpend,
@@ -169,11 +182,12 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
     try {
       const updatedClass = {
         ...editingClass,
-        name: formData.name,
-        description: formData.description,
+        name: editingClass.type === 'permanent' ? editingClass.name : formData.name,
+        description: editingClass.type === 'permanent' ? (editingClass.description || '') : formData.description,
         features: {
           pointsPerDollar: 10, // Fixed at 10 points per $1 (standardized)
           referralBonus: formData.referralBonus,
+          welcomePoints: formData.welcomePoints || 0,
           specialRewards: formData.specialRewards.split(',').map(s => s.trim()).filter(s => s),
           restrictions: formData.restrictions.split(',').map(s => s.trim()).filter(s => s),
           minSpend: formData.minSpend,
@@ -215,6 +229,7 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
       description: classItem.description,
       pointsPerDollar: 10, // Fixed at 10 points per $1 (standardized)
       referralBonus: classItem.features?.referralBonus || 0,
+      welcomePoints: classItem.features?.welcomePoints || 0,
       minSpend: classItem.features?.minSpend || 0,
       maxPointsPerTransaction: classItem.features?.maxPointsPerTransaction || 1000,
       expiryDays: classItem.features?.expiryDays || 365,
@@ -229,6 +244,7 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
       description: '',
       pointsPerDollar: 10, // Fixed at 10 points per $1 (standardized)
       referralBonus: 0,
+      welcomePoints: 0,
       minSpend: 0,
       maxPointsPerTransaction: 1000,
       expiryDays: 365,
@@ -271,6 +287,42 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
     const qrDisplayUrl = `/qr-display?business=${businessId}&class=${classId}`;
     console.log('🔗 Opening QR display URL for download:', qrDisplayUrl);
     window.open(qrDisplayUrl, '_blank');
+  };
+
+  const handleBonusChange = (classId: string, value: number) => {
+    setBonusById(prev => ({ ...prev, [classId]: isNaN(value) || value < 0 ? 0 : value }));
+    setSaveSuccessId(null);
+  };
+
+  const saveReferralBonus = async (classItem: CustomerClass) => {
+    try {
+      const newValue = bonusById[classItem.id] ?? (classItem.features?.referralBonus || 0);
+      setSavingBonusId(classItem.id);
+      setSaveSuccessId(null);
+      // Update only the nested field to avoid overwriting other feature fields
+      await updateDoc(doc(db, 'customerClasses', classItem.id), {
+        'features.referralBonus': newValue,
+        updatedAt: new Date(),
+      });
+
+      // Reflect in local state
+      setClasses(prev => prev.map(c => c.id === classItem.id ? {
+        ...c,
+        features: { ...(c.features || {}), referralBonus: newValue },
+        updatedAt: new Date(),
+      } : c));
+      setSaveSuccessId(classItem.id);
+      
+      // Force a small delay to show success state, then refresh from database
+      setTimeout(async () => {
+        await fetchClasses();
+        console.log('✅ Referral bonus updated and data refreshed from database');
+      }, 1000);
+    } catch (error) {
+      console.error('Error updating referral bonus:', error);
+    } finally {
+      setSavingBonusId(null);
+    }
   };
 
   const handleDownloadQRCode = () => {
@@ -358,6 +410,15 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
     setClasses(updatedClasses);
   };
 
+  const refreshAllData = async () => {
+    try {
+      await fetchClasses();
+      console.log('✅ All class data refreshed from database');
+    } catch (error) {
+      console.error('Error refreshing all data:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-8">
@@ -411,7 +472,11 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-orange focus:border-orange"
                   placeholder="e.g., VIP Members"
                   required
+                  disabled={editingClass?.type === 'permanent'}
                 />
+                {editingClass?.type === 'permanent' && (
+                  <p className="text-xs text-gray-500 mt-1">Permanent class name cannot be changed.</p>
+                )}
               </div>
 
               <div>
@@ -441,6 +506,19 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Welcome Points (on join)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.welcomePoints}
+                  onChange={(e) => setFormData(prev => ({ ...prev, welcomePoints: parseInt(e.target.value) }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-orange focus:border-orange"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Minimum Spend ($)
                 </label>
                 <input
@@ -464,7 +542,11 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
                 rows={3}
                 placeholder="Describe the benefits of this class..."
                 required
+                disabled={editingClass?.type === 'permanent'}
               />
+              {editingClass?.type === 'permanent' && (
+                <p className="text-xs text-gray-500 mt-1">Description for permanent classes is managed by the system.</p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -521,11 +603,11 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
           Customer Classes ({classes.length})
         </h2>
         <button
-          onClick={refreshCustomerCounts}
+          onClick={refreshAllData}
           className="flex items-center space-x-2 px-3 py-2 text-sm bg-orange text-white rounded-lg hover:bg-orange-600 transition-colors"
         >
           <RefreshCw className="h-4 w-4" />
-          <span>Refresh</span>
+          <span>Refresh All Data</span>
         </button>
       </div>
 
@@ -534,15 +616,18 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
         {classes.map((classItem) => (
           <div key={classItem.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6 flex flex-col h-full">
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-1">
-                <h3 className="font-semibold text-navy text-sm lg:text-base">{classItem.name}</h3>
-                <span className={`px-1.5 py-0.5 rounded-full text-xs ${
-                  classItem.type === 'permanent' 
-                    ? 'bg-blue-100 text-blue-800' 
-                    : 'bg-green-100 text-green-800'
-                }`}>
-                  {classItem.type}
-                </span>
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-1">
+                  <h3 className="font-semibold text-navy text-sm lg:text-base">{classItem.name}</h3>
+                  <span className={`px-1.5 py-0.5 rounded-full text-xs ${
+                    classItem.type === 'permanent' 
+                      ? 'bg-blue-100 text-blue-800' 
+                      : 'bg-green-100 text-green-800'
+                  }`}>
+                    {classItem.type}
+                  </span>
+                </div>
+                {/* Referral badge removed per request (editing via Edit icon) */}
               </div>
               <div className="flex space-x-1">
                 <button
@@ -552,21 +637,23 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
                 >
                   <Info className="h-3 w-3 lg:h-4 lg:w-4" />
                 </button>
+                {/* Edit is available for both permanent and custom classes */}
+                <button
+                  onClick={() => startEdit(classItem)}
+                  className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                  title="Edit Class"
+                >
+                  <Edit className="h-3 w-3 lg:h-4 lg:w-4" />
+                </button>
+                {/* Delete is only available for custom classes */}
                 {classItem.type === 'custom' && (
-                  <>
-                    <button
-                      onClick={() => startEdit(classItem)}
-                      className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
-                    >
-                      <Edit className="h-3 w-3 lg:h-4 lg:w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClass(classItem.id, classItem.name)}
-                      className="p-1 text-gray-400 hover:text-red-600 transition-colors"
-                    >
-                      <Trash2 className="h-3 w-3 lg:h-4 lg:w-4" />
-                    </button>
-                  </>
+                  <button
+                    onClick={() => handleDeleteClass(classItem.id, classItem.name)}
+                    className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                    title="Delete Class"
+                  >
+                    <Trash2 className="h-3 w-3 lg:h-4 lg:w-4" />
+                  </button>
                 )}
               </div>
             </div>
@@ -576,6 +663,10 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
                 <div className="flex justify-between text-xs lg:text-sm">
                   <span className="text-gray-600">Referral:</span>
                   <span className="font-medium">{classItem.features?.referralBonus || 0} pts</span>
+                </div>
+                <div className="flex justify-between text-xs lg:text-sm">
+                  <span className="text-gray-600">Welcome Points:</span>
+                  <span className="font-medium">{classItem.features?.welcomePoints || 0} pts</span>
                 </div>
                 <div className="flex justify-between text-xs lg:text-sm">
                   <span className="text-gray-600">Customers:</span>

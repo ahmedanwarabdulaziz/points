@@ -186,20 +186,22 @@ function ReferralSignupContent() {
 
       console.log('✅ User account created:', user.uid);
 
-      // Create user document with referral info
+      // Create user document with standard structure (same as regular signup)
       const userData: User = {
         id: user.uid,
         email: user.email!,
         role: 'customer',
         createdAt: new Date(),
         updatedAt: new Date(),
+        // Ensure public/global access flag is present on signup
+        globalAccess: true,
         name: formData.name,
-        businessId: businessId!,
-        classId: referralClass?.id || '', // Use referral class ID instead of URL classId
+        businessId: '', // Will be set by assignCustomerToBusiness
+        classId: '', // Will be set by assignCustomerToBusiness
         referralCode: generateReferralCode(),
         referredBy: referrerId!,
-         points: (referralSettings as { refereePoints?: number })?.refereePoints || 50, // Bonus points for being referred
-         totalEarned: (referralSettings as { refereePoints?: number })?.refereePoints || 50,
+        points: 0, // Start with 0 points, will be updated by assignCustomerToBusiness
+        totalEarned: 0,
         totalRedeemed: 0,
         status: 'active',
         lastActivity: new Date(),
@@ -208,28 +210,11 @@ function ReferralSignupContent() {
       };
 
       await setDoc(doc(db, 'users', user.uid), userData);
-      console.log('✅ User document created with referral info');
+      console.log('✅ User document created with standard structure');
 
-      // Award points to referrer
-      if (referralSettings && (referralSettings as { referrerPoints?: number }).referrerPoints && (referralSettings as { referrerPoints?: number }).referrerPoints! > 0) {
-        const referrerDoc = await getDoc(doc(db, 'users', referrerId!));
-        if (referrerDoc.exists()) {
-          const referrerData = referrerDoc.data() as User;
-          const newPoints = (referrerData.points || 0) + (referralSettings as { referrerPoints?: number }).referrerPoints!;
-          const newTotalEarned = (referrerData.totalEarned || 0) + (referralSettings as { referrerPoints?: number }).referrerPoints!;
-          const newReferralCount = (referrerData.referralCount || 0) + 1;
-          const newReferralPoints = (referrerData.referralPoints || 0) + (referralSettings as { referrerPoints?: number }).referrerPoints!;
-
-          await setDoc(doc(db, 'users', referrerId!), {
-            ...referrerData,
-            points: newPoints,
-            totalEarned: newTotalEarned,
-            referralCount: newReferralCount,
-            referralPoints: newReferralPoints,
-            updatedAt: new Date()
-          });
-        }
-      }
+      // Use the standard assignCustomerToBusiness function to ensure consistent structure
+      await assignCustomerToBusiness(user.uid, businessId!, referralClass?.id || '', referrerId!);
+      console.log('✅ Customer assigned to business using standard function');
 
       console.log('✅ Referral signup completed successfully');
       router.push('/dashboard?welcome=true&referral=true');
