@@ -11,6 +11,22 @@ const nextConfig: NextConfig = {
     domains: ['res.cloudinary.com'],
   },
   
+  // Optimize for Vercel deployment
+  output: 'standalone',
+  
+  // Reduce bundle size
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    return config;
+  },
+  
   // Add proper headers for security
   async headers() {
     return [

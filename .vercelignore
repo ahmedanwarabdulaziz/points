@@ -45,3 +45,17 @@ firebase-debug.*.log
 
 # Scripts
 scripts/
+
+# Documentation
+*.md
+!README.md
+
+# Large files
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!tailwind.config.ts
+!postcss.config.mjs
+!next.config.ts
+!vercel.json
