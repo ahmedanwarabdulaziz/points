@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
@@ -32,8 +33,8 @@ if (hasAdminCredentials) {
     adminDb = getFirestore(app);
     
     console.log('✅ Firebase Admin SDK initialized successfully');
-  } catch (error: any) {
-    console.error('❌ Firebase Admin initialization error:', error.message);
+  } catch (error: unknown) {
+    console.error('❌ Firebase Admin initialization error:', error instanceof Error ? error.message : 'Unknown error');
     app = null;
     adminAuth = null;
     adminDb = null;
