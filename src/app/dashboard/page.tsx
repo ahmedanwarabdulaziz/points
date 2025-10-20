@@ -3,10 +3,12 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { Gift, Star, CreditCard, History } from 'lucide-react';
+import { Gift, Star, CreditCard, History, Share2 } from 'lucide-react';
 import FirebaseDebugger from '@/components/FirebaseDebugger';
 import RoleRedirect from '@/components/RoleRedirect';
 import DashboardLayout from '@/components/DashboardLayout';
+import ReferralDashboard from '@/components/ReferralDashboard';
+import CustomerQRCode from '@/components/CustomerQRCode';
 
 export default function Dashboard() {
   const { user, appUser, loading, validateAndFixCustomerAssignment } = useAuth();
@@ -63,6 +65,17 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        {/* Referral Section - Mobile Optimized */}
+        {appUser && appUser.role === 'customer' && appUser.businessId && appUser.classId && (
+          <div className="mb-6 lg:mb-8">
+            <ReferralDashboard 
+              customer={appUser} 
+              businessId={appUser.businessId} 
+              classId={appUser.classId} 
+            />
+          </div>
+        )}
 
         {/* Business Upgrade Section - Mobile Optimized */}
         <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-4 lg:p-8 text-white mb-6 lg:mb-8">
@@ -130,7 +143,7 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions - Mobile Optimized */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
           <div className="bg-white rounded-xl p-4 lg:p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200">
             <div className="flex items-center space-x-3 mb-3 lg:mb-4">
               <div className="bg-orange p-2 lg:p-3 rounded-lg">
@@ -167,6 +180,22 @@ export default function Dashboard() {
             <p className="text-sm lg:text-base text-gray-600 mb-3 lg:mb-4">Redeem points for gift cards from top brands</p>
             <button className="w-full bg-green-500 text-white py-2.5 lg:py-3 px-4 rounded-lg hover:bg-green-600 transition-colors font-medium text-sm lg:text-base">
               View Gift Cards
+            </button>
+          </div>
+
+          <div className="bg-white rounded-xl p-4 lg:p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200">
+            <div className="flex items-center space-x-3 mb-3 lg:mb-4">
+              <div className="bg-blue-500 p-2 lg:p-3 rounded-lg">
+                <Share2 className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
+              </div>
+              <h3 className="text-base lg:text-lg font-semibold text-navy">Request Points</h3>
+            </div>
+            <p className="text-sm lg:text-base text-gray-600 mb-3 lg:mb-4">Request points from your business for services or purchases</p>
+            <button 
+              onClick={() => router.push('/request-points')}
+              className="w-full bg-blue-500 text-white py-2.5 lg:py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors font-medium text-sm lg:text-base"
+            >
+              Request Points
             </button>
           </div>
         </div>
@@ -229,6 +258,11 @@ export default function Dashboard() {
           </div>
         </div>
       </DashboardLayout>
+      
+      {/* Customer QR Code Component */}
+      {appUser && appUser.role === 'customer' && (
+        <CustomerQRCode customer={appUser} />
+      )}
     </RoleRedirect>
   );
 }

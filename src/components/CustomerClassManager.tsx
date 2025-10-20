@@ -47,7 +47,7 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    pointsPerDollar: 1,
+    pointsPerDollar: 10, // Fixed at 10 points per $1 (standardized)
     referralBonus: 0,
     minSpend: 0,
     maxPointsPerTransaction: 1000,
@@ -131,7 +131,7 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
         type: 'custom',
         description: formData.description,
         features: {
-          pointsPerDollar: formData.pointsPerDollar,
+          pointsPerDollar: 10, // Fixed at 10 points per $1 (standardized)
           referralBonus: formData.referralBonus,
           specialRewards: formData.specialRewards.split(',').map(s => s.trim()).filter(s => s),
           restrictions: formData.restrictions.split(',').map(s => s.trim()).filter(s => s),
@@ -172,7 +172,7 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
         name: formData.name,
         description: formData.description,
         features: {
-          pointsPerDollar: formData.pointsPerDollar,
+          pointsPerDollar: 10, // Fixed at 10 points per $1 (standardized)
           referralBonus: formData.referralBonus,
           specialRewards: formData.specialRewards.split(',').map(s => s.trim()).filter(s => s),
           restrictions: formData.restrictions.split(',').map(s => s.trim()).filter(s => s),
@@ -213,7 +213,7 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
     setFormData({
       name: classItem.name,
       description: classItem.description,
-      pointsPerDollar: classItem.features?.pointsPerDollar || 1,
+      pointsPerDollar: 10, // Fixed at 10 points per $1 (standardized)
       referralBonus: classItem.features?.referralBonus || 0,
       minSpend: classItem.features?.minSpend || 0,
       maxPointsPerTransaction: classItem.features?.maxPointsPerTransaction || 1000,
@@ -227,7 +227,7 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
     setFormData({
       name: '',
       description: '',
-      pointsPerDollar: 1,
+      pointsPerDollar: 10, // Fixed at 10 points per $1 (standardized)
       referralBonus: 0,
       minSpend: 0,
       maxPointsPerTransaction: 1000,
@@ -418,15 +418,12 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Points Per Dollar
                 </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  value={formData.pointsPerDollar}
-                  onChange={(e) => setFormData(prev => ({ ...prev, pointsPerDollar: parseFloat(e.target.value) }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-orange focus:border-orange"
-                  required
-                />
+                <div className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-600">
+                  Fixed at 10 points per $1 (Standardized across all businesses)
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  This rate is standardized across all businesses and cannot be changed
+                </p>
               </div>
 
               <div>
@@ -576,10 +573,6 @@ export default function CustomerClassManager({ businessId, onClassCreated }: Cus
 
             <div className="flex-1 flex flex-col">
               <div className="space-y-1 flex-1">
-                <div className="flex justify-between text-xs lg:text-sm">
-                  <span className="text-gray-600">Points per $:</span>
-                  <span className="font-medium">{classItem.features?.pointsPerDollar || 0}</span>
-                </div>
                 <div className="flex justify-between text-xs lg:text-sm">
                   <span className="text-gray-600">Referral:</span>
                   <span className="font-medium">{classItem.features?.referralBonus || 0} pts</span>

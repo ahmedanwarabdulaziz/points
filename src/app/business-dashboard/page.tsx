@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import RoleRedirect from '@/components/RoleRedirect';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -11,13 +12,18 @@ import {
   QrCode, 
   BarChart3, 
   Eye,
-  Share2
+  Share2,
+  Settings
 } from 'lucide-react';
 import CustomerClassManager from '@/components/CustomerClassManager';
+import ReferralAnalytics from '@/components/ReferralAnalytics';
 import { MOBILE_CONFIG, getMobileClasses } from '@/config/mobile';
+import { generateCustomerCodesForBusiness } from '@/lib/generateCustomerCodes';
+import { generateBusinessPrefix } from '@/lib/businessPrefix';
 
 export default function BusinessDashboard() {
   const { business } = useAuth();
+  const router = useRouter();
   const [customers, setCustomers] = useState<Array<{
     id: string;
     name?: string;
@@ -26,8 +32,12 @@ export default function BusinessDashboard() {
     classId?: string;
     createdAt: Date;
   }>>([]);
-
-
+  const [generatingCodes, setGeneratingCodes] = useState(false);
+  const [codeGenerationResult, setCodeGenerationResult] = useState<{
+    success: number;
+    errors: number;
+    total: number;
+  } | null>(null);
 
   const createPermanentClasses = async (businessId: string) => {
     try {
@@ -39,7 +49,7 @@ export default function BusinessDashboard() {
         name: 'General',
         type: 'permanent',
         description: 'Default customer class for all customers',
-        pointsPerDollar: 1,
+        pointsPerDollar: 10, // Fixed at 10 points per $1 (standardized)
         referralBonus: 0,
         isActive: true,
         createdAt: new Date(),
@@ -54,7 +64,7 @@ export default function BusinessDashboard() {
         name: 'Referral',
         type: 'permanent',
         description: 'Customer class for referred customers',
-        pointsPerDollar: 1,
+        pointsPerDollar: 10, // Fixed at 10 points per $1 (standardized)
         referralBonus: 100,
         isActive: true,
         createdAt: new Date(),
@@ -67,9 +77,33 @@ export default function BusinessDashboard() {
     }
   };
 
+  const handleGenerateCustomerCodes = async () => {
+    if (!business?.id) return;
+    
+    try {
+      setGeneratingCodes(true);
+      setCodeGenerationResult(null);
+      
+      // First, ensure business has a prefix
+      console.log('🔍 Ensuring business has prefix...');
+      await generateBusinessPrefix(business.name || 'Business', business.id);
+      
+      // Then generate customer codes
+      const result = await generateCustomerCodesForBusiness(business.id);
+      setCodeGenerationResult(result);
+      
+      // Refresh customers data
+      await fetchData();
+      
+    } catch (error) {
+      console.error('❌ Error generating customer codes:', error);
+    } finally {
+      setGeneratingCodes(false);
+    }
+  };
+
   // Fetch real data from Firebase
-  useEffect(() => {
-    const fetchData = async () => {
+  const fetchData = async () => {
       if (!business?.id) return;
       
       try {
@@ -126,6 +160,7 @@ export default function BusinessDashboard() {
       }
     };
 
+  useEffect(() => {
     if (business?.id) {
       fetchData();
     }
@@ -212,6 +247,50 @@ export default function BusinessDashboard() {
           }}
         />
 
+        {/* Referral Analytics */}
+        {business?.id && (
+          <div className="mb-6 lg:mb-8">
+            <ReferralAnalytics businessId={business.id} />
+          </div>
+        )}
+
+        {/* Customer Code Generation */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <h3 className="text-lg font-semibold text-navy mb-4">Customer QR Codes</h3>
+          <p className="text-gray-600 mb-4">
+            Generate QR codes for your customers so they can receive points directly. This will also create a business prefix if needed.
+          </p>
+          
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <h4 className="font-medium text-blue-900 mb-2">What this does:</h4>
+            <ul className="text-sm text-blue-800 space-y-1">
+              <li>• Creates a unique 2-letter prefix for your business (e.g., &quot;AB&quot;)</li>
+              <li>• Generates customer codes for all your customers (e.g., &quot;AB12345&quot;)</li>
+              <li>• Creates QR codes that customers can show to receive points</li>
+              <li>• Enables the &quot;Send Points&quot; feature for your business</li>
+            </ul>
+          </div>
+          
+          <button
+            onClick={handleGenerateCustomerCodes}
+            disabled={generatingCodes}
+            className="bg-orange text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {generatingCodes ? 'Generating...' : 'Generate Customer Codes'}
+          </button>
+          
+          {codeGenerationResult && (
+            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <h4 className="font-medium text-green-900 mb-2">Generation Complete!</h4>
+              <p className="text-green-800">
+                ✅ Successfully generated: {codeGenerationResult.success} codes<br/>
+                ❌ Errors: {codeGenerationResult.errors} codes<br/>
+                📊 Total customers: {codeGenerationResult.total}
+              </p>
+            </div>
+          )}
+        </div>
+
         {/* Quick Actions - Global Mobile Layout */}
         <div className={getMobileClasses.grid('actionCards')}>
           <div className={`${getMobileClasses.card()} hover:shadow-md transition-all duration-200`}>
@@ -250,6 +329,22 @@ export default function BusinessDashboard() {
             <p className={`${MOBILE_CONFIG.textSizes.body} text-gray-600 mb-3 lg:mb-4`}>View detailed analytics and reports</p>
             <button className={`w-full bg-green-500 text-white ${getMobileClasses.button('medium')} hover:bg-green-600`}>
               View Analytics
+            </button>
+          </div>
+
+          <div className={`${getMobileClasses.card()} hover:shadow-md transition-all duration-200`}>
+            <div className="flex items-center space-x-3 mb-3 lg:mb-4">
+              <div className="bg-purple-500 p-2 lg:p-3 rounded-lg">
+                <Settings className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
+              </div>
+              <h3 className={`${MOBILE_CONFIG.textSizes.h3} font-semibold text-navy`}>Business Settings</h3>
+            </div>
+            <p className={`${MOBILE_CONFIG.textSizes.body} text-gray-600 mb-3 lg:mb-4`}>Update business information and logo</p>
+            <button 
+              onClick={() => router.push('/business-settings')}
+              className={`w-full bg-purple-500 text-white ${getMobileClasses.button('medium')} hover:bg-purple-600`}
+            >
+              Manage Settings
             </button>
           </div>
         </div>

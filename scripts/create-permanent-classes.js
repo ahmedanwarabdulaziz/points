@@ -34,7 +34,7 @@ async function createPermanentClasses() {
         name: 'General',
         type: 'permanent',
         description: 'Default customer class for all customers',
-        pointsPerDollar: 1,
+        pointsPerDollar: 10, // Fixed at 10 points per $1 (standardized)
         referralBonus: 0,
         isActive: true,
         createdAt: new Date(),
@@ -49,7 +49,7 @@ async function createPermanentClasses() {
         name: 'Referral',
         type: 'permanent',
         description: 'Customer class for referred customers',
-        pointsPerDollar: 1,
+        pointsPerDollar: 10, // Fixed at 10 points per $1 (standardized)
         referralBonus: 100,
         isActive: true,
         createdAt: new Date(),

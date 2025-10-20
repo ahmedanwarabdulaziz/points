@@ -3,7 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Sidebar from './Sidebar';
-import { Bell } from 'lucide-react';
+import NotificationBell from './NotificationBell';
 import { MOBILE_CONFIG } from '@/config/mobile';
 
 interface DashboardLayoutProps {
@@ -44,9 +44,9 @@ export default function DashboardLayout({ children, userRole }: DashboardLayoutP
               </p>
             </div>
             <div className="flex items-center space-x-2 lg:space-x-4">
-              <button className="p-2 text-gray-600 hover:text-navy hover:bg-gray-100 rounded-lg transition-colors">
-                <Bell className="h-5 w-5" />
-              </button>
+              {appUser && (
+                <NotificationBell userId={appUser.id} />
+              )}
               <div className="flex items-center space-x-2 lg:space-x-3">
                 <div className="w-8 h-8 bg-navy rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-semibold">

@@ -133,7 +133,7 @@ export default function Rewards() {
                 <Star className="h-8 w-8" />
               </div>
               <h3 className="text-xl font-semibold text-navy mb-2">Make Purchases</h3>
-              <p className="text-gray-600">Earn 1 point for every $1 spent</p>
+              <p className="text-gray-600">Earn 10 points for every $1 spent</p>
             </div>
             <div className="text-center">
               <div className="bg-orange text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">

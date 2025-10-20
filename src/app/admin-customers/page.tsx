@@ -1,11 +1,10 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import RoleRedirect from '@/components/RoleRedirect';
 import DashboardLayout from '@/components/DashboardLayout';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where, orderBy, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, getDoc, deleteDoc } from 'firebase/firestore';
 import { User, Business, CustomerClass } from '@/types';
 import { 
   Users, 
@@ -20,8 +19,9 @@ import {
   Star,
   Gift,
   Calendar,
-  MapPin,
-  Settings
+  Settings,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
 
 interface CustomerWithDetails extends User {
@@ -34,16 +34,70 @@ interface CustomerWithDetails extends User {
 }
 
 export default function AdminCustomersPage() {
-  const { user } = useAuth();
   const [customers, setCustomers] = useState<CustomerWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive' | 'suspended'>('all');
   const [filterBusiness, setFilterBusiness] = useState<string>('all');
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    isOpen: boolean;
+    customer: CustomerWithDetails | null;
+  }>({ isOpen: false, customer: null });
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchCustomers();
   }, []);
+
+  const deleteCustomer = async (customerId: string) => {
+    try {
+      setDeleting(true);
+      console.log('🗑️ Deleting customer directly from frontend:', customerId);
+      
+      // First, verify the customer exists and is actually a customer
+      const customerDoc = await getDoc(doc(db, 'users', customerId));
+      
+      if (!customerDoc.exists()) {
+        throw new Error('Customer not found');
+      }
+      
+      const customerData = customerDoc.data();
+      
+      if (customerData?.role !== 'customer') {
+        throw new Error('Only customers can be deleted');
+      }
+      
+      console.log('👤 Customer data:', { 
+        id: customerId, 
+        role: customerData?.role, 
+        name: customerData?.name,
+        email: customerData?.email 
+      });
+      
+      console.log('🗑️ Attempting to delete customer from Firestore...');
+      
+      // Delete the customer document directly from Firestore
+      await deleteDoc(doc(db, 'users', customerId));
+      
+      console.log('✅ Customer deleted from Firestore successfully');
+      
+      // Remove customer from local state
+      setCustomers(prev => prev.filter(customer => customer.id !== customerId));
+      
+      // Close confirmation dialog
+      setDeleteConfirm({ isOpen: false, customer: null });
+      
+      // Show success message
+      alert(`Customer deleted from database successfully!\n\n⚠️ Note: The user may still exist in Firebase Auth.\nEmail: ${customerData?.email}\n\nTo complete the deletion, you can manually remove the user from Firebase Console > Authentication > Users.\n\n💡 The Firebase Admin SDK is configured but API route has issues. Manual cleanup required for now.`);
+      
+    } catch (error) {
+      console.error('💥 Error deleting customer:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      alert(`Error deleting customer: ${errorMessage}`);
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const fetchCustomers = async () => {
     try {
@@ -143,9 +197,11 @@ export default function AdminCustomersPage() {
       );
 
       // Sort customers by creation date (newest first) on the client side
-      const sortedCustomers = customersData.sort((a, b) => 
-        b.createdAt.getTime() - a.createdAt.getTime()
-      );
+      const sortedCustomers = customersData.sort((a, b) => {
+        const aTime = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+        const bTime = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+        return bTime - aTime;
+      });
       
       console.log('📊 Final customers data summary:', {
         totalCustomers: sortedCustomers.length,
@@ -348,6 +404,9 @@ export default function AdminCustomersPage() {
                       Class
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Customer Code
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Points
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -421,6 +480,21 @@ export default function AdminCustomersPage() {
                         )}
                       </td>
 
+                      {/* Customer Code */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {customer.customerCode ? (
+                          <div className="flex items-center">
+                            <div className="bg-orange-100 px-2 py-1 rounded-lg">
+                              <code className="text-sm font-mono font-bold text-orange-800">
+                                {customer.customerCode}
+                              </code>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-sm text-gray-400">No code</span>
+                        )}
+                      </td>
+
                       {/* Points Info */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
@@ -451,20 +525,43 @@ export default function AdminCustomersPage() {
 
                       {/* Joined Date */}
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div>{customer.createdAt.toLocaleDateString()}</div>
+                        <div>
+                          {customer.createdAt instanceof Date 
+                            ? customer.createdAt.toLocaleDateString() 
+                            : new Date(customer.createdAt).toLocaleDateString()
+                          }
+                        </div>
                         <div className="text-xs text-gray-400">
-                          Last: {customer.lastActivity.toLocaleDateString()}
+                          Last: {customer.lastActivity instanceof Date 
+                            ? customer.lastActivity.toLocaleDateString() 
+                            : new Date(customer.lastActivity).toLocaleDateString()
+                          }
                         </div>
                       </td>
 
                       {/* Actions */}
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button className="text-navy hover:text-orange-600 mr-3">
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <Settings className="h-4 w-4" />
-                        </button>
+                        <div className="flex items-center space-x-2">
+                          <button 
+                            className="text-navy hover:text-orange-600"
+                            title="View customer details"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          <button 
+                            className="text-gray-400 hover:text-gray-600"
+                            title="Customer settings"
+                          >
+                            <Settings className="h-4 w-4" />
+                          </button>
+                          <button 
+                            onClick={() => setDeleteConfirm({ isOpen: true, customer })}
+                            className="text-red-400 hover:text-red-600"
+                            title="Delete customer"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -478,6 +575,72 @@ export default function AdminCustomersPage() {
               <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
               <p className="text-lg font-medium">No customers found</p>
               <p className="text-sm">Try adjusting your search or filter criteria</p>
+            </div>
+          )}
+
+          {/* Delete Confirmation Dialog */}
+          {deleteConfirm.isOpen && deleteConfirm.customer && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+                <div className="p-6">
+                  <div className="flex items-center mb-4">
+                    <div className="bg-red-100 p-3 rounded-full mr-4">
+                      <AlertTriangle className="h-6 w-6 text-red-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Delete Customer</h3>
+                      <p className="text-sm text-gray-600">This action cannot be undone</p>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-6">
+                    <p className="text-gray-700 mb-2">
+                      Are you sure you want to delete <strong>{deleteConfirm.customer.name || 'this customer'}</strong>?
+                    </p>
+                    <div className="bg-gray-50 p-3 rounded-lg text-sm text-gray-600">
+                      <p><strong>Email:</strong> {deleteConfirm.customer.email}</p>
+                      <p><strong>Customer Code:</strong> {deleteConfirm.customer.customerCode || 'N/A'}</p>
+                      <p><strong>Current Points:</strong> {deleteConfirm.customer.currentPoints.toLocaleString()}</p>
+                      {deleteConfirm.customer.business && (
+                        <p><strong>Business:</strong> {deleteConfirm.customer.business.name}</p>
+                      )}
+                    </div>
+                    <p className="text-red-600 text-sm mt-2">
+                      ⚠️ This will permanently delete the customer from the database.
+                    </p>
+                    <p className="text-blue-600 text-sm mt-1">
+                      💡 Customer will be removed from Firestore. Firebase Auth cleanup may be required manually.
+                    </p>
+                  </div>
+                  
+                  <div className="flex justify-end space-x-3">
+                    <button
+                      onClick={() => setDeleteConfirm({ isOpen: false, customer: null })}
+                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                      disabled={deleting}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => deleteCustomer(deleteConfirm.customer!.id)}
+                      disabled={deleting}
+                      className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                    >
+                      {deleting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          <span>Deleting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="h-4 w-4" />
+                          <span>Delete Customer</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>

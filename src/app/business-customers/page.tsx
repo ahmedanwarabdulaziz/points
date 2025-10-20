@@ -111,6 +111,7 @@ export default function BusinessCustomers() {
             name: data.name || '',
             businessId: data.businessId || '',
             classId: data.classId || '',
+            customerCode: data.customerCode || '',
             points: data.points || 0,
             status: data.status || 'active',
             createdAt: data.createdAt?.toDate?.() || new Date(),
@@ -121,8 +122,8 @@ export default function BusinessCustomers() {
 
         // Sort by createdAt descending (newest first)
         customersData.sort((a, b) => {
-          const aTime = a.createdAt?.getTime() || 0;
-          const bTime = b.createdAt?.getTime() || 0;
+          const aTime = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+          const bTime = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
           return bTime - aTime;
         });
 
@@ -205,12 +206,12 @@ export default function BusinessCustomers() {
           bValue = b.points || 0;
           break;
         case 'createdAt':
-          aValue = a.createdAt?.getTime() || 0;
-          bValue = b.createdAt?.getTime() || 0;
+          aValue = a.createdAt instanceof Date ? a.createdAt.getTime() : (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+          bValue = b.createdAt instanceof Date ? b.createdAt.getTime() : (b.createdAt ? new Date(b.createdAt).getTime() : 0);
           break;
         case 'lastActivity':
-          aValue = a.lastActivity?.getTime() || 0;
-          bValue = b.lastActivity?.getTime() || 0;
+          aValue = a.lastActivity instanceof Date ? a.lastActivity.getTime() : (a.lastActivity ? new Date(a.lastActivity).getTime() : 0);
+          bValue = b.lastActivity instanceof Date ? b.lastActivity.getTime() : (b.lastActivity ? new Date(b.lastActivity).getTime() : 0);
           break;
         default:
           aValue = a.name || '';
@@ -285,7 +286,11 @@ export default function BusinessCustomers() {
         customer.totalEarned || 0,
         customer.totalRedeemed || 0,
         customer.status || 'active',
-        customer.createdAt?.toLocaleDateString() || 'N/A'
+        customer.createdAt instanceof Date 
+          ? customer.createdAt.toLocaleDateString() 
+          : customer.createdAt 
+            ? new Date(customer.createdAt).toLocaleDateString() 
+            : 'N/A'
       ])
     ].map(row => row.join(',')).join('\n');
 
@@ -617,7 +622,11 @@ export default function BusinessCustomers() {
                   </span>
                   <div className="flex items-center text-xs text-gray-500">
                     <Calendar className="h-3 w-3 mr-1" />
-                    {customer.createdAt?.toLocaleDateString() || 'N/A'}
+                    {customer.createdAt instanceof Date 
+  ? customer.createdAt.toLocaleDateString() 
+  : customer.createdAt 
+    ? new Date(customer.createdAt).toLocaleDateString() 
+    : 'N/A'}
                   </div>
                 </div>
               </div>
@@ -649,6 +658,9 @@ export default function BusinessCustomers() {
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Class
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Customer Code
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Points
@@ -697,6 +709,19 @@ export default function BusinessCustomers() {
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
+                          {customer.customerCode ? (
+                            <div className="flex items-center">
+                              <div className="bg-orange-100 px-2 py-1 rounded-lg">
+                                <code className="text-sm font-mono font-bold text-orange-800">
+                                  {customer.customerCode}
+                                </code>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-gray-400">No code</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <Star className="h-4 w-4 text-yellow-500 mr-1" />
                             <span className={`text-sm font-medium ${getPointsColor(customer.points || 0)}`}>
@@ -715,13 +740,21 @@ export default function BusinessCustomers() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           <div className="flex items-center">
                             <Calendar className="h-3 w-3 mr-1" />
-                            {customer.createdAt?.toLocaleDateString() || 'N/A'}
+                            {customer.createdAt instanceof Date 
+  ? customer.createdAt.toLocaleDateString() 
+  : customer.createdAt 
+    ? new Date(customer.createdAt).toLocaleDateString() 
+    : 'N/A'}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           <div className="flex items-center">
                             <Clock className="h-3 w-3 mr-1" />
-                            {customer.lastActivity?.toLocaleDateString() || 'N/A'}
+                            {customer.lastActivity instanceof Date 
+  ? customer.lastActivity.toLocaleDateString() 
+  : customer.lastActivity 
+    ? new Date(customer.lastActivity).toLocaleDateString() 
+    : 'N/A'}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

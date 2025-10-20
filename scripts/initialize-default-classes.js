@@ -36,7 +36,7 @@ async function createDefaultClasses(businessId) {
       type: 'permanent',
       description: 'Default customer class for all customers',
       features: {
-        pointsPerDollar: 1,
+        pointsPerDollar: 10, // Fixed at 10 points per $1 (standardized)
         referralBonus: 0,
         specialRewards: [],
         restrictions: [],
@@ -61,7 +61,7 @@ async function createDefaultClasses(businessId) {
       type: 'permanent',
       description: 'Customer class for referred customers',
       features: {
-        pointsPerDollar: 1,
+        pointsPerDollar: 10, // Fixed at 10 points per $1 (standardized)
         referralBonus: 100,
         specialRewards: ['Welcome bonus', 'Double points on first purchase'],
         restrictions: [],
@@ -78,8 +78,8 @@ async function createDefaultClasses(businessId) {
     });
 
     console.log('✅ Created default classes for business:', businessId);
-    console.log('   - General class (1 point per dollar)');
-    console.log('   - Referral class (1 point per dollar + 100 bonus)');
+    console.log('   - General class (10 points per dollar)');
+    console.log('   - Referral class (10 points per dollar + 100 bonus)');
     
   } catch (error) {
     console.error('❌ Error creating default classes:', error);

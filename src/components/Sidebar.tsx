@@ -18,7 +18,8 @@ import {
   Menu,
   X,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Clock
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -86,6 +87,24 @@ export default function Sidebar({ userRole, onLogout }: SidebarProps) {
         label: 'Analytics',
         icon: BarChart3,
         href: '/business-analytics'
+      },
+      {
+        id: 'send-points',
+        label: 'Send Points',
+        icon: Gift,
+        href: '/send-points'
+      },
+      {
+        id: 'points-requests',
+        label: 'Points Requests',
+        icon: Clock,
+        href: '/points-requests'
+      },
+      {
+        id: 'business-settings',
+        label: 'Business Settings',
+        icon: Settings,
+        href: '/business-settings'
       }
     ] : []),
     ...(userRole === 'admin' ? [
@@ -126,13 +145,13 @@ export default function Sidebar({ userRole, onLogout }: SidebarProps) {
         href: '/admin-settings'
       },
       {
-        id: 'settings',
+        id: 'admin-settings',
         label: 'System Settings',
         icon: Settings,
         href: '/admin-dashboard?tab=settings'
       }
     ] : []),
-    ...(userRole !== 'admin' ? [{
+    ...(userRole === 'customer' ? [{
       id: 'settings',
       label: 'Settings',
       icon: Settings,

@@ -5,6 +5,8 @@ import { User, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEma
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { User as AppUser, Business } from '@/types';
+import { generateCustomerCode, generateQRCodeUrl } from '@/lib/customerCode';
+import { generateBusinessPrefix } from '@/lib/businessPrefix';
 
 // Generate a unique referral code
   const generateReferralCode = (): string => {
@@ -23,10 +25,30 @@ import { User as AppUser, Business } from '@/types';
       const customerRef = doc(db, 'users', customerId);
       console.log('🔍 Updating customer document:', customerRef.path);
       
+      // Ensure business has a prefix first
+      console.log('🔍 Ensuring business has prefix...');
+      await generateBusinessPrefix('Business', businessId);
+      
+      // Generate customer code if not already exists
+      const customerDoc = await getDoc(customerRef);
+      const customerData = customerDoc.data();
+      
+      let customerCode = customerData?.customerCode;
+      let qrCodeUrl = customerData?.qrCodeUrl;
+      
+      if (!customerCode) {
+        console.log('🔍 Generating customer code for customer:', customerId);
+        customerCode = await generateCustomerCode(customerId, businessId);
+        qrCodeUrl = generateQRCodeUrl(customerCode);
+        console.log('✅ Generated customer code:', customerCode);
+      }
+      
       await updateDoc(customerRef, {
         businessId: businessId,
         classId: classId,
         referredBy: referredBy || null,
+        customerCode: customerCode,
+        qrCodeUrl: qrCodeUrl,
         updatedAt: new Date(),
         lastActivity: new Date()
       });

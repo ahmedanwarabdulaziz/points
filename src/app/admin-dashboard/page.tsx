@@ -59,14 +59,19 @@ function AdminDashboardContent() {
         setDataLoading(true);
         
         // Fetch users
+        console.log('🔍 Fetching users from database...');
         const usersQuery = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
         const usersSnapshot = await getDocs(usersQuery);
+        console.log('🔍 Users snapshot size:', usersSnapshot.docs.length);
+        
         const usersData = usersSnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),
           createdAt: doc.data().createdAt?.toDate?.() || new Date(),
           updatedAt: doc.data().updatedAt?.toDate?.() || new Date()
         }));
+        
+        console.log('🔍 Users data:', usersData);
 
         // Fetch businesses
         const businessesQuery = query(collection(db, 'businesses'), orderBy('createdAt', 'desc'));
@@ -103,10 +108,14 @@ function AdminDashboardContent() {
           };
         });
 
+        console.log('🔍 Enriched users:', enrichedUsers);
+        console.log('🔍 Users with customer role:', enrichedUsers.filter(u => u.role === 'customer'));
+        
         setUsers(enrichedUsers);
         setBusinesses(businessesData);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('❌ Error fetching data:', error);
+        console.error('❌ Error details:', error);
       } finally {
         setDataLoading(false);
       }

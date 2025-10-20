@@ -18,6 +18,15 @@ export interface User {
   status?: 'active' | 'inactive' | 'suspended';
   lastActivity?: Date;
   
+  // Referral system fields
+  referralCount?: number; // Number of successful referrals
+  referralPoints?: number; // Points earned from referrals
+  referralHistory?: ReferralRecord[]; // List of referrals made
+  
+  // Customer code and QR system fields
+  customerCode?: string; // Format: [2 letters][5 numbers] e.g., "AH12345"
+  qrCodeUrl?: string; // URL containing customer code for QR scanning
+  
   // Business-specific fields (only for business owners)
   businessName?: string;
   businessDescription?: string;
@@ -41,6 +50,7 @@ export interface Business {
   approvedAt?: Date;
   approvedBy?: string;
   settings: BusinessSettings;
+  referralSettings?: ReferralSettings; // Optional referral settings per business
 }
 
 export interface BusinessSettings {
@@ -52,6 +62,9 @@ export interface BusinessSettings {
     secondaryColor: string;
     logo: string;
   };
+  // Points request system settings
+  allowCustomerRequests: boolean; // Enable/disable customer points requests
+  businessPrefix?: string; // 2-letter prefix for customer codes
 }
 
 // Customer Class Types
@@ -82,6 +95,30 @@ export interface ClassFeatures {
   expiryDays?: number; // Points expiry in days
 }
 
+// Referral System Types
+export interface ReferralRecord {
+  id: string;
+  referrerId: string; // ID of the customer who made the referral
+  refereeId: string; // ID of the customer who was referred
+  refereeEmail: string;
+  refereeName: string;
+  businessId: string;
+  classId: string;
+  status: 'pending' | 'completed' | 'cancelled';
+  referrerPoints: number; // Points awarded to referrer
+  refereePoints: number; // Bonus points awarded to referee
+  createdAt: Date;
+  completedAt?: Date;
+}
+
+export interface ReferralSettings {
+  enabled: boolean;
+  referrerPoints: number; // Points for the person who refers
+  refereePoints: number; // Bonus points for the person being referred
+  maxReferralsPerCustomer?: number; // Optional limit
+  expiryDays?: number; // How long referral links are valid
+}
+
 // Legacy Customer interface - DEPRECATED
 // Use User interface with customer fields instead
 export interface Customer {
@@ -100,17 +137,6 @@ export interface Customer {
   lastActivity: Date;
 }
 
-// Referral Types
-export interface Referral {
-  id: string;
-  referrerId: string;
-  refereeId: string;
-  businessId: string;
-  status: 'pending' | 'completed' | 'expired';
-  rewardAmount: number;
-  createdAt: Date;
-  completedAt?: Date;
-}
 
 // QR Code Types
 export interface QRCodeData {
@@ -152,4 +178,44 @@ export interface SystemStats {
   activeBusinesses: number;
   totalPointsInSystem: number;
   totalReferrals: number;
+}
+
+// Points Request System Types
+export interface PointsRequest {
+  id: string;
+  customerId: string;
+  businessId: string;
+  customerName: string;
+  customerCode: string;
+  pointsRequested: number;
+  reference: string;
+  note?: string;
+  status: 'pending' | 'approved' | 'rejected' | 'expired';
+  createdAt: Date;
+  updatedAt: Date;
+  expiresAt: Date; // 3 days from creation
+  approvedAt?: Date;
+  approvedBy?: string;
+  rejectedAt?: Date;
+  rejectedBy?: string;
+  rejectionReason?: string;
+}
+
+export interface PointsTransaction {
+  id: string;
+  customerId: string;
+  businessId: string;
+  points: number;
+  type: 'direct_transfer' | 'request_approved' | 'referral_points' | 'signup_points' | 'purchase_points';
+  reference: string;
+  note?: string;
+  createdAt: Date;
+  createdBy: string; // User ID who initiated the transaction
+  requestId?: string; // If this was from a points request
+}
+
+export interface BusinessPrefix {
+  businessId: string;
+  prefix: string; // 2-letter prefix
+  createdAt: Date;
 }

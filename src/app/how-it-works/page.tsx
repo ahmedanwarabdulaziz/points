@@ -23,7 +23,7 @@ export default function HowItWorks() {
       icon: Star,
       color: 'bg-orange',
       details: [
-        'Earn 1 point for every $1 spent',
+        'Earn 10 points for every $1 spent',
         'Get bonus points for special offers',
         'Refer friends for 100 points each',
         'Complete tasks for extra points'
