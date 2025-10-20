@@ -11,8 +11,9 @@ const nextConfig: NextConfig = {
     domains: ['res.cloudinary.com'],
   },
   
-  // Optimize for Vercel deployment
-  output: 'standalone',
+  // Optimize for Firebase Hosting static export
+  output: 'export',
+  trailingSlash: true,
   
   // Reduce bundle size
   webpack: (config, { isServer }) => {
